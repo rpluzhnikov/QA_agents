@@ -1,0 +1,14 @@
+# Claude Code local overrides (per-user, never committed)
+.claude/settings.local.json
+
+# Scratch space used by some Claude Code plugins
+.claude-team/
+
+# If kensa-qa hooks ever run in THIS repo (developing the plugin), debug
+# output lands here -- not part of the plugin itself.
+.tms/debug/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
