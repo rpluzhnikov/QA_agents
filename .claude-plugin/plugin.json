@@ -1,0 +1,55 @@
+{
+  "name": "kensa-qa",
+  "version": "0.4.0",
+  "description": "Manual QA team in your pocket — multi-agent test case authoring for the Kensa TMS",
+  "author": "Roman Pluzhnikov",
+  "license": "MIT",
+  "agents": [
+    {"name": "lead", "path": "agents/lead.md"},
+    {"name": "worker", "path": "agents/worker.md"}
+  ],
+  "commands": [
+    {"name": "setup", "path": "commands/setup.md"},
+    {"name": "new-feature", "path": "commands/new-feature.md"},
+    {"name": "update-feature", "path": "commands/update-feature.md"},
+    {"name": "save-memory", "path": "commands/save-memory.md"}
+  ],
+  "skills_dir": "skills/",
+  "mcpServers": {
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy", "Bypass",
+              "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/debug-log.ps1"
+            ],
+            "timeout": 10,
+            "statusMessage": "kensa-qa: writing debug log"
+          },
+          {
+            "type": "command",
+            "command": "powershell",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy", "Bypass",
+              "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/save-memory-stop.ps1"
+            ],
+            "timeout": 10,
+            "statusMessage": "kensa-qa: checking memory checkpoint"
+          }
+        ]
+      }
+    ]
+  }
+}
