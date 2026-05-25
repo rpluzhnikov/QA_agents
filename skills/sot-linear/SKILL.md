@@ -1,7 +1,11 @@
 ---
 name: sot-linear
-description: Extract test requirements from a Linear issue via the Linear MCP — issue body, acceptance criteria, comments, sub-issues, attached docs, and project/cycle context. Use when the Lead hands a worker a Linear reference (issue ID like ENG-123 or an issue URL). Tells you where AC live in Linear, which MCP tools to call, and how Linear's sub-issue/project/cycle model maps to coverage.
+description: Extract test requirements from a Linear issue via the Linear MCP — issue body, acceptance criteria, comments, sub-issues, attached docs, and project/cycle context. Use when the Test Lead hands a QA Engineer a Linear reference (issue ID like ENG-123 or an issue URL). Tells you where AC live in Linear, which MCP tools to call, and how Linear's sub-issue/project/cycle model maps to coverage.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (Linear MCP server integration for extracting test requirements from Linear issues). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: operationalises CTFL §1.4.4 traceability between test basis and testware for Linear as the Source of Truth; surfaces acceptance criteria per §4.5.2 from Linear-native AC checklists.
 
 # SOT — Linear
 
@@ -37,8 +41,8 @@ If the Linear MCP isn't connected, ask the user to run `/setup` or paste the iss
 ## Hierarchy and context → scope
 
 - **Sub-issues** — Linear's decomposition unit. A parent issue with sub-issues is your
-  scope map: each sub-issue is a candidate worker package or checklist section. Confirm
-  with the Lead which sub-issues are in this run.
+  scope map: each sub-issue is a candidate QA Engineer package or checklist section. Confirm
+  with the Test Lead which sub-issues are in this run.
 - **Parent issue** — gives the umbrella intent; cover the in-scope sub-issues under it.
 - **Project** — groups issues toward a larger goal; useful for understanding adjacent
   features that interact, not a direct test target.
@@ -52,7 +56,7 @@ If the Linear MCP isn't connected, ask the user to run `/setup` or paste the iss
 1. Get the issue. Record: ID (e.g. `ENG-123`) as `source_id`, title, state, labels.
 2. Locate AC using the priority list. Convert each checklist item into one or more
    verifiable conditions.
-3. Pull sub-issues; decide scope with the Lead.
+3. Pull sub-issues; decide scope with the Test Lead.
 4. Follow linked Figma/docs and extract from there too.
 5. Read comments for amendments. Anything vague ("make it snappy") is a `GAP:` — don't
    invent the threshold.

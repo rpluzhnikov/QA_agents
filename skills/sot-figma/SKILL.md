@@ -1,7 +1,11 @@
 ---
 name: sot-figma
-description: Extract test requirements from a Figma file via the Figma MCP — canonical frames vs WIP, prototype flows, component states/variants, annotations, and comments. Use when the Lead hands a worker a Figma file or node URL as the design source of truth. Tells you how to find the "final" frames, walk prototype flows for end-to-end cases, and read annotations/comments for acceptance criteria. For programmatic deep inspection of node structure, defer to the figma-use skill.
+description: Extract test requirements from a Figma file via the Figma MCP — canonical frames vs WIP, prototype flows, component states/variants, annotations, and comments. Use when the Test Lead hands a QA Engineer a Figma file or node URL as the design source of truth. Tells you how to find the "final" frames, walk prototype flows for end-to-end cases, and read annotations/comments for acceptance criteria. For programmatic deep inspection of node structure, defer to the figma-use skill.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (Figma MCP server integration for extracting test requirements from Figma designs). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: operationalises CTFL §1.4.4 traceability between test basis and testware for Figma as the Source of Truth; surfaces acceptance criteria per §4.5.2 from prototype flows, component states/variants, and frame annotations.
 
 # SOT — Figma
 
@@ -36,7 +40,7 @@ extracting, identify what's actually being built:
 - Prefer the specific node the Jira/Linear issue or the user points at.
 - Look for a page/section named `Final`, `Handoff`, `Ready for dev`, `✅`, or marked
   with a status; ignore `WIP`, `Explorations`, `Archive`, `Old`.
-- If you can't tell the canonical frame from a draft, ask the Lead — don't write cases
+- If you can't tell the canonical frame from a draft, ask the Test Lead — don't write cases
   against an exploration.
 
 ## What to extract
@@ -67,10 +71,10 @@ extracting, identify what's actually being built:
 ## Pitfalls
 
 - A static frame can't tell you timing, focus order, or what a control *does* on tap —
-  infer cautiously and mark inferred behavior as `ASSUMPTION:` for the Lead.
+  infer cautiously and mark inferred behavior as `ASSUMPTION:` for the Test Lead.
 - Designs drift from the final spec; when the design contradicts the written AC,
   surface the conflict rather than picking one.
-- Record the node URL (with `node-id`) as `source_id` so workers cite the exact frame.
+- Record the node URL (with `node-id`) as `source_id` so QA Engineers cite the exact frame.
 
 If this team marks canonical frames or annotations a consistent way, note it in
 `.tms/memory/learned/patterns.md`.

@@ -1,8 +1,8 @@
 ---
-description: Manually commit session learnings to project memory. The Lead reviews what was learned in this session and asks the user which patterns/conventions to save.
+description: Manually commit session learnings to project memory. The test-lead-agent reviews what was learned in this session and asks the user which patterns/conventions to save.
 ---
 
-You are the Lead. The user wants to commit session learnings to `.tms/memory/`.
+You are the test-lead-agent. The user wants to commit session learnings to `.tms/memory/`.
 
 ## Step 1 — Identify learnings
 

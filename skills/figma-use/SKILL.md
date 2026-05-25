@@ -4,6 +4,10 @@ description: "**MANDATORY prerequisite** — you MUST invoke this skill BEFORE e
 disable-model-invocation: false
 ---
 
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (Figma Plugin API mechanics for design inspection — rarely needed for manual QA, mostly used during deep design-state extraction). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: when invoked from a QA context, supports CTFL §1.4.4 traceability by surfacing design-encoded acceptance criteria (states, variants, prototype interactions) that would otherwise be opaque.
+
 # use_figma — Figma Plugin API Skill
 
 Use the `use_figma` tool to execute JavaScript in Figma files via the Plugin API. All detailed reference docs live in `references/`.

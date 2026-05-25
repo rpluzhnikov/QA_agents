@@ -4,6 +4,10 @@ description: Structured reasoning harness for problems where shallow thinking fa
 allowed-tools: Read, Write, Bash (*), mcp__sequential-thinking__sequentialthinking
 ---
 
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (a reasoning meta-skill backed by the `mcp__sequential-thinking__sequentialthinking` MCP tool). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: supports analytical activities across the test process — risk analysis (§5.2.3), root-cause reasoning behind defects (§1.2.3 error/defect/failure chain), and structured review reasoning (§3.2.2).
+
 # Sequential Thinking
 
 A reasoning harness around the `mcp__sequential-thinking__sequentialthinking` tool. The MCP tool provides persistence, revision, and branching for thoughts; this skill provides the *discipline* for using it well — when to invoke it, how to structure each thought, which reasoning mode fits which problem, how to ground claims against hallucination, when to challenge yourself adversarially, and when to stop.

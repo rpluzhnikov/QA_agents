@@ -1,7 +1,11 @@
 ---
 name: sot-confluence
-description: Extract test requirements from a Confluence spec via the Atlassian MCP — heading hierarchy, requirement tables, Gherkin/AC sections, decision logs, embedded designs, and child pages. Use when the Lead hands a worker a Confluence page URL (or a Jira issue links to one). Tells you how to walk a long spec for the testable parts, find the authoritative version among drafts, and read requirement tables without losing structure.
+description: Extract test requirements from a Confluence spec via the Atlassian MCP — heading hierarchy, requirement tables, Gherkin/AC sections, decision logs, embedded designs, and child pages. Use when the Test Lead hands a QA Engineer a Confluence page URL (or a Jira issue links to one). Tells you how to walk a long spec for the testable parts, find the authoritative version among drafts, and read requirement tables without losing structure.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (Atlassian MCP server integration for extracting test requirements from Confluence specs). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: operationalises CTFL §1.4.4 traceability between test basis and testware for Confluence as the Source of Truth; surfaces acceptance criteria per §4.5.2 from requirement tables and Gherkin/AC sections.
 
 # SOT — Confluence
 
@@ -32,7 +36,7 @@ Specs rot. Before extracting, confirm you're reading the live one:
 - Prefer the page explicitly linked from the in-scope Jira issue.
 - Check the title/labels for `DRAFT`, `WIP`, `Archived`, `Superseded`, or a version
   suffix. A page labelled `Archived` is not the spec.
-- If several candidates exist, surface them to the Lead and ask which is canonical —
+- If several candidates exist, surface them to the Test Lead and ask which is canonical —
   don't guess.
 
 ## Where requirements live in a page
@@ -61,12 +65,12 @@ Specs rot. Before extracting, confirm you're reading the live one:
 
 ## Boundaries
 
-- Honor explicit **"Out of scope" / "Non-goals"** sections — list them back to the Lead
+- Honor explicit **"Out of scope" / "Non-goals"** sections — list them back to the Test Lead
   so cut scope is visible, never silently tested or skipped.
 - **Embedded/linked designs** (Figma) carry visual and state requirements the prose
   omits — follow them and switch to `sot-figma`.
 - **Open questions** sections mean the spec isn't settled. Each open question that
-  touches in-scope behavior is a `GAP:` for the Lead to resolve with the user.
+  touches in-scope behavior is a `GAP:` for the Test Lead to resolve with the user.
 
-Record the `source_id` as the page URL/ID so workers can stamp it on cases. If this
+Record the `source_id` as the page URL/ID so QA Engineers can stamp it on cases. If this
 space has a consistent spec template, note it in `.tms/memory/learned/patterns.md`.

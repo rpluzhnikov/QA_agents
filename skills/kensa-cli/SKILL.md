@@ -3,6 +3,10 @@ name: kensa-cli
 description: Drive the kensa CLI to query, edit, and maintain QA test cases in a .tms/ project from the terminal.
 ---
 
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (the `kensa` CLI for querying, editing, and maintaining manual test cases stored in `.tms/` + `suites/`). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: implements the CTFL §6.1 test management tool category, providing metrics collection per §5.3.1 (`stats`, `coverage --by-source`) and configuration-management support per §5.4.
+
 ## Overview — when to use
 
 Use `kensa-cli` from the embedded terminal (or any shell) when you need to read, modify, validate, or analyse test cases stored in the `.tms/` + `suites/` on-disk layout. The CLI is the fastest path for bulk changes, filtered queries, context preparation before edits, and quality maintenance tasks.
@@ -486,7 +490,7 @@ kensa list --format ids                                # pick a stratified sampl
 kensa show <ID>                                        # for each sampled case
 ```
 
-See `commands/audit.md` for the full Lead workflow including how to bucket
+See `commands/audit.md` for the full Test Lead workflow including how to bucket
 findings by severity and write the `.tms/reports/audit-YYYY-MM-DD.md`
 artifact. The optional fix phase reuses existing CLI primitives (`rename-tag`,
 `bulk delete --to-trash`, `bulk update --set status=deprecated`) with the

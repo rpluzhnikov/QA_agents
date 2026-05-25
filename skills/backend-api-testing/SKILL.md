@@ -1,7 +1,12 @@
 ---
 name: backend-api-testing
-description: API-specific test scenarios for REST/GraphQL backend services tested via tools like Postman, curl, or DevTools Network tab. Covers status codes, schema validation, idempotency, rate limiting, authentication (token expiry, refresh), pagination, filtering, error structure, and contract concerns. Use when the feature under test is a backend API or has a notable API contract. Loaded by the worker when the Lead specifies backend platform.
+description: API-specific test scenarios for REST/GraphQL backend services tested via tools like Postman, curl, or DevTools Network tab. Covers status codes, schema validation, idempotency, rate limiting, authentication (token expiry, refresh), pagination, filtering, error structure, and contract concerns. Use when the feature under test is a backend API or has a notable API contract. Loaded by the QA Engineer when the Test Lead specifies backend platform.
 ---
+
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 2 — Testing Throughout the SDLC, §2.2.1 Test Levels (especially system integration testing), §2.2.2 Test Types (functional and non-functional — ISO 25010 quality characteristics: functional suitability, performance efficiency, reliability, security); Chapter 4 — Test Analysis and Design, §4.4.3 Checklist-Based Testing.
+> Learning objectives: FL-2.2.1 (K2) distinguish test levels (API tests live mostly at system integration test level — between services and across system boundaries); FL-2.2.2 (K2) distinguish test types (this skill covers contract / functional plus non-functional API concerns); FL-4.4.3 (K2) explain checklist-based testing (this skill IS a domain checklist for REST/GraphQL APIs).
+> See also: the `sdlc-and-test-lifecycle` skill for the level/type taxonomy.
 
 # Backend / API testing — what not to forget
 
@@ -344,7 +349,7 @@ A "create order" endpoint surfaces: §1 (201 + Location), §2 (every
 required field), §3 (auth), §4 (POST idempotency), §6 (rate limit),
 §8 (error structure). Skip §5, §7 unless explicit.
 
-Mark each item `[api §N — description]` in the checklist so the Lead
+Mark each item `[api §N — description]` in the checklist so the Test Lead
 can verify coverage maps to the contract.
 
 ## Tools — what to use

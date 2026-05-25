@@ -1,11 +1,15 @@
 ---
 name: clarification-protocol
-description: When and how the Lead should ask the user clarifying questions, and when to proceed with an assumption instead. Defines the threshold for "critical" vs "minor" gaps, batching rules, and the format for asking. Lead-only skill.
+description: When and how the Test Lead should ask the user clarifying questions, and when to proceed with an assumption instead. Defines the threshold for "critical" vs "minor" gaps, batching rules, and the format for asking. Test Lead-only skill.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (UX / communication pattern for agent ↔ user interaction). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: supports the test-planning conversation per §5.1.1 (eliciting plan context from stakeholders) and §3.2.1 early stakeholder feedback.
 
 # Clarification protocol
 
-The Lead's relationship with the user is a budget. Every clarifying
+The Test Lead's relationship with the user is a budget. Every clarifying
 question spends a small amount of attention; over-asking burns trust,
 under-asking ships the wrong cases. This skill is how to spend that
 budget well.
@@ -30,7 +34,7 @@ window be?" in 5 seconds — that's a whole research task for them.
 
 Ask before proceeding **only** when the gap meets ALL of these:
 
-1. The gap blocks scope/decomposition decisions (one worker vs two,
+1. The gap blocks scope/decomposition decisions (one QA Engineer vs two,
    in vs out of scope) — not implementation details
 2. There's no defensible default in the industry or in
    `conventions.md`
@@ -42,7 +46,7 @@ Concrete triggers:
   can't tell which is current
 - **Missing AC for a major behavior** — the happy path itself isn't
   defined
-- **Decision changes worker decomposition** — one worker or two?
+- **Decision changes QA Engineer decomposition** — one QA Engineer or two?
   UI-only or also API?
 - **Privacy / legal sensitive area** — when in doubt, ask. Cheaper
   than a redo.
@@ -57,12 +61,12 @@ Don't ask if any of:
 - Industry defaults exist (TOTP window, password length per NIST
   800-63B, rate-limit thresholds, OAuth redirect URI exact-match) —
   use the default, mark as `ASSUMPTION`
-- The worker can mark `ASSUMPTION:` in-case and you'll catch it in
+- The QA Engineer can mark `ASSUMPTION:` in-case and you'll catch it in
   review (small wording / data-value decisions)
 - The question is about how to write a case — that's a project
   convention or a craft decision, not a user question
 - The question is about whether to use a specific test technique —
-  that's a worker decision per `test-design-techniques`
+  that's a QA Engineer decision per `test-design-techniques`
 
 ## Batching — one message, not a drip
 
@@ -84,9 +88,9 @@ Each question has 4 parts:
 3. **Suggested default** — what you'll do if they don't pick
 4. **Option list** — if it's binary/ternary, name the options
 
-Worked example — two questions before spawning workers for a 2FA feature:
+Worked example — two questions before spawning QA Engineers for a 2FA feature:
 
-> Two open questions before I spawn workers:
+> Two open questions before I spawn QA Engineers:
 >
 > 1. **Recovery codes — one-time use each?**
 >    Spec doesn't say. Industry default is single-use.
@@ -99,12 +103,12 @@ Worked example — two questions before spawning workers for a 2FA feature:
 >    devices, (c) keep current device, force re-login elsewhere.
 >    My default: (a) keep active sessions.
 
-Worked example — one question in the middle of a worker round:
+Worked example — one question in the middle of a QA Engineer round:
 
-> Quick check before I send this checklist back to the worker:
+> Quick check before I send this checklist back to the QA engineer:
 >
 > 1. **Admin disabling another user's 2FA — in this batch or separate?**
->    The worker included it; I think it belongs in a separate ticket
+>    The QA Engineer included it; I think it belongs in a separate ticket
 >    because it's a different actor (admin, not end user) and
 >    different risk profile.
 >    Options: (a) cut from this batch (my preference), (b) keep, you
@@ -116,7 +120,7 @@ Worked example — what NOT to ask:
 >    (Covered in conventions.md — read it.)
 >
 > ❌ "Should the case use the `auth` tag?"
->    (Worker decision per `learned/tags.md`.)
+>    (QA Engineer decision per `learned/tags.md`.)
 >
 > ❌ "What should I assume about TOTP window?"
 >    (Industry default is ±30s; assume and surface.)
@@ -137,7 +141,7 @@ After the user answers:
 ## Communication style
 
 - Open with what the questions block ("Two open questions before I
-  spawn workers" / "Quick check before sending back to the worker")
+  spawn QA Engineers" / "Quick check before sending back to the QA engineer")
 - Number the questions
 - Bold the question itself; keep body terse
 - State your default in every question — the user should always be

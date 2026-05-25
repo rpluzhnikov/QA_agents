@@ -3,6 +3,11 @@ name: test-case-writing-craft
 description: How to write high-quality manual test cases. Covers case anatomy, step granularity, expected results, preconditions vs steps, frontmatter discipline, when to extract shared steps, and the most common anti-patterns. Use whenever writing or reviewing individual test cases — this is the craft layer, separate from design techniques (which decide what to test) and platform skills (which decide what to look for).
 ---
 
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 1 — Fundamentals of Testing, §1.4.1 Test Activities and Tasks (test design), §1.4.3 Testware (test cases as testware artefact), §1.4.4 Traceability between Test Basis and Testware.
+> Learning objectives: FL-1.4.1 (K2) explain test activities (test design produces test cases); FL-1.4.3 (K2) differentiate the testware (the test case is the canonical testware artefact); FL-1.4.4 (K2) explain the value of traceability — the `source_id` frontmatter field IS the test-basis-to-testware link required by §1.4.4, enabling impact analysis, coverage queries, and audit readiness.
+> See also: §4.1–§4.4 for techniques that decide *what* the case tests; §3.2 review process for case-level review.
+
 # Test case writing — the craft
 
 Writing test cases is closer to writing technical prose than to writing code.
@@ -246,7 +251,7 @@ ticket ID. This is the link back to the source of truth and to
 `/update-feature` later.
 
 **`tags`** — match the project's tag taxonomy from `learned/tags.md`. Don't
-invent new tags without telling the Lead.
+invent new tags without telling the Test Lead.
 
 **`priority`** — be honest. Default to `medium` if unsure; reserve
 `critical` for actual smoke / release-gate cases.

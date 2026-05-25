@@ -161,13 +161,13 @@
 </head>
 <body>
 
-<h1>Kensa QA <span class="v">v0.5 (текущее состояние)</span></h1>
-<div class="sub">Мульти-агентный Claude Code плагин: команда мануального QA в кармане. Lead планирует и ревьюит, Worker пишет чек-листы и тест-кейсы, Strategist деберутует сложные стратегические вопросы. Это схема того, как сейчас всё устроено и куда что течёт.</div>
+<h1>Kensa QA <span class="v">v0.6 (текущее состояние) · 📘 ISTQB CTFL v4.0.1 grounded</span></h1>
+<div class="sub">Мульти-агентный Claude Code плагин: команда мануального QA в кармане. <b>test-lead-agent</b> планирует и ревьюит, <b>qa-engineer-agent</b> пишет чек-листы и тест-кейсы, <b>strategist</b> дебатирует сложные стратегические вопросы. Каждый «думающий» скилл явно ссылается на главу и learning objective ISTQB CTFL v4.0.1.</div>
 
 <div class="legend">
   <span class="u">Пользователь</span>
-  <span class="l">Lead агент</span>
-  <span class="w">Worker агент</span>
+  <span class="l">test-lead-agent</span>
+  <span class="w">qa-engineer-agent</span>
   <span class="s">MCP / SOT</span>
   <span class="m">Память проекта</span>
   <span class="o">Артефакты (тест-кейсы)</span>
@@ -267,24 +267,24 @@
 <h2>3 · Агенты и их инструменты</h2>
 <div class="row cols-3">
   <div class="card">
-    <div class="title"><span class="pill lead">Lead</span> agents/lead.md</div>
+    <div class="title"><span class="pill lead">test-lead-agent</span> agents/test-lead-agent.md</div>
     <div class="desc">
-      Только Lead говорит с пользователем. Tools: <code>Read, Glob, Grep, Bash, Task, mcp__*</code> — НЕТ Write/Edit, он не пишет кейсы руками.<br/><br/>
-      Скиллы, которые он триггерит сам: <code>scope-analysis</code>, <code>review-rubrics</code>, <code>task-assignment</code>, <code>clarification-protocol</code>, <code>checklist-design</code>, <code>kensa-cli</code> (включая <code>/audit</code> workflow), <code>sequential-thinking</code>.
+      Только Test Lead говорит с пользователем. Tools: <code>Read, Glob, Grep, Bash, Task, mcp__*</code> — НЕТ Write/Edit, он не пишет кейсы руками.<br/><br/>
+      Скиллы, которые он триггерит сам: <code>testing-fundamentals</code>, <code>scope-analysis</code>, <code>test-planning</code>, <code>risk-based-testing</code>, <code>review-rubrics</code>, <code>static-testing-reviews</code>, <code>test-monitoring-control-completion</code>, <code>task-assignment</code>, <code>clarification-protocol</code>, <code>checklist-design</code>, <code>kensa-cli</code> (включая <code>/audit</code> workflow), <code>sequential-thinking</code>.
     </div>
   </div>
   <div class="card">
-    <div class="title"><span class="pill worker">Worker</span> agents/worker.md</div>
+    <div class="title"><span class="pill worker">qa-engineer-agent</span> agents/qa-engineer-agent.md</div>
     <div class="desc">
-      Спавнится Lead'ом через <code>Task</code> в <code>/new-feature</code> и <code>/update-feature</code>. С юзером не общается. Tools: <code>Read, Write, Edit, Glob, Grep, mcp__*</code> — пишет файлы.<br/><br/>
-      Lead в брифе явно перечисляет ему скиллы: always — <code>kensa-test-authoring</code>, <code>test-case-writing-craft</code>, <code>test-design-techniques</code>, <code>negative-and-edge-cases</code>; одна платформа — <code>web-testing</code> / <code>mobile-testing</code> / <code>backend-api-testing</code> / <code>security-testing</code>; один SOT-скилл; опционально <code>kensa-cli</code>.
+      Спавнится Test Lead'ом через <code>Task</code> в <code>/new-feature</code> и <code>/update-feature</code>. С юзером не общается. Tools: <code>Read, Write, Edit, Glob, Grep, mcp__*</code> — пишет файлы.<br/><br/>
+      Test Lead в брифе явно перечисляет ему скиллы: always — <code>testing-fundamentals</code>, <code>kensa-test-authoring</code>, <code>test-case-writing-craft</code>, <code>test-design-techniques</code>, <code>negative-and-edge-cases</code>, <code>sdlc-and-test-lifecycle</code>, <code>collaboration-based-approaches</code>; одна платформа — <code>web-testing</code> / <code>mobile-testing</code> / <code>backend-api-testing</code> / <code>security-testing</code>; один SOT-скилл; опционально <code>kensa-cli</code>, <code>defect-management</code>, <code>white-box-techniques-overview</code>.
     </div>
   </div>
   <div class="card">
-    <div class="title"><span class="pill lead">Strategist</span> agents/strategist.md</div>
+    <div class="title"><span class="pill lead">strategist</span> agents/strategist.md</div>
     <div class="desc">
-      Спавнится Lead'ом группами по 3 в <code>/brainstorm</code>. Tools: <code>Read, Glob, Grep, mcp__*</code> — БЕЗ Task, БЕЗ Bash. Не пишет кейсы, не запускает CLI.<br/><br/>
-      Mission: аргументировать назначенную ось (Scope / Decomposition / Test strategy / Prioritization / Effort / Maintainability) как единственно правильный ответ. Synthesis — задача Lead'а. Round 1: independent proposal. Round 2: cross-review других двух пропозалов.
+      Спавнится Test Lead'ом группами по 3 в <code>/brainstorm</code>. Tools: <code>Read, Glob, Grep, mcp__*</code> — БЕЗ Task, БЕЗ Bash. Не пишет кейсы, не запускает CLI.<br/><br/>
+      Mission: аргументировать назначенную ось (Scope / Decomposition / Test strategy / Prioritization / Effort / Maintainability) как единственно правильный ответ. Synthesis — задача Test Lead'а. Round 1: independent proposal. Round 2: cross-review других двух пропозалов.
     </div>
   </div>
 </div>
@@ -309,29 +309,39 @@
 </div>
 
 <!-- ──────────────────────────────────────────────────────────── -->
-<h2>5 · Скиллы (~22, авто-подгрузка из <code>skills/</code>)</h2>
+<h2>5 · Скиллы (31, авто-подгрузка из <code>skills/</code> — 21 ISTQB-grounded, 10 plugin tooling)</h2>
 <div class="skills-grid">
-  <div class="skill"><div class="n">scope-analysis</div><div class="t">Декомпозиция требований Lead'ом</div></div>
-  <div class="skill"><div class="n">review-rubrics</div><div class="t">2-ступенчатое ревью чек-листа и кейсов</div></div>
-  <div class="skill"><div class="n">task-assignment</div><div class="t">Форма брифа Worker'у</div></div>
-  <div class="skill"><div class="n">clarification-protocol</div><div class="t">Когда и как спрашивать юзера</div></div>
-  <div class="skill"><div class="n">checklist-design</div><div class="t">Структура чек-листа (Stage 1)</div></div>
-  <div class="skill"><div class="n">test-case-writing-craft</div><div class="t">Анатомия кейса, expected results</div></div>
-  <div class="skill"><div class="n">test-design-techniques</div><div class="t">BVA, decision tables, state transitions</div></div>
-  <div class="skill"><div class="n">negative-and-edge-cases</div><div class="t">Негатив, граничные, ошибки</div></div>
-  <div class="skill"><div class="n">kensa-test-authoring</div><div class="t">Byte-exact <code>.tms/</code> формат на диске</div></div>
-  <div class="skill"><div class="n">kensa-cli</div><div class="t">CLI: list, stats, coverage, find, duplicates, context bundle</div></div>
-  <div class="skill"><div class="n">web-testing</div><div class="t">Платформа: web</div></div>
-  <div class="skill"><div class="n">mobile-testing</div><div class="t">Платформа: mobile</div></div>
-  <div class="skill"><div class="n">backend-api-testing</div><div class="t">Платформа: API</div></div>
-  <div class="skill"><div class="n">security-testing</div><div class="t">OWASP-ориентированные сценарии</div></div>
-  <div class="skill"><div class="n">sot-linear</div><div class="t">Где AC в Linear, какие MCP tools звать</div></div>
-  <div class="skill"><div class="n">sot-jira</div><div class="t">Jira issues, AC-поля, epic→story</div></div>
-  <div class="skill"><div class="n">sot-confluence</div><div class="t">Спеки и таблицы требований</div></div>
-  <div class="skill"><div class="n">sot-notion</div><div class="t">Pages + databases, relations</div></div>
-  <div class="skill"><div class="n">sot-figma</div><div class="t">Frames, prototype flows, comments</div></div>
-  <div class="skill"><div class="n">figma-use</div><div class="t">Гард перед write-вызовами <code>use_figma</code></div></div>
-  <div class="skill"><div class="n">sequential-thinking</div><div class="t">Структурное рассуждение (через bundled MCP)</div></div>
+  <div class="skill"><div class="n">testing-fundamentals</div><div class="t">📘 Ch 1: принципы, error/defect/failure, активности тестирования</div></div>
+  <div class="skill"><div class="n">sdlc-and-test-lifecycle</div><div class="t">📘 Ch 2: levels, types, regression, maintenance</div></div>
+  <div class="skill"><div class="n">static-testing-reviews</div><div class="t">📘 Ch 3: ISO 20246 review process, types, roles</div></div>
+  <div class="skill"><div class="n">test-design-techniques</div><div class="t">📘 §4.1/4.2/4.4: EP, BVA, decision tables, state transitions</div></div>
+  <div class="skill"><div class="n">white-box-techniques-overview</div><div class="t">📘 §4.3: statement/branch coverage (recognition)</div></div>
+  <div class="skill"><div class="n">collaboration-based-approaches</div><div class="t">📘 §4.5: 3 C's + INVEST, AC formats, ATDD</div></div>
+  <div class="skill"><div class="n">negative-and-edge-cases</div><div class="t">📘 §4.4.1: taxonomy-based error guessing</div></div>
+  <div class="skill"><div class="n">test-case-writing-craft</div><div class="t">📘 §1.4: test case anatomy, expected results</div></div>
+  <div class="skill"><div class="n">checklist-design</div><div class="t">📘 §1.4.1: test conditions + must/should/nice prio</div></div>
+  <div class="skill"><div class="n">test-planning</div><div class="t">📘 §5.1: plan, entry/exit, estimation, prioritization</div></div>
+  <div class="skill"><div class="n">risk-based-testing</div><div class="t">📘 §5.2: risk = likelihood × impact, control</div></div>
+  <div class="skill"><div class="n">scope-analysis</div><div class="t">📘 §5.1 + 5.2: декомпозиция Test Lead'ом</div></div>
+  <div class="skill"><div class="n">review-rubrics</div><div class="t">📘 §3.2: 2-ступенчатое ревью чек-листа и кейсов</div></div>
+  <div class="skill"><div class="n">test-monitoring-control-completion</div><div class="t">📘 §5.3: metrics + progress/completion reports</div></div>
+  <div class="skill"><div class="n">defect-management</div><div class="t">📘 §5.5: defect lifecycle + ISO 29119-3 fields</div></div>
+  <div class="skill"><div class="n">web-testing</div><div class="t">📘 §2.2.2 + 4.4.3: web non-functional checklist</div></div>
+  <div class="skill"><div class="n">mobile-testing</div><div class="t">📘 §2.2.2 + 4.4.3: mobile non-functional checklist</div></div>
+  <div class="skill"><div class="n">backend-api-testing</div><div class="t">📘 §2.2.1 + 4.4.3: SI test level + API checklist</div></div>
+  <div class="skill"><div class="n">security-testing</div><div class="t">📘 §2.2.2 + 5.2: security quality + risk-based</div></div>
+  <div class="skill"><div class="n">test-tools-and-automation-overview</div><div class="t">📘 Ch 6: tool categories + automation benefits/risks</div></div>
+  <div class="skill"><div class="n">kensa-test-authoring</div><div class="t">🛠 Byte-exact <code>.tms/</code> формат на диске (non-ISTQB)</div></div>
+  <div class="skill"><div class="n">kensa-cli</div><div class="t">🛠 CLI: list, stats, coverage, find, duplicates (non-ISTQB)</div></div>
+  <div class="skill"><div class="n">task-assignment</div><div class="t">🛠 Форма брифа qa-engineer'у (non-ISTQB)</div></div>
+  <div class="skill"><div class="n">clarification-protocol</div><div class="t">🛠 Когда и как спрашивать юзера (non-ISTQB)</div></div>
+  <div class="skill"><div class="n">sot-linear</div><div class="t">🛠 Где AC в Linear, какие MCP tools звать</div></div>
+  <div class="skill"><div class="n">sot-jira</div><div class="t">🛠 Jira issues, AC-поля, epic→story</div></div>
+  <div class="skill"><div class="n">sot-confluence</div><div class="t">🛠 Спеки и таблицы требований</div></div>
+  <div class="skill"><div class="n">sot-notion</div><div class="t">🛠 Pages + databases, relations</div></div>
+  <div class="skill"><div class="n">sot-figma</div><div class="t">🛠 Frames, prototype flows, comments</div></div>
+  <div class="skill"><div class="n">figma-use</div><div class="t">🛠 Гард перед write-вызовами <code>use_figma</code></div></div>
+  <div class="skill"><div class="n">sequential-thinking</div><div class="t">🛠 Структурное рассуждение (через bundled MCP)</div></div>
 </div>
 
 <!-- ──────────────────────────────────────────────────────────── -->

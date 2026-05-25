@@ -1,7 +1,11 @@
 ---
 name: sot-notion
-description: Extract test requirements from a Notion page or database via the Notion MCP — page blocks, database schema (including relation/rollup properties), sub-pages, and linked specs. Use when the Lead hands a worker a Notion page or database URL. Tells you how Notion's block + database model maps to extractable requirements, which MCP tools to call, and where AC tend to hide.
+description: Extract test requirements from a Notion page or database via the Notion MCP — page blocks, database schema (including relation/rollup properties), sub-pages, and linked specs. Use when the Test Lead hands a QA Engineer a Notion page or database URL. Tells you how Notion's block + database model maps to extractable requirements, which MCP tools to call, and where AC tend to hide.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (Notion MCP server integration for extracting test requirements from Notion pages and databases). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: operationalises CTFL §1.4.4 traceability between test basis and testware for Notion as the Source of Truth; surfaces acceptance criteria per §4.5.2 from Notion blocks and database properties.
 
 # SOT — Notion
 
@@ -54,7 +58,7 @@ Query the database for the in-scope rows, read each row's properties AND its pag
 
 1. Resolve the reference. Record the page/row URL as `source_id`.
 2. Determine page vs database and extract per the sections above.
-3. Follow relations and sub-pages; decide scope with the Lead.
+3. Follow relations and sub-pages; decide scope with the Test Lead.
 4. Convert each requirement into verifiable conditions; flag vague ones as `GAP:`.
 
 ## Pitfalls
@@ -63,7 +67,7 @@ Query the database for the in-scope rows, read each row's properties AND its pag
 - Block pagination: a long page can return partial blocks; confirm you reached the end.
 - Synced blocks and linked databases can show the same content in multiple places —
   don't double-count, and trace to the canonical source.
-- Honor explicit "Out of scope" callouts; list them back to the Lead.
+- Honor explicit "Out of scope" callouts; list them back to the Test Lead.
 
 If this workspace uses a consistent spec/database structure, record it in
 `.tms/memory/learned/patterns.md`.

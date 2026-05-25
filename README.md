@@ -1,274 +1,218 @@
 # Kensa-QA — a Manual QA Team Inside Claude Code
 
-![Kensa-QA in action — Lead planning, Workers writing cases](docs/images/hero.png)
+<p align="center">
+  <img src="docs/images/hero.png" alt="Kensa-QA in action: Test Lead plans, QA Engineers write cases" />
+</p>
 
-A plugin for [Claude Code](https://docs.claude.com/claude-code) that turns
-your editor into a small QA team. You write a ticket reference or paste a
-spec, and the plugin produces a coverage checklist and a folder full of
-manual test cases — written in your project's style, traced back to the
-source of truth, and ready to commit.
+<p align="center">
+  <b>Point at a ticket. Get a coverage checklist and a folder of manual test cases — written in your project's style, ready to commit.</b>
+</p>
 
-It is built for the [Kensa](https://kensa.dev) test case management format
-(plain markdown files under `.tms/suites/`), but you can use it on any
-project where test cases live in markdown.
+<p align="center">
+  Built for the <a href="https://kensa.dev">Kensa</a> TMS format (plain markdown under <code>.tms/suites/</code>), works on any project where test cases live in markdown.
+</p>
 
-## What this does for you as a QA tester
+<p align="center">
+  📘 <b>ISTQB CTFL v4.0.1 grounded</b> — every reasoning skill cites the syllabus chapter and learning objective it teaches.
+</p>
 
-- **Turns tickets and specs into manual test cases.** Point it at a Linear
-  issue, a Confluence spec, a Figma frame, a Jira story, or paste raw text
-  — and within minutes you have a coverage checklist plus 10–60 test-case
-  files, written to your project's conventions.
-- **Keeps cases in sync with the spec.** When a feature changes, the plugin
-  finds the affected cases (by source-of-truth reference) and updates only
-  what changed instead of asking you to hunt them down by hand.
-- **Audits the repository for drift.** When the test suite gets large
-  (hundreds of cases), it flags stale drafts, duplicates, orphan
-  shared-steps, tag drift against your taxonomy, and missing source
-  references — so the suite stays maintainable as it grows.
+---
 
-It does **not** execute tests, automate them, or replace a test runner.
-It writes the manual test cases that a human (or, separately, an automation
-engineer) will run.
+## What it does
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 📝 Author
+Turn a Linear / Jira / Confluence / Notion / Figma ref — or raw pasted text — into a checklist plus 10–60 case files.
+
+</td>
+<td width="33%" valign="top">
+
+### 🔄 Update
+When a spec changes, find affected cases by source ref and rewrite only what changed. No hand-hunting.
+
+</td>
+<td width="33%" valign="top">
+
+### 🔎 Audit
+On large suites: flag stale drafts, duplicates, orphan steps, tag drift, missing source refs. Read-only by default.
+
+</td>
+</tr>
+</table>
+
+It writes manual test cases. It does **not** execute, automate, or replace a test runner.
+
+---
 
 ## How it works
 
-![How the plugin works — Lead coordinates, Workers write in parallel](docs/images/architecture.png)
+<p align="center">
+  <img src="docs/images/architecture.png" alt="How the plugin works: Test Lead coordinates, QA Engineers run in parallel and have their work reviewed in two passes" />
+</p>
 
-When you invoke a command like `/new-feature LIN-42`, three things happen:
+1. **`test-lead-agent`** reads your project memory, pulls the spec via MCP, and proposes a coverage plan.
+2. **You approve** the plan. (Human gate — nothing spawns until you sign off.)
+3. **`qa-engineer-agent`** workers run in parallel. Each writes its slice in two stages — checklist, then cases — with the Test Lead reviewing after each stage (up to 2 revision rounds per stage).
+4. **Output**: new or updated `.md` cases, a project-memory checkpoint, and a report (files, gaps, open questions).
 
-1. The **Lead** (a coordinator agent — Claude Code's term for a focused
-   sub-AI) reads your project's conventions, fetches the spec from your
-   ticket tracker / wiki, and plans how to cover it.
-2. The Lead spawns one or more **Workers** (subagents that write the actual
-   test-case files) in parallel. Each Worker gets a precise scope and
-   writes its assigned slice.
-3. The Lead reviews what came back, runs a memory checkpoint to capture
-   any new conventions you've established, and reports the final list of
-   files to you.
+For strategic decisions ("how do we split this feature?", "negative-first or boundary-first?"), `/brainstorm` spawns three **strategists** in parallel for a deliberation round instead of writing cases.
 
-For complex strategic questions — "should we split this feature in two?",
-"what coverage strategy fits this risk?" — there's also `/brainstorm`,
-which spawns three **Strategists** in parallel plus a cross-review round
-to deliberate before any cases are written.
+---
 
-You stay in the loop. The Lead asks you to confirm the plan before
-spawning anything, and you review the final output at the end.
+## The skill library
 
-## Prerequisites
+Every reasoning step is backed by an explicit skill — and **21 of the 31 skills cite ISTQB CTFL v4.0.1** chapters and learning objectives. The remaining 10 are plugin tooling (CLI, on-disk format, SOT extractors, agent communication) that complements ISTQB without being derived from it.
 
-- **Claude Code** installed and signed in. ([Install Claude Code](https://docs.claude.com/claude-code/install))
-- **Node.js** with `npx` on your PATH. The plugin ships a bundled
-  reasoning MCP server (`sequential-thinking`) that auto-installs on first
-  run via `npx -y`.
-- **Windows 11 with PowerShell 5.1** if you want the auto-checkpoint and
-  debug-log hooks. On macOS / Linux the rest of the plugin works fine; the
-  hooks silently no-op. A bash port is on the roadmap.
+<p align="center">
+  <img src="docs/images/skills-library.png" alt="Skill library: 31 skills organized into Foundation, Test Design, Test Management, Static & Lifecycle, Platform, and Tooling sectors — colour-coded by ISTQB CTFL v4.0.1 chapter" />
+</p>
 
-You do **not** need API keys for Linear / Atlassian / Notion / Figma.
-The MCP servers for these handle auth through your browser the first time
-they connect.
+| Sector | Skills | ISTQB ref |
+|---|---|---|
+| 🟦 **Foundation** | `testing-fundamentals` | Ch 1 |
+| 🟦 **Test Design** | `test-design-techniques`, `white-box-techniques`, `collaboration-based-approaches`, `negative-and-edge-cases`, `test-case-writing-craft`, `checklist-design` | Ch 4 |
+| 🟩 **Test Management** | `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management` | Ch 5 + §3.2 |
+| 🟨 **Static & Lifecycle** | `sdlc-and-test-lifecycle`, `static-testing-reviews` | Ch 2 + 3 |
+| 🟪 **Platform** | `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview` | §2.2.2 / Ch 6 |
+| 🟥 **Tooling** | `kensa-cli`, `kensa-test-authoring`, 5 × `sot-*`, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol` | non-ISTQB |
+
+The Test Lead loads the management & static skills on demand. Every QA Engineer brief always loads `testing-fundamentals`, `test-design-techniques`, `negative-and-edge-cases`, `test-case-writing-craft`, and one platform skill — plus the matching SOT extractor for the ticket source.
+
+---
 
 ## Install
-
-Inside Claude Code, run:
 
 ```
 /plugin marketplace add rpluzhnikov/QA_agents
 /plugin install kensa-qa@rpluzhnikov
 ```
 
-The first line registers this repo as a single-plugin marketplace (Claude
-Code clones it into its plugin cache). The second line enables the plugin
-from it.
+**Then fully restart Claude Code** (not a new tab). Plugin manifest, agents, commands, and hooks load at session start.
 
-**Then fully restart Claude Code** — not just a new tab. Plugin manifest,
-agents, commands, and hooks all load at session start.
-
-To update later: `/plugin marketplace update rpluzhnikov`.
+Update later: `/plugin marketplace update rpluzhnikov`.
 
 <details>
-<summary><b>Other install paths (for plugin developers)</b></summary>
+<summary><b>Prerequisites & alternative install paths</b></summary>
 
-If you're hacking on the plugin source itself, you can symlink your local
-checkout into Claude Code's plugin directory instead of going through the
-marketplace.
+**Required**
+- [Claude Code](https://docs.claude.com/claude-code/install) installed and signed in
+- Node.js with `npx` on PATH (for the bundled `sequential-thinking` MCP)
+- Windows 11 + PowerShell 5.1 for the auto-checkpoint and debug-log hooks. Other OSes work; hooks silently no-op until the bash port lands.
+- No API keys: Linear / Atlassian / Notion / Figma all use browser OAuth on first connect.
 
-**Symlink (Windows, admin PowerShell or with Developer Mode enabled):**
+**Symlink for plugin development**
 
+Windows (admin PowerShell or Developer Mode):
 ```powershell
 New-Item -ItemType SymbolicLink `
   -Path "$env:USERPROFILE\.claude\plugins\kensa-qa" `
   -Target "C:\path\to\your\QA_agents"
 ```
 
-**Symlink (macOS / Linux):**
-
+macOS / Linux:
 ```bash
 ln -s /path/to/QA_agents ~/.claude/plugins/kensa-qa
 ```
 
-**Direct git clone into the plugins dir:**
+Or direct clone: `git clone https://github.com/rpluzhnikov/QA_agents.git ~/.claude/plugins/kensa-qa` and `git pull` manually for updates.
 
-```bash
-git clone https://github.com/rpluzhnikov/QA_agents.git \
-  ~/.claude/plugins/kensa-qa
-```
-
-You'll `git pull` manually for updates with this approach.
-
-See [INSTALL.md](INSTALL.md) for deeper diagnostics if something doesn't
-load.
-
+See [INSTALL.md](INSTALL.md) for diagnostics.
 </details>
 
-## Verify the plugin loaded
+---
+
+## Verify
 
 After restart, in any project:
 
-- Run `/help` — you should see `setup`, `new-feature`, `update-feature`,
-  `save-memory`, `audit`, `brainstorm` in the slash-command list.
-- Type `@` — `lead`, `worker`, and `strategist` should appear as agents.
-- Run `/hooks` (Windows only) — two **Stop** hooks should show up:
-  `kensa-qa: writing debug log` and `kensa-qa: checking memory checkpoint`.
+| Check | Expected |
+|---|---|
+| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm` |
+| Type `@` | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
+| `/hooks` (Windows) | Two **Stop** hooks: writing debug log + checking memory checkpoint |
 
-If anything's missing, the usual culprit is "Claude Code wasn't fully
-restarted". See [INSTALL.md §2](INSTALL.md) for deeper diagnostics.
+Anything missing → restart Claude Code fully. Persistent issues → [INSTALL.md §2](INSTALL.md).
+
+---
 
 ## First-time setup
-
-Open any project where you want to write QA cases. Run:
 
 ```
 /setup
 ```
 
-This is an interactive flow — answer questions about your stack, the
-language your test cases are written in (English / Russian / other), which
-ticket tracker and wiki you use, and so on. The plugin will also scan any
-existing test cases under `.tms/suites/` to learn your conventions
-(naming style, step granularity, expected-result format) so future cases
-match.
+Interactive: asks about your stack, case language, ticket tracker, wiki. Scans existing cases under `.tms/suites/` to learn your style.
 
-When `/setup` finishes, it writes:
+Writes:
+- `.tms/memory/` — conventions, glossary, SOT config (edit by hand any time)
+- `.mcp.json` — MCP servers for your sources (restart Claude Code after this to connect)
 
-- `.tms/memory/` — your project's conventions, glossary, and source-of-truth
-  config. **Edit any of these by hand later** — the plugin re-reads them
-  every session.
-- `.mcp.json` at the repo root — the MCP servers for your chosen sources.
-  Restart Claude Code one more time after `/setup` so these connect; a
-  browser tab will open for the first OAuth sign-in to each.
-
-You're now ready to write cases.
+---
 
 ## Commands
 
-### Authoring
+| Command | What it does |
+|---|---|
+| `/new-feature <ref>` | Pulls spec, plans, you approve, QA Engineers write cases under `.tms/suites/<suite>/` |
+| `/update-feature <ref>` | Finds cases by `source_id`, reads new spec, adds/removes/rewrites only what changed |
+| `/brainstorm <topic>` | Three strategists deliberate in parallel, output 2–3 finalists you pick from |
+| `/audit` | Schema validation, duplicates, drift, tag check on the whole `.tms/`. Read-only by default |
+| `/save-memory` | Captures session learnings to `.tms/memory/learned/`. Auto-runs after authoring on Windows |
+| `/setup` | Bootstraps `.tms/memory/` and `.mcp.json`. Re-run to add a new SOT |
 
-#### `/new-feature <ref>` — write cases for a new feature
+<details>
+<summary><b>Command details and examples</b></summary>
 
+#### `/new-feature <ref>`
 ```
 /new-feature LIN-42
 /new-feature https://yourcompany.atlassian.net/wiki/spaces/...
 /new-feature "Free-text spec pasted here"
 ```
+The Test Lead pulls the spec, plans coverage, gets your sign-off, spawns QA Engineers for checklists, reviews, then has QA Engineers write the case files. Reports total case count, assumptions made, open questions for product.
 
-The Lead pulls the spec, plans coverage, gets your sign-off on the plan,
-spawns Workers to write checklists, reviews them, then has Workers write
-the test-case files. You'll see new `.md` files appear under
-`.tms/suites/<suite>/`. At the end the Lead reports total case count, any
-assumptions it made, and any open questions for product.
-
-#### `/update-feature <ref>` — update cases when a feature changes
-
+#### `/update-feature <ref>`
 ```
 /update-feature LIN-42
 ```
+The Test Lead finds cases referencing the changed source (via `source_id` in frontmatter), reads the new spec, decides what to add/remove/rewrite. Same review + report flow as `/new-feature`.
 
-The Lead finds cases that reference the changed source (via the `source_id`
-field in their frontmatter), reads the new version of the spec, and works
-out what needs to be added, removed, or rewritten. Reviews and reports the
-same way as `/new-feature`.
-
-#### `/brainstorm <topic>` — deliberate a complex decision
-
+#### `/brainstorm <topic>`
 ```
-/brainstorm how to split the Discount Engine feature for parallel workers?
+/brainstorm how to split the Discount Engine for parallel QA engineers?
 /brainstorm should 2FA cases be negative-first or boundary-first?
 ```
+The Test Lead picks three angles (scope, decomposition strategy, test technique), three strategists each argue one angle in parallel, cross-review round, then a comparison view with 2–3 finalists. Saved to `.tms/brainstorms/`, referenceable from `/new-feature` later.
 
-Use this before `/new-feature` when the right approach isn't obvious.
-The Lead picks three angles (scope conservative vs. aggressive,
-decomposition strategy, test technique, etc.), spawns three Strategists
-in parallel — each argues one angle — then a cross-review round, then
-synthesizes a comparison-view with 2–3 finalists for you to pick. The
-result is saved to `.tms/brainstorms/` and can be referenced from a later
-`/new-feature` for the decided approach.
+#### `/audit`
+Walks `.tms/` via the `kensa` CLI: schema validation, duplicates, stale drafts, orphan shared-steps, tag drift, qualitative sampling. Output to terminal + `.tms/reports/audit-YYYY-MM-DD.md`. Opt-in fixes per-batch with confirmation.
 
-### Maintenance
+#### `/save-memory`
+Auto-runs after `/new-feature` and `/update-feature` (enforced by the auto-checkpoint hook on Windows). Run manually mid-session to capture a new convention before more work happens.
+</details>
 
-#### `/audit` — health check on the test repository
-
-```
-/audit
-```
-
-When the suite has grown to hundreds of cases and you suspect drift:
-the Lead walks the entire `.tms/` via the `kensa` CLI, runs schema
-validation, finds duplicates, stale drafts, orphan shared-steps, and tags
-outside your taxonomy, plus samples a few cases for qualitative checks
-(title style, vague expected results). Output goes to terminal +
-`.tms/reports/audit-YYYY-MM-DD.md`. Read-only by default; at the end you
-can opt-in to apply fixes per-batch with confirmation.
-
-#### `/save-memory` — manually capture session learnings
-
-```
-/save-memory
-```
-
-Mostly runs automatically at the end of `/new-feature` and
-`/update-feature` (enforced by the auto-checkpoint hook). Run it
-explicitly when you've established a new convention mid-session and want
-to capture it before more work happens.
-
-### Setup
-
-#### `/setup` — bootstrap a project (one-time)
-
-Already covered above. Re-run if you add a new source of truth or want
-to re-learn conventions from updated cases.
+---
 
 ## Sources of truth
 
-The plugin reads tickets and specs through MCP — the protocol Claude
-Code uses to talk to external systems. You choose which ones to wire up
-during `/setup`:
+| Source | Auth | Notes |
+|---|---|---|
+| Linear | Browser OAuth | |
+| Jira | Browser OAuth | Atlassian Cloud |
+| Confluence | Browser OAuth | Same Atlassian server as Jira; `/setup` runs CQL discovery for canonical spec pages |
+| Notion | Browser OAuth | |
+| Figma | Local socket | Requires Figma desktop with Dev Mode MCP enabled |
 
-| Source        | Auth                           |
-|---------------|--------------------------------|
-| **Linear**    | Browser OAuth on first connect |
-| **Jira**      | Browser OAuth (Atlassian Cloud)|
-| **Confluence**| Browser OAuth (same Atlassian server as Jira) |
-| **Notion**    | Browser OAuth                  |
-| **Figma**     | Local socket (requires Figma desktop app with Dev Mode MCP enabled) |
+No API tokens. OAuth opens a tab on first use. Each source has a dedicated extraction skill (`sot-linear`, `sot-jira`, `sot-confluence`, `sot-notion`, `sot-figma`) that tells the agents where acceptance criteria typically live.
 
-**No API tokens to manage.** OAuth opens a tab on first use; the Figma
-Dev Mode MCP authenticates against whatever's signed-in in your desktop
-app.
-
-For Confluence, `/setup` also runs a CQL discovery to find authoritative
-spec pages within your space — so the Lead doesn't get stuck on an
-overview page and miss the actual specs underneath. You'll be asked to
-multi-select which pages count as the source of truth.
-
-Each source has a dedicated extraction skill (`sot-linear`, `sot-jira`,
-`sot-confluence`, `sot-notion`, `sot-figma`) that tells the agents where
-acceptance criteria typically live for that source.
+---
 
 ## Project memory — the `.tms/` directory
 
-Everything the plugin learns about your project is stored as plain
-markdown / YAML files. Read them, edit them, commit them.
+Everything the plugin learns lives in plain markdown / YAML. Read, edit, commit.
 
 ```
 <your-project>/.tms/
@@ -278,156 +222,134 @@ markdown / YAML files. Read them, edit them, commit them.
 │   ├── glossary.md        ← domain terms and translations
 │   ├── sot.yaml           ← source-of-truth config
 │   └── learned/
-│       ├── patterns.md    ← reusable patterns spotted in cases
+│       ├── patterns.md
 │       ├── shared-steps.md
-│       └── tags.md        ← the tag taxonomy
-├── suites/                ← your test cases live here, organized by feature
+│       └── tags.md
+├── suites/                ← test cases, organized by feature
 ├── shared-steps/          ← reusable step sequences
-├── reports/               ← /audit output (commit these)
-├── brainstorms/           ← /brainstorm output (commit these)
+├── reports/               ← /audit output (commit)
+├── brainstorms/           ← /brainstorm output (commit)
 └── debug/                 ← per-session logs (gitignored)
 ```
 
-`project.md`, `conventions.md`, `glossary.md` are human-written — the
-plugin only reads them. `sot.yaml` is written during `/setup` and edited
-by hand later. `learned/*` is plugin-written; you review and accept
-during the memory checkpoint.
+`project.md`, `conventions.md`, `glossary.md` are human-written, plugin reads only. `sot.yaml` is `/setup`-written, hand-edited later. `learned/*` is plugin-written; you review during memory checkpoint.
 
-For the byte-exact case file format, see the `kensa-test-authoring` skill
-under `skills/kensa-test-authoring/`.
-
-## FAQ / Troubleshooting
-
-**Q: I'm on macOS / Linux. Do the hooks work?**
-No, the auto-checkpoint and debug-log hooks are Windows + PowerShell only
-in v0.5. The rest of the plugin works normally; you just don't get
-auto-checkpoint enforcement or per-session debug logs. A bash port is on
-the roadmap. As a workaround, you can run `/save-memory` manually at the
-end of each `/new-feature` session.
-
-**Q: I ran `/setup` but Linear / Jira / Notion isn't reading anything.**
-You probably skipped the restart after `/setup`. MCP servers connect at
-session start — fully quit Claude Code and reopen. On first connect a
-browser tab opens for OAuth; complete that. If it still fails, run
-`/hooks` and `/help` to confirm the plugin loaded; if not, see
-[INSTALL.md](INSTALL.md).
-
-**Q: Where's `.tms/suites/`? The plugin says "no cases yet".**
-That's normal on a fresh project. `/new-feature` will create the suite
-directories the first time it writes cases. If you already have cases
-from another tool, drop them in `.tms/suites/<suite>/<id>.md` matching
-the `kensa-test-authoring` format and `/setup` will learn from them.
-
-**Q: How do I disable the plugin in one specific project?**
-Use `/plugin disable kensa-qa@rpluzhnikov` while inside that project.
-This keeps it installed globally; the project just won't load it.
-
-**Q: Can I edit `conventions.md` directly?**
-Yes — that's the intended workflow. The plugin re-reads memory at the
-start of every session, so changes take effect immediately. If you want
-the plugin to *learn* new conventions from cases you wrote by hand, run
-`/setup` again and pick "update specific files".
-
-**Q: What's the difference between the Workers and the Strategists?**
-Workers (used by `/new-feature` and `/update-feature`) *write* test cases.
-Strategists (used by `/brainstorm`) *deliberate* — they argue strategic
-angles to help you decide on an approach, and never write cases
-themselves.
-
-**Q: The session won't end — something about a memory checkpoint.**
-The auto-checkpoint hook (Windows only) requires the Lead to run
-`/save-memory` after `/new-feature` or `/update-feature` before the
-session can stop. Wait for the Lead to finish the checkpoint, or, if the
-Lead got stuck, type the sentinel line `memory-checkpoint: done` yourself
-to unblock. See [INSTALL.md §5](INSTALL.md) for deeper diagnostics.
+Byte-exact case file format: see `skills/kensa-test-authoring/`.
 
 ---
 
-## Under the hood
+## FAQ
 
-Everything below is for the curious or for plugin developers — you don't
-need it to use the plugin.
+<details>
+<summary><b>macOS / Linux — do the hooks work?</b></summary>
+
+Not in v0.5. Auto-checkpoint and debug-log are Windows + PowerShell only. The rest of the plugin works normally. Workaround: run `/save-memory` manually at the end of each session. Bash port is on the roadmap.
+</details>
+
+<details>
+<summary><b>I ran <code>/setup</code> but Linear / Jira / Notion isn't reading anything.</b></summary>
+
+You skipped the restart after `/setup`. MCP servers connect at session start — fully quit Claude Code and reopen. On first connect, a browser tab opens for OAuth. Still failing → run `/hooks` and `/help` to confirm the plugin loaded, then check [INSTALL.md](INSTALL.md).
+</details>
+
+<details>
+<summary><b><code>.tms/suites/</code> is empty. The plugin says "no cases yet".</b></summary>
+
+Normal on a fresh project. `/new-feature` creates suite directories on first write. Already have cases from another tool? Drop them under `.tms/suites/<suite>/<id>.md` matching the `kensa-test-authoring` format and `/setup` will learn from them.
+</details>
+
+<details>
+<summary><b>How do I disable the plugin in one project only?</b></summary>
+
+Inside that project: `/plugin disable kensa-qa@rpluzhnikov`. Stays installed globally; just doesn't load there.
+</details>
+
+<details>
+<summary><b>Can I edit <code>conventions.md</code> directly?</b></summary>
+
+Yes, that's the intended workflow. The plugin re-reads memory at session start so changes take effect immediately. Want the plugin to *learn* from cases you wrote by hand? Re-run `/setup` and pick "update specific files".
+</details>
+
+<details>
+<summary><b>QA Engineers vs Strategists — what's the difference?</b></summary>
+
+`qa-engineer-agent` workers (spawned by `/new-feature`, `/update-feature`) *write* test cases. `strategist` agents (spawned by `/brainstorm`) *deliberate* — they argue strategic angles to help you decide on an approach, never write cases themselves.
+</details>
+
+<details>
+<summary><b>What does "ISTQB CTFL v4.0.1 grounded" mean here?</b></summary>
+
+Every reasoning skill in the plugin cites the specific ISTQB CTFL chapter, section, and learning objective it operationalises. When the Test Lead or a QA Engineer applies a technique (boundary value analysis, decision tables, risk-based prioritization, defect reporting…), it can name the syllabus authority for that decision. This makes the reasoning auditable for teams that need to justify their QA practice to regulated stakeholders, and it lets newcomers learn ISTQB by example: every test case the plugin writes is a worked example of one or more CTFL learning objectives.
+
+The 10 non-ISTQB skills (the `kensa-cli`, `kensa-test-authoring`, `sot-*` family, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol`) are plugin infrastructure — they don't contradict ISTQB but aren't derived from it either; they carry a "non-ISTQB tooling" disclaimer at the top of their SKILL.md.
+</details>
+
+<details>
+<summary><b>The session won't end — something about a memory checkpoint.</b></summary>
+
+The Windows-only auto-checkpoint hook requires `/save-memory` after `/new-feature` or `/update-feature` before the session can stop. Wait for the Lead to finish, or — if it's stuck — type the sentinel line `memory-checkpoint: done` to unblock. Details: [INSTALL.md §5](INSTALL.md).
+</details>
+
+---
+
+<details>
+<summary><b>Under the hood</b> (for the curious / plugin developers)</summary>
 
 ### Auto memory checkpoint
+After every `/new-feature` and `/update-feature`, a `Stop` hook (`hooks/save-memory-stop.ps1`) blocks the session from ending until the Lead emits `memory-checkpoint: done`. Behavior is controlled by `auto_save_learnings` in `.tms/memory/project.md`:
+- `true` — silent saves, one-line report
+- `false` (default) — yes/no/edit per candidate
 
-After every `/new-feature` and `/update-feature`, a `Stop` hook
-(`hooks/save-memory-stop.ps1`) blocks the session from ending until the
-Lead runs the `/save-memory` protocol and emits a sentinel line:
-`memory-checkpoint: done`.
-
-The flow is controlled by `auto_save_learnings` in
-`.tms/memory/project.md`:
-- `true` — Lead applies saves silently and adds one line to its report.
-- `false` (default) — Lead presents all candidates with yes/no/edit per
-  item.
-
-If there's nothing to save, the sentinel is still emitted with
-`(nothing to save this round)` appended.
+If nothing to save, sentinel is still emitted with `(nothing to save this round)` appended.
 
 ### Per-session debug log
-
-A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for
-every session that runs inside a Kensa project (detected by the presence
-of `.tms/memory/`):
-
+A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every session inside a Kensa project (detected by `.tms/memory/`):
 ```
 .tms/debug/
-├── session-<id>.md     ← readable digest (commands invoked, files written,
-│                         worker spawns, stuck-session warnings)
+├── session-<id>.md     ← readable digest (commands, files, worker spawns, stuck warnings)
 └── session-<id>.jsonl  ← full transcript snapshot
 ```
+`/setup` auto-adds `.tms/debug/` to `.gitignore` — transcripts may contain pasted ticket text or secrets. 3+ `/new-feature` invocations with 0 files written → "STUCK SESSION" banner at the top. Hook never blocks; on failure it exits silently.
 
-When `/setup` runs, it adds `.tms/debug/` to your project's `.gitignore`
-automatically — transcripts may contain ticket text or secrets the user
-pasted into prompts, so they're not safe to commit. If the digest shows
-3+ `/new-feature` invocations with 0 files written, a "STUCK SESSION"
-banner is added at the top.
-
-The debug-log hook never blocks the stop; on failure it exits silently.
-
-### Bundled MCP server
-
-The plugin ships its own `sequential-thinking` MCP (declared in
-`plugin.json`, started automatically — no credentials). It powers the
-`sequential-thinking` reasoning skill that Lead and Workers use for hard
-scope and edge-case decisions.
+### Bundled MCP
+`sequential-thinking` ships with the plugin (declared in `plugin.json`, started automatically — no credentials). Powers the reasoning skill Lead and Workers use for hard scope and edge-case decisions.
 
 ### Skills
+31 skills under `skills/`, auto-loaded via the plugin manifest. See the skill library section above for the full taxonomy. Highlights:
 
-~22 skills under `skills/`, auto-loaded via the plugin manifest.
-Highlights:
+**ISTQB CTFL v4.0.1-grounded (21):**
+- **Foundation:** `testing-fundamentals` (Ch 1)
+- **Test design (Ch 4):** `test-design-techniques`, `white-box-techniques-overview`, `collaboration-based-approaches`, `negative-and-edge-cases`, `test-case-writing-craft`, `checklist-design`
+- **Test management (Ch 5 + §3.2):** `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management`
+- **Static & lifecycle (Ch 2 + 3):** `sdlc-and-test-lifecycle`, `static-testing-reviews`
+- **Platform / non-functional (§2.2.2 + Ch 6):** `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview`
+
+**Non-ISTQB tooling (10):**
 - `kensa-test-authoring` — byte-exact `.tms/` on-disk format
-- `kensa-cli` — drive the `kensa` CLI for queries, bulk edits, context
-  bundling, and the audit workflow
-- `sequential-thinking` — structured reasoning for hard decisions
-- `figma-use` — programmatic Figma access for inspecting deep node
-  structure
-- `sot-linear` / `sot-jira` / `sot-confluence` / `sot-notion` /
-  `sot-figma` — source-specific extraction guidance
-- `checklist-design`, `test-design-techniques`,
-  `test-case-writing-craft`, `negative-and-edge-cases`,
-  `web-testing` / `mobile-testing` / `backend-api-testing` /
-  `security-testing` — the QA-craft skills the Workers load
+- `kensa-cli` — drive the `kensa` CLI (queries, bulk edits, context bundling, audit)
+- `sequential-thinking` — structured reasoning
+- `figma-use` — programmatic Figma access for deep node inspection
+- `sot-linear` / `sot-jira` / `sot-confluence` / `sot-notion` / `sot-figma` — extraction guides per source
+- `task-assignment` — `test-lead-agent` → `qa-engineer-agent` delegation contract
+- `clarification-protocol` — Test Lead ↔ user dialogue rules
+
+</details>
+
+---
 
 ## Roadmap
 
-- **v0.1** — Lead + Worker, 4 commands, project memory templates.
-- **v0.2** — Memory checkpoint protocol.
-- **v0.3** — SOT-specific extraction skills; `sequential-thinking`,
-  `figma-use`, `kensa-cli`, `kensa-test-authoring` integrated;
-  `/setup` writes MCP servers into `.mcp.json`.
-- **v0.4** — Stop hooks for auto-checkpoint and debug log; marketplace
-  manifest; `INSTALL.md` smoke-test guide.
-- **v0.5 (current)** — `/audit` (repository health check),
-  `/brainstorm` (multi-strategist deliberation), `strategist` agent,
-  MCP-setup OAuth clarity, Confluence multi-page discovery,
-  pre-seeded tag taxonomy (`negative`, `tbd`, `smoke`, `regression`),
-  parallel-worker ID-range allocation, stuck-session detection in
-  debug log.
-- **v0.6** — Bash port of the hooks (macOS / Linux);
-  fixture registry (`.tms/fixtures/` with `kensa fixtures --extract`);
-  exploratory testing mode (`/explore`); auto-discovery of brainstorm
-  artifacts in `/new-feature`.
+| Version | Highlights |
+|---|---|
+| v0.1 | Lead + Worker, 4 commands, project memory templates |
+| v0.2 | Memory checkpoint protocol |
+| v0.3 | SOT extraction skills; `sequential-thinking`, `figma-use`, `kensa-cli`, `kensa-test-authoring` integrated; `.mcp.json` writer |
+| v0.4 | Stop hooks (auto-checkpoint + debug log); marketplace manifest; `INSTALL.md` |
+| v0.5 | `/audit`, `/brainstorm`, `strategist` agent, OAuth clarity, Confluence multi-page discovery, pre-seeded tag taxonomy, parallel-worker ID-range allocation, stuck-session detection |
+| **v0.6 (current)** | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
+| v0.7 (planned) | Bash port of hooks (macOS / Linux); fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); brainstorm artifact auto-discovery in `/new-feature` |
+
+---
 
 ## License
 
@@ -435,7 +357,7 @@ MIT — see [LICENSE](LICENSE).
 
 ## Links
 
-- [INSTALL.md](INSTALL.md) — install, smoke-test, diagnostic recipes
+- [INSTALL.md](INSTALL.md) — install, smoke-test, diagnostics
 - [CHANGELOG.md](CHANGELOG.md) — version history
-- [Kensa](https://kensa.dev) — the test-case management format this plugin targets
+- [Kensa](https://kensa.dev) — the TMS format this plugin targets
 - [Claude Code](https://docs.claude.com/claude-code) — the host environment

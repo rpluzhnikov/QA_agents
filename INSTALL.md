@@ -68,8 +68,8 @@ After restart, verify the plugin loaded:
 
 - Run `/help` -- you should see `setup`, `new-feature`, `update-feature`,
   `save-memory`, `audit`, `brainstorm` in the slash command list.
-- Type `@` (mention) -- `lead`, `worker`, and `strategist` should appear
-  under agents.
+- Type `@` (mention) -- `test-lead-agent`, `qa-engineer-agent`, and
+  `strategist` should appear under agents.
 - Run `/hooks` -- you should see two entries under **Stop**:
   - `kensa-qa: writing debug log`
   - `kensa-qa: checking memory checkpoint`
@@ -116,18 +116,20 @@ In the same Kensa project, with the plugin loaded:
 
 Expected sequence:
 
-1. Lead echoes back what it understood and asks you to confirm a plan.
-2. After you approve, Lead spawns one or more Worker subagents (you'll see
-   `Task` calls in the transcript).
-3. Workers return checklists; Lead reviews and either approves or
-   sends back.
-4. After checklist approval, Workers write test case `.md` files under
+1. The Test Lead echoes back what it understood and asks you to confirm a
+   plan.
+2. After you approve, the Test Lead spawns one or more QA Engineer subagents
+   (you'll see `Task` calls in the transcript).
+3. QA Engineers return checklists; the Test Lead reviews and either approves
+   or sends back.
+4. After checklist approval, QA Engineers write test case `.md` files under
    `.tms/suites/`.
-5. Lead reviews cases and reports back to you.
-6. **Memory checkpoint** -- Lead automatically runs `/save-memory`. Either
-   silently saves (if `auto_save_learnings: true` in `project.md`) or shows
-   you a yes/no/edit batch.
-7. Lead emits `memory-checkpoint: done` and the session is allowed to stop.
+5. The Test Lead reviews cases and reports back to you.
+6. **Memory checkpoint** -- the Test Lead automatically runs `/save-memory`.
+   Either silently saves (if `auto_save_learnings: true` in `project.md`)
+   or shows you a yes/no/edit batch.
+7. The Test Lead emits `memory-checkpoint: done` and the session is allowed
+   to stop.
 
 Check after the run:
 

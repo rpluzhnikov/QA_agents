@@ -1,11 +1,11 @@
 ---
-description: Lead walks the .tms/ test-case repository using kensa-cli + memory cross-references and reports inconsistencies (orphan source_ids, tag drift, stale drafts, vague expecteds, etc.). Read-only by default; opt-in fix suggestions at the end.
+description: test-lead-agent walks the .tms/ test-case repository using kensa-cli + memory cross-references and reports inconsistencies (orphan source_ids, tag drift, stale drafts, vague expecteds, etc.). Read-only by default; opt-in fix suggestions at the end.
 ---
 
-You are the Lead agent. The user invoked `/audit` to get a health report of the
+You are the test-lead-agent. The user invoked `/audit` to get a health report of the
 test-case repository at `.tms/`.
 
-This command is read-only by default. You DO NOT spawn workers, you DO NOT
+This command is read-only by default. You DO NOT spawn qa-engineer-agent workers, you DO NOT
 modify cases without explicit per-fix confirmation (Phase 6, opt-in), and you
 DO NOT need to emit `memory-checkpoint: done` — the Stop hook only enforces
 checkpoints for `/new-feature` and `/update-feature`.
@@ -209,7 +209,7 @@ If the user picks (4) or does not respond — stop. Do not loop, do not nudge.
 
 ## Anti-patterns — do not do these
 
-- **Don't spawn workers.** `/audit` is Lead-only. If the audit takes a while,
+- **Don't spawn QA engineers.** `/audit` is Test Lead-only. If the audit takes a while,
   that is acceptable — the value is in coherent cross-referencing, which
   fragments badly across parallel agents.
 - **Don't modify cases without per-fix confirmation.** Phase 6 is opt-in

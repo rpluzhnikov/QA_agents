@@ -3,6 +3,11 @@ name: security-testing
 description: OWASP-grounded security scenarios that a MANUAL QA tester can verify with a browser and DevTools — no pentest tooling required. Covers authentication, session management, access control, input validation, sensitive data exposure, transport security, security headers, business logic abuse, privacy/consent, and mobile-specific items. Explicitly marks items that are OUT OF SCOPE for manual QA (require Burp Suite, payload crafting, source review, etc.) so the skill doesn't give false confidence. Use when the feature has any security-sensitive surface (auth, payments, PII, access control).
 ---
 
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 2 — Testing Throughout the SDLC, §2.2.2 Test Types (security as an ISO 25010 quality characteristic); Chapter 4 — Test Analysis and Design, §4.4.3 Checklist-Based Testing; Chapter 5 — Managing the Test Activities, §5.2 Risk Management.
+> Learning objectives: FL-2.2.2 (K2) distinguish test types (security is a non-functional test type — ISO 25010 quality characteristic with sub-characteristics confidentiality, integrity, non-repudiation, accountability, authenticity); FL-4.4.3 (K2) explain checklist-based testing (this skill IS an OWASP-grounded checklist scoped to what manual QA can credibly cover); FL-5.2.3 (K2) explain product-risk-analysis influence on test scope (security risks drive prioritisation of which checks to run on which surfaces).
+> See also: the `risk-based-testing` skill for the §5.2 risk register that selects security focus areas.
+
 # Security testing — what manual QA can credibly cover
 
 A manual QA tester equipped with only a browser, DevTools, and normal

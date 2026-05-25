@@ -1,27 +1,31 @@
 ---
 name: task-assignment
-description: How the Lead formulates a precise task brief when delegating to a worker via the Task tool. Defines the brief schema, what each section must contain, and the difference between Stage 1 (checklist) and Stage 2 (cases) briefs. Lead-only skill. Use before every Task invocation.
+description: How the Test Lead formulates a precise task brief when delegating to a QA Engineer via the Task tool. Defines the brief schema, what each section must contain, and the difference between Stage 1 (checklist) and Stage 2 (cases) briefs. Test Lead-only skill. Use before every Task invocation.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (agent-orchestration pattern — Test Lead → QA Engineer delegation protocol). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: implements the role separation per §1.4.5 (test management vs testing engineering) and the work-assignment side of test monitoring & control (§5.3).
 
 # Task assignment
 
-A worker has narrow context — they don't see the user, they don't have
-project memory loaded by default, they don't know what other workers
+A QA Engineer has narrow context — they don't see the user, they don't have
+project memory loaded by default, they don't know what other QA Engineers
 are doing. The brief is everything.
 
 A bad brief produces:
-- Worker asking clarifying questions (it can't actually ask, so it
+- QA Engineer asking clarifying questions (it can't actually ask, so it
   guesses or marks `GAP:` and you re-spawn it)
-- Worker covering the wrong scope
-- Worker writing in the wrong style
-- Worker not using shared steps that exist
+- QA Engineer covering the wrong scope
+- QA Engineer writing in the wrong style
+- QA Engineer not using shared steps that exist
 - Cases that pass review by the letter but feel "off" because conventions
   weren't passed through
 
 ## Brief schema — Stage 1 (checklist)
 
 ```markdown
-# Worker brief — <feature short name> — Stage 1: Checklist
+# QA Engineer brief — <feature short name> — Stage 1: Checklist
 
 ## Scope (IN)
 <bulleted list of specific claims to cover>
@@ -57,18 +61,18 @@ A bad brief produces:
 - DO NOT extend scope beyond the IN list — flag gaps instead
 - Mark all assumptions with `[ASSUMPTION]`
 
-## Open from Lead
-<questions the Lead has that the worker should NOT answer but should
+## Open from Test Lead
+<questions the Test Lead has that the QA Engineer should NOT answer but should
 acknowledge — informational only>
 ```
 
 ## Brief schema — Stage 2 (cases)
 
 ```markdown
-# Worker brief — <feature short name> — Stage 2: Cases
+# QA Engineer brief — <feature short name> — Stage 2: Cases
 
 ## Approved checklist
-<the checklist content, with Lead's notes inline if any>
+<the checklist content, with Test Lead's notes inline if any>
 
 ## Scope adjustments since Stage 1
 <anything that changed in response to user feedback during plan review>
@@ -77,10 +81,10 @@ acknowledge — informational only>
 <same as Stage 1>
 
 ## Existing cases for style reference
-<same as Stage 1, or refined if Lead saw style mismatches>
+<same as Stage 1, or refined if Test Lead saw style mismatches>
 
 ## Shared steps to use
-<explicit list — Lead has decided which shared steps apply>
+<explicit list — Test Lead has decided which shared steps apply>
 
 ## Skills to load
 - test-case-writing-craft
@@ -91,17 +95,17 @@ acknowledge — informational only>
 ## Output target
 - Suite path: <.tms/suites/auth/2fa/>
 - Naming pattern: <e.g., `setup-001.md`, `setup-002.md`, ...>
-- `id_range`: <NNN-MMM, e.g. `020-038`> — REQUIRED when the Lead is spawning ≥2
-  workers in the same turn. The worker uses NNN as its first id and increments
+- `id_range`: <NNN-MMM, e.g. `020-038`> — REQUIRED when the Test Lead is spawning ≥2
+  QA Engineers in the same turn. The QA Engineer uses NNN as its first id and increments
   locally; it does not read `config.yaml`. See `/new-feature` Step 4.5 for how
-  the Lead carves these ranges. For a single-worker spawn, omit this field —
-  the worker reads `.tms/config.yaml` `project.next_id` directly.
+  the Test Lead carves these ranges. For a single-QA Engineer spawn, omit this field —
+  the QA engineer reads `.tms/config.yaml` `project.next_id` directly.
 - Frontmatter requirements:
   - `id`: <first one comes from `id_range` above, then increment>
   - `priority`: <use checklist tier — must-have → high/critical;
     should-have → medium; nice-to-have → low>
   - `status: draft`
-  - `tags`: <list of tags worker should apply>
+  - `tags`: <list of tags QA Engineer should apply>
   - `source_id`: <SOT ref>
   - `generated_by: kensa-qa@0.5.0`
 
@@ -138,7 +142,7 @@ Yes:
 - "SMS 2FA — not implemented yet"
 - "Performance / load — perf team owns"
 
-This protects the worker from quietly expanding scope and forces them to
+This protects the QA Engineer from quietly expanding scope and forces them to
 flag if they see something that looks out of scope.
 
 ### References — pointer + section
@@ -147,7 +151,7 @@ Not: "See LIN-89"
 Yes: "See LIN-89, specifically the 'Setup flow' section in the description
 and AC items 1-4 in the AC field."
 
-The worker may not have time to read the whole ticket. Tell them where
+The QA Engineer may not have time to read the whole ticket. Tell them where
 to land.
 
 ### Existing cases for style — pick representative ones
@@ -158,7 +162,7 @@ Yes: "Read these for style:
 - `.tms/suites/auth/login-fail-003.md` — typical negative case
 - `.tms/suites/auth/password-reset-002.md` — multi-step flow"
 
-Pick cases that match the kind of testing the worker is about to do. If
+Pick cases that match the kind of testing the QA Engineer is about to do. If
 they're about to write a multi-step flow, point at multi-step examples,
 not single-action ones.
 
@@ -169,9 +173,9 @@ Yes:
 - "Use `auth/login-as-user` for the precondition where a user logs in"
 - "Use `auth/login-as-admin` for admin-action cases"
 - "Do NOT extract new shared steps for this batch unless you find a
-  sequence repeating 3+ times — that's a Lead decision."
+  sequence repeating 3+ times — that's a Test Lead decision."
 
-Don't make the worker hunt for shared steps. You already know what's
+Don't make the QA Engineer hunt for shared steps. You already know what's
 relevant from the suite scan you did in scope analysis.
 
 ### Project conventions — only the relevant ones
@@ -186,7 +190,7 @@ to be violated:
 - "Recovery code values in cases use the placeholder `RCV-XXXX-XXXX`,
   never real codes"
 
-The worker reads the full `conventions.md` only if you tell it to.
+The QA Engineer reads the full `conventions.md` only if you tell it to.
 
 ## Anti-patterns in briefs
 
@@ -194,18 +198,18 @@ The worker reads the full `conventions.md` only if you tell it to.
 
 > "Write test cases for the 2FA feature. See LIN-89. Use our conventions."
 
-Tells the worker nothing. Worker will guess.
+Tells the QA Engineer nothing. QA Engineer will guess.
 
 ### 2. The wall of text
 
-A 2000-word brief with three layers of headings. Worker will skim and
+A 2000-word brief with three layers of headings. QA Engineer will skim and
 miss things.
 
 Aim for 400-800 words per brief.
 
 ### 3. Pasting the whole spec
 
-The worker reads the spec themselves via MCP. Your brief is the
+The QA Engineer reads the spec themselves via MCP. Your brief is the
 **interpretation layer** — what's in scope, what to focus on, what
 style. Don't duplicate the spec.
 
@@ -213,7 +217,7 @@ style. Don't duplicate the spec.
 
 > "Standard tests for this kind of feature."
 
-What's standard for you isn't standard for the worker. Spell it out or
+What's standard for you isn't standard for the QA engineer. Spell it out or
 point at examples.
 
 ### 5. Skill spam
@@ -225,21 +229,21 @@ point at examples.
 Don't load all skills "just in case". Each skill in context is tokens.
 Pick the 4-6 that actually apply.
 
-## Spawning the worker
+## Spawning the QA Engineer
 
 In Claude Code, use `Task` tool with the brief as the prompt. Specify
-the worker agent (`worker` per `agents/worker.md`).
+the QA Engineer agent (`qa-engineer-agent` per `agents/qa-engineer-agent.md`).
 
-For parallel workers: spawn all in the same turn. Don't sequentially
+For parallel QA Engineers: spawn all in the same turn. Don't sequentially
 wait for one before launching the next.
 
 For sequential dependence (rare — usually means decomposition was wrong):
-finish one worker, review, then spawn the next with the prior worker's
+finish one QA Engineer, review, then spawn the next with the prior QA Engineer's
 output as additional context.
 
 ## Recording the brief
 
-Keep a copy of the brief in your context. When the worker returns, you
+Keep a copy of the brief in your context. When the QA Engineer returns, you
 need to compare what they did against what you asked for. If you don't
 remember exactly what you asked, you can't review properly.
 

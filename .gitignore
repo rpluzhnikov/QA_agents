@@ -1,12 +1,21 @@
 # Claude Code local overrides (per-user, never committed)
-.claude/settings.local.json
-
-# Scratch space used by some Claude Code plugins
+.claude/
 .claude-team/
 
 # If kensa-qa hooks ever run in THIS repo (developing the plugin), debug
 # output lands here -- not part of the plugin itself.
 .tms/debug/
+
+# Temporary working directories (plan docs, PDF extracts, scratch)
+.tmp-*/
+
+# Playwright MCP cache / snapshots (used when regenerating docs/images/*)
+.playwright-mcp/
+
+# ISTQB CTFL v4.0.1 syllabus is the source we ground skills against — keep
+# locally for reference, do not redistribute through the plugin.
+ISTQB_CTFL_Syllabus_v4.0.1.pdf
+ISTQB_CTFL_Syllabus_v4.0.1.md
 
 # OS junk
 .DS_Store

@@ -3,6 +3,12 @@ name: negative-and-edge-cases
 description: Systematic checklist of negative scenarios and edge cases to consider when designing tests for any feature. Used by workers during checklist design to ensure non-happy-path coverage isn't an afterthought. Catalog organized by input, action, state, and environment dimensions — apply each dimension to the feature in question and surface what's relevant.
 ---
 
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 4 — Test Analysis and Design, §4.4 Experience-Based Test Techniques (§4.4.1 error guessing, §4.4.3 checklist-based testing).
+> Learning objectives: FL-4.4.1 (K2) explain error guessing; FL-4.4.3 (K2) explain checklist-based testing.
+> The four-dimension walk (input / action / state / environment) IS a taxonomy-based error-guessing technique in the CTFL §4.4.1 sense, operationalised as a checklist per §4.4.3.
+> See also: §1.3 testing principle 4 (defect clustering) as the empirical basis; §5.2 risk-based testing for prioritising which dimensions matter most.
+
 # Negative and edge cases — the systematic walk
 
 Junior testers and AI both share the same failure mode: they write
@@ -234,9 +240,9 @@ miss the obvious bug.
 Two anti-patterns:
 
 1. **Apply all rows blindly** — leads to 100-item checklists with 60
-   useless cases. Lead will reject.
+   useless cases. Test Lead will reject.
 2. **Skip the walk because it feels tedious** — leads to happy-path-only
-   coverage. Lead will reject.
+   coverage. Test Lead will reject.
 
 Walk the dimensions. Apply judgment. Skip what doesn't fit. Add what
 does.

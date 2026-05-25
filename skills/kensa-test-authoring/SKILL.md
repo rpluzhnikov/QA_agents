@@ -3,6 +3,10 @@ name: kensa-test-authoring
 description: Author Kensa QA artifacts on disk — test cases, shared steps, test plans, and runs in the .tms/ + suites/ format. Use when writing or editing case .md files, schema.yaml, config.yaml, shared-steps, plans, or runs by hand, and for the conventions that make a good test case.
 ---
 
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (the Kensa on-disk file format for test cases, shared steps, plans, runs, schema, and config). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: implements CTFL §1.4.3 testware (test cases, test data, test execution schedule) as on-disk artefacts under §5.4 configuration-management discipline (Markdown + YAML + JSON under git).
+
 ## Overview — when to use
 
 Use this skill when you author or edit **Kensa QA artifacts directly on disk**: test

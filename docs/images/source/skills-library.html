@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  :root {
+    --bg: #0e1014;
+    --panel: #161a22;
+    --border: #2a3142;
+    --text: #e6e8ec;
+    --mute: #8a93a6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    width: 1800px;
+    padding: 50px 0 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .title { text-align: center; margin-bottom: 30px; }
+  .title h1 { margin: 0 0 6px; font-size: 36px; letter-spacing: -0.01em; }
+  .title .sub { color: var(--mute); font-size: 16px; }
+  .title .stamp {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;
+    padding: 6px 14px;
+    background: rgba(79,124,255,.12); border: 1px solid rgba(79,124,255,.4);
+    border-radius: 999px; font-size: 13px; color: #4f7cff;
+    font-weight: 600; letter-spacing: 0.02em;
+  }
+  .wheel-wrap { width: 1700px; height: 1500px; }
+  .wheel-wrap svg { display: block; width: 100%; height: 100%; }
+
+  .legend {
+    margin-top: 16px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+    justify-content: center; max-width: 1500px;
+  }
+  .legend .item {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--mute);
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 999px; padding: 7px 13px;
+  }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 50%; }
+  .legend .item b { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="title">
+  <h1>Kensa-QA skill library</h1>
+  <div class="sub">31 skills · 21 ISTQB-grounded · 10 plugin tooling</div>
+  <div class="stamp">📘 ISTQB CTFL v4.0.1 grounded</div>
+</div>
+
+<div class="wheel-wrap">
+  <svg id="wheel" viewBox="0 0 1700 1500" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<div class="legend">
+  <span class="item"><span class="swatch" style="background:#4f7cff"></span><b>Foundation</b> · CTFL Ch 1</span>
+  <span class="item"><span class="swatch" style="background:#5fb8ff"></span><b>Test Design</b> · CTFL Ch 4</span>
+  <span class="item"><span class="swatch" style="background:#8be78b"></span><b>Test Management</b> · CTFL Ch 5</span>
+  <span class="item"><span class="swatch" style="background:#ffcf6b"></span><b>Static &amp; Lifecycle</b> · CTFL Ch 2 + 3</span>
+  <span class="item"><span class="swatch" style="background:#c79bff"></span><b>Platform Specialization</b> · CTFL Ch 2.2.2 / 6</span>
+  <span class="item"><span class="swatch" style="background:#ff9fb0"></span><b>Tooling &amp; Infrastructure</b> · non-ISTQB</span>
+</div>
+
+<script>
+  const SVG = document.getElementById('wheel');
+  const cx = 850, cy = 720;        // center of wheel (canvas 1700×1500)
+
+  // Three concentric layers. Center disc → sector summary ring → skill slice ring.
+  const rCenter      = 140;
+  const rSectorIn    = 150;
+  const rSectorOut   = 260;
+  const rSkillIn     = 270;
+  const rSkillOut    = 600;
+  const rPillCenter  = 670;        // outside pill labels live just beyond the rim
+
+  const COLORS = {
+    foundation: { fill: "#3e63cf",                  text: "#ffffff", stroke: "#5e8aff",                 sectorFill: "rgba(79,124,255,0.35)" },
+    design:     { fill: "rgba(95,184,255,0.55)",    text: "#ffffff", stroke: "rgba(95,184,255,1)",      sectorFill: "rgba(95,184,255,0.30)" },
+    mgmt:       { fill: "rgba(139,231,139,0.50)",   text: "#0e1014", stroke: "rgba(139,231,139,1)",     sectorFill: "rgba(139,231,139,0.28)" },
+    statics:    { fill: "rgba(255,207,107,0.55)",   text: "#0e1014", stroke: "rgba(255,207,107,1)",     sectorFill: "rgba(255,207,107,0.30)" },
+    platform:   { fill: "rgba(199,155,255,0.55)",   text: "#ffffff", stroke: "rgba(199,155,255,1)",     sectorFill: "rgba(199,155,255,0.30)" },
+    tooling:    { fill: "rgba(255,159,176,0.55)",   text: "#ffffff", stroke: "rgba(255,159,176,1)",     sectorFill: "rgba(255,159,176,0.30)" },
+  };
+
+  // Skills CLOCKWISE from 12 o'clock. The boundary between Test Mgmt and Test Design
+  // sits at the very top (0° = 12 o'clock) so labels "fan out" symmetrically from it.
+  // Sectors run: Test Mgmt (right, top→bottom), Tooling (right→bottom→left), Platform
+  // (bottom-left), Static & Lifecycle (left), Test Design (left→top).
+  const skills = [
+    { sector: "mgmt",    name: "test-planning" },
+    { sector: "mgmt",    name: "risk-based-testing" },
+    { sector: "mgmt",    name: "scope-analysis" },
+    { sector: "mgmt",    name: "review-rubrics" },
+    { sector: "mgmt",    name: "test-monitoring-control" },
+    { sector: "mgmt",    name: "defect-management" },
+    { sector: "tooling", name: "kensa-cli" },
+    { sector: "tooling", name: "kensa-test-authoring" },
+    { sector: "tooling", name: "sequential-thinking" },
+    { sector: "tooling", name: "task-assignment" },
+    { sector: "tooling", name: "clarification-protocol" },
+    { sector: "tooling", name: "sot-linear" },
+    { sector: "tooling", name: "sot-jira" },
+    { sector: "tooling", name: "sot-confluence" },
+    { sector: "tooling", name: "sot-notion" },
+    { sector: "tooling", name: "sot-figma" },
+    { sector: "tooling", name: "figma-use" },
+    { sector: "platform", name: "test-tools-and-automation" },
+    { sector: "platform", name: "security-testing" },
+    { sector: "platform", name: "backend-api-testing" },
+    { sector: "platform", name: "mobile-testing" },
+    { sector: "platform", name: "web-testing" },
+    { sector: "statics",  name: "static-testing-reviews" },
+    { sector: "statics",  name: "sdlc-and-test-lifecycle" },
+    { sector: "design",   name: "checklist-design" },
+    { sector: "design",   name: "test-case-writing-craft" },
+    { sector: "design",   name: "negative-and-edge-cases" },
+    { sector: "design",   name: "collaboration-based" },
+    { sector: "design",   name: "white-box-techniques" },
+    { sector: "design",   name: "test-design-techniques" },
+  ];
+  const SEG = 360 / skills.length;
+
+  // Inner-ring sector labels. Static & Lifecycle is abbreviated so it fits in
+  // its narrow 24° arc; the full name lives in the bottom legend.
+  const sectorMeta = {
+    mgmt:     { label: "TEST MANAGEMENT" },
+    tooling:  { label: "TOOLING" },
+    platform: { label: "PLATFORM" },
+    statics:  { label: "ST · LIFECYCLE" },
+    design:   { label: "TEST DESIGN" },
+  };
+
+  function pt(deg, r) {
+    const rad = (deg - 90) * Math.PI / 180;
+    return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+  }
+  function el(tag, attrs, children = []) {
+    const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v != null) e.setAttribute(k, v);
+    }
+    for (const c of children) {
+      if (typeof c === "string") e.appendChild(document.createTextNode(c));
+      else if (c) e.appendChild(c);
+    }
+    return e;
+  }
+  function segmentPath(startDeg, endDeg, rIn, rOut) {
+    const [x1o, y1o] = pt(startDeg, rOut);
+    const [x2o, y2o] = pt(endDeg,   rOut);
+    const [x2i, y2i] = pt(endDeg,   rIn);
+    const [x1i, y1i] = pt(startDeg, rIn);
+    const sweep = endDeg - startDeg;
+    const largeArc = sweep > 180 ? 1 : 0;
+    return `M ${x1o} ${y1o}
+            A ${rOut} ${rOut} 0 ${largeArc} 1 ${x2o} ${y2o}
+            L ${x2i} ${y2i}
+            A ${rIn} ${rIn} 0 ${largeArc} 0 ${x1i} ${y1i}
+            Z`;
+  }
+  // Curved path for textPath, going clockwise from startDeg to endDeg at radius r
+  function arcTextPath(startDeg, endDeg, r) {
+    const [x1, y1] = pt(startDeg, r);
+    const [x2, y2] = pt(endDeg,   r);
+    const sweep = endDeg - startDeg;
+    const largeArc = sweep > 180 ? 1 : 0;
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`;
+  }
+
+  // Walk skills, group into runs by sector, return [{sector, startDeg, endDeg, midDeg}, ...]
+  function sectorRuns() {
+    const runs = [];
+    let i = 0;
+    while (i < skills.length) {
+      const sec = skills[i].sector;
+      let j = i;
+      while (j + 1 < skills.length && skills[j + 1].sector === sec) j++;
+      const startDeg = i * SEG;
+      const endDeg = (j + 1) * SEG;
+      runs.push({ sector: sec, startDeg, endDeg, midDeg: (startDeg + endDeg) / 2 });
+      i = j + 1;
+    }
+    return runs;
+  }
+
+  // ---------- DRAW ----------
+
+  // 0. Defs (gradients + textPaths)
+  const defs = el("defs", {});
+  defs.insertAdjacentHTML("beforeend", `
+    <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5e8aff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#2e4ca5" stop-opacity="1"/>
+    </radialGradient>`);
+  SVG.appendChild(defs);
+
+  // 1. Inner sector summary ring (between center and skill ring)
+  const runs = sectorRuns();
+  runs.forEach((r) => {
+    const c = COLORS[r.sector];
+    SVG.appendChild(el("path", {
+      d: segmentPath(r.startDeg, r.endDeg, rSectorIn, rSectorOut),
+      fill: c.sectorFill,
+      stroke: "#0e1014",
+      "stroke-width": 1.5,
+    }));
+  });
+
+  // 2. Inner sector NAMES — text curved along the middle of each sector arc.
+  //    Use textPath: text follows the arc going clockwise.
+  runs.forEach((r, idx) => {
+    const c = COLORS[r.sector];
+    const meta = sectorMeta[r.sector];
+    // Arc radius for the text baseline: middle of the sector ring.
+    const rText = (rSectorIn + rSectorOut) / 2 + 4;
+
+    // For sectors on the BOTTOM half (midDeg between 90° and 270°), the
+    // clockwise arc puts text upside-down. Flip by reversing the path
+    // (counterclockwise) and shifting up so it stays right-side-up.
+    const flipBottom = r.midDeg > 90 && r.midDeg < 270;
+
+    const pathId = `arc-${r.sector}-${idx}`;
+    let pathD;
+    if (!flipBottom) {
+      // Clockwise arc from startDeg to endDeg, at rText
+      pathD = arcTextPath(r.startDeg, r.endDeg, rText);
+    } else {
+      // Counter-clockwise (swap endpoints and use largeArc/sweep)
+      const [x1, y1] = pt(r.endDeg,   rText);
+      const [x2, y2] = pt(r.startDeg, rText);
+      const sweep = r.endDeg - r.startDeg;
+      const largeArc = sweep > 180 ? 1 : 0;
+      pathD = `M ${x1} ${y1} A ${rText} ${rText} 0 ${largeArc} 0 ${x2} ${y2}`;
+    }
+    defs.appendChild(el("path", { id: pathId, d: pathD }));
+
+    // Smaller font for the narrow Static & Lifecycle sector so label fits the arc.
+    const fontSize = r.sector === "statics" ? 12 : 16;
+    const text = el("text", {
+      "font-size": fontSize,
+      "font-weight": 800,
+      fill: c.stroke,
+      "letter-spacing": "0.08em",
+      "font-family": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+    });
+    const tp = el("textPath", {
+      href: `#${pathId}`,
+      "startOffset": "50%",
+      "text-anchor": "middle",
+    }, [meta.label]);
+    text.appendChild(tp);
+    SVG.appendChild(text);
+  });
+
+  // 3. Outer skill slices
+  skills.forEach((s, i) => {
+    const start = i * SEG;
+    const end = start + SEG;
+    const c = COLORS[s.sector];
+    SVG.appendChild(el("path", {
+      d: segmentPath(start, end, rSkillIn, rSkillOut),
+      fill: c.fill,
+      stroke: "#0e1014",
+      "stroke-width": 1.5,
+    }));
+  });
+
+  // 4. Skill labels — text radially centred in each segment.
+  //    Standard radial-pie convention: LEFT half of the wheel (mid > 180°) gets a
+  //    180° flip so letters stay right-side-up. Discontinuity is at the BOTTOM
+  //    (6 o'clock), the TOP boundary is clean and labels "fan out" symmetrically
+  //    from the test-planning ↔ test-design-techniques border.
+  const rLabel = (rSkillIn + rSkillOut) / 2;
+  skills.forEach((s, i) => {
+    const mid = i * SEG + SEG / 2;
+    const c = COLORS[s.sector];
+    const flip = mid > 180 && mid < 360;       // left half flips (classic pie)
+    const rot = flip ? (mid + 90) : (mid - 90);
+    const [sx, sy] = pt(mid, rLabel);
+
+    SVG.appendChild(el("text", {
+      transform: `translate(${sx} ${sy}) rotate(${rot})`,
+      x: 0, y: 6, "text-anchor": "middle",
+      "font-size": 18, "font-weight": 700, fill: c.text,
+      "font-family": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+    }, [s.name]));
+  });
+
+  // 5. Center disc
+  SVG.appendChild(el("circle", {
+    cx, cy, r: rCenter,
+    fill: "url(#centerGrad)",
+    stroke: "rgba(255,255,255,0.3)",
+    "stroke-width": 3,
+  }));
+  SVG.appendChild(el("text", {
+    x: cx, y: cy + 4, "text-anchor": "middle",
+    "font-size": 24, "font-weight": 800, fill: "#ffffff",
+    "font-family": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+  }, ["Testing"]));
+  SVG.appendChild(el("text", {
+    x: cx, y: cy + 34, "text-anchor": "middle",
+    "font-size": 24, "font-weight": 800, fill: "#ffffff",
+    "font-family": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+  }, ["fundamentals"]));
+
+  // Outside pill labels removed — they duplicated the inner-ring sector names.
+  //    Sector identification is now carried by inner sector ring + bottom legend.
+</script>
+
+</body>
+</html>

@@ -1,8 +1,8 @@
 ---
-description: Write test cases for a new feature. Invokes the Lead agent which gathers SOT context, plans scope, delegates to workers, and reviews their output.
+description: Write test cases for a new feature. Invokes the test-lead-agent which gathers SOT context, plans scope, delegates to qa-engineer-agent workers, and reviews their output.
 ---
 
-You are the Lead agent. The user has invoked `/new-feature` with some reference (ticket ID, URL, free-text description, or empty).
+You are the test-lead-agent. The user has invoked `/new-feature` with some reference (ticket ID, URL, free-text description, or empty).
 
 ## Step 1 — Resolve the reference
 
@@ -64,32 +64,33 @@ their briefs.
 
 ## Step 4.5 — Allocate ID ranges (only if spawning ≥2 workers)
 
-When the plan calls for one worker, skip this step — the worker just reads
+When the plan calls for one QA engineer, skip this step — the engineer just reads
 `.tms/config.yaml` `project.next_id` and increments from there.
 
-When the plan calls for two or more workers spawned in the same turn, you MUST
-hand each worker a non-overlapping ID range, otherwise two workers will both
+When the plan calls for two or more QA engineers spawned in the same turn, you MUST
+hand each engineer a non-overlapping ID range, otherwise two engineers will both
 claim id 1 and produce filename collisions.
 
 1. Read `.tms/config.yaml` and note `project.next_id` (call it `START`).
-2. For each worker package, use its estimated case count from Step 4 as the size
+2. For each engineer package, use its estimated case count from Step 4 as the size
    (round up — better to over-allocate than collide). Carve contiguous ranges,
    leaving no gaps and no overlap.
 3. Embed the assigned range in the brief as `id_range: NNN-MMM` (zero-padded to
-   3 digits to match the filename convention). The worker uses NNN as its first
+   3 digits to match the filename convention). The engineer uses NNN as its first
    case ID and increments locally; if it produces fewer cases than the range, the
    tail of the range is wasted and that's fine.
 
-Example: `next_id: 1`, three workers estimated at 19 / 19 / 17 cases
-→ worker A: `id_range: 001-019`, worker B: `id_range: 020-038`, worker C: `id_range: 039-055`.
+Example: `next_id: 1`, three engineers estimated at 19 / 19 / 17 cases
+→ engineer A: `id_range: 001-019`, engineer B: `id_range: 020-038`, engineer C: `id_range: 039-055`.
 
-After the workers report back, the actual highest ID used across all workers is
-what gets written back to `config.yaml.next_id` (the Lead does this, not the
-workers — they don't touch config).
+After the engineers report back, the actual highest ID used across all engineers is
+what gets written back to `config.yaml.next_id` (the Test Lead does this, not the
+QA engineers — they don't touch config).
 
-## Step 5 — Spawn workers
 
-For each package, use the Task tool to spawn a worker with:
+## Step 5 — Spawn QA engineers
+
+For each package, use the Task tool to spawn a qa-engineer-agent with:
 
 - Scope (in/out)
 - References (SOT links + section pointers)
@@ -99,25 +100,25 @@ For each package, use the Task tool to spawn a worker with:
 - Output target (suite path, naming pattern)
 - Stage: `checklist`
 
-If multiple workers: spawn in parallel, same turn.
+If multiple engineers: spawn in parallel, same turn.
 
 ## Step 6 — Review checklists
 
-When workers return their checklists, apply the `review-rubrics` skill (checklist rubric).
+When QA engineers return their checklists, apply the `review-rubrics` skill (checklist rubric).
 
-- If approved: re-invoke worker with the approved checklist and stage: `cases`.
+- If approved: re-invoke the engineer with the approved checklist and stage: `cases`.
 - If send-back: re-invoke with specific feedback. Cap at 2 rounds.
 
 ## Step 7 — Review cases
 
-When workers return finished cases, apply the `review-rubrics` skill (cases rubric).
+When QA engineers return finished cases, apply the `review-rubrics` skill (cases rubric).
 
 - If approved: cases stay where they are.
-- If send-back: re-invoke worker with specific feedback. Cap at 2 rounds.
+- If send-back: re-invoke the engineer with specific feedback. Cap at 2 rounds.
 
 ## Step 8 — Report
 
-Final report to user per the `lead.md` reporting protocol. Include:
+Final report to user per the `test-lead-agent.md` reporting protocol. Include:
 
 - Files created (with paths)
 - Case count

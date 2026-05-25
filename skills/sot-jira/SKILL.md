@@ -1,7 +1,11 @@
 ---
 name: sot-jira
-description: Extract test requirements from a Jira issue via the Atlassian MCP — description, acceptance criteria (custom field or templated section), comments, sub-tasks, and linked Confluence specs. Use when the Lead hands a worker a Jira reference (issue key like ABC-123 or an issue URL) and you need to turn it into testable scope. Tells you where AC actually live in Jira, which MCP tools to call, and how the epic→story→sub-task hierarchy maps to coverage.
+description: Extract test requirements from a Jira issue via the Atlassian MCP — description, acceptance criteria (custom field or templated section), comments, sub-tasks, and linked Confluence specs. Use when the Test Lead hands a QA Engineer a Jira reference (issue key like ABC-123 or an issue URL) and you need to turn it into testable scope. Tells you where AC actually live in Jira, which MCP tools to call, and how the epic→story→sub-task hierarchy maps to coverage.
 ---
+
+> **Non-ISTQB tooling skill**
+> This skill covers project infrastructure (Atlassian MCP server integration for extracting test requirements from Jira issues). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> Light cross-reference: operationalises CTFL §1.4.4 traceability between test basis and testware for Jira as the Source of Truth; surfaces acceptance criteria per §4.5.2 from Jira custom fields and templated AC sections.
 
 # SOT — Jira
 
@@ -50,8 +54,8 @@ than silently picking one.
 ## Hierarchy → scope
 
 - **Epic** — too coarse to test directly. Get its child stories (JQL on Epic Link) and
-  ask the Lead which story is in scope. Don't write cases against a whole epic.
-- **Story** — the normal unit. One story usually maps to one worker package.
+  ask the Test Lead which story is in scope. Don't write cases against a whole epic.
+- **Story** — the normal unit. One story usually maps to one QA Engineer package.
 - **Sub-task** — a slice of a story. Cover it within the story's scope; don't treat
   each sub-task as a separate suite unless it represents an independently testable
   surface (e.g. an API sub-task vs a UI sub-task).
@@ -61,9 +65,9 @@ than silently picking one.
 ## Extraction workflow
 
 1. Get the issue. Record: key, type, summary, status, `source_id` (the key, e.g.
-   `ABC-123`) — workers stamp this on every case's frontmatter.
+   `ABC-123`) — QA Engineers stamp this on every case's frontmatter.
 2. Locate AC using the priority list above.
-3. Pull sub-tasks and linked issues; decide with the Lead whether they're in scope.
+3. Pull sub-tasks and linked issues; decide with the Test Lead whether they're in scope.
 4. Follow Confluence/spec links and extract from there too (`sot-confluence`).
 5. Convert each AC into one or more verifiable conditions. Anything vague
    ("works correctly", "is fast") is a `GAP:` — flag it; don't invent the threshold.

@@ -1,7 +1,12 @@
 ---
 name: mobile-testing
-description: Mobile-specific test scenarios for iOS 18 and Android 14/15 native apps. Covers permissions and consent flows, lifecycle/interruptions, connectivity, deep linking, UI/form factors (Dynamic Type, dark mode, foldables), push notifications, authentication/biometrics, in-app purchases, manual-verifiable accessibility, and cross-version concerns. Use when the feature under test is a mobile app or has mobile-specific surfaces. Loaded by the worker when the Lead specifies mobile platform.
+description: Mobile-specific test scenarios for iOS 18 and Android 14/15 native apps. Covers permissions and consent flows, lifecycle/interruptions, connectivity, deep linking, UI/form factors (Dynamic Type, dark mode, foldables), push notifications, authentication/biometrics, in-app purchases, manual-verifiable accessibility, and cross-version concerns. Use when the feature under test is a mobile app or has mobile-specific surfaces. Loaded by the QA Engineer when the Test Lead specifies mobile platform.
 ---
+
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 2 — Testing Throughout the SDLC, §2.2.2 Test Types (functional and non-functional — ISO 25010 quality characteristics: usability, compatibility, portability, reliability, performance efficiency, security); Chapter 4 — Test Analysis and Design, §4.4.3 Checklist-Based Testing.
+> Learning objectives: FL-2.2.2 (K2) distinguish test types (this skill enumerates mobile-relevant non-functional characteristics per ISO 25010 — lifecycle, connectivity, permissions, accessibility, etc.); FL-4.4.3 (K2) explain checklist-based testing (this skill IS a domain checklist for native mobile).
+> See also: §2.2.1 test levels (mobile cases live mostly at system and acceptance levels); the `sdlc-and-test-lifecycle` skill for the test-type taxonomy.
 
 # Mobile testing — what not to forget
 
@@ -872,7 +877,7 @@ EMUI/HarmonyOS diverge from AOSP in:
 
 ## How to use this skill in your checklist
 
-When the Lead specifies `mobile-testing`:
+When the Test Lead specifies `mobile-testing`:
 
 1. Walk the 10 sections above for the feature in question.
 2. For each section's "If your feature touches X" note, add the

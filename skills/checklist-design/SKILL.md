@@ -1,13 +1,18 @@
 ---
 name: checklist-design
-description: How to structure a coverage checklist for a feature before writing test cases. Used by workers in Stage 1 (checklist phase) and by the Lead when reviewing those checklists. A checklist is not a list of test cases — it's a list of claims that need cases, organized so the Lead can confirm coverage at a glance.
+description: How to structure a coverage checklist for a feature before writing test cases. Used by QA Engineers in Stage 1 (checklist phase) and by the Test Lead when reviewing those checklists. A checklist is not a list of test cases — it's a list of claims that need cases, organized so the Test Lead can confirm coverage at a glance.
 ---
+
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 1 — Fundamentals of Testing, §1.4.1 Test Activities and Tasks, §1.4.3 Testware; Chapter 4 — Test Analysis and Design, §4.5.2 Acceptance Criteria; Chapter 5 — Managing the Test Activities, §5.1.5 Test Case Prioritization.
+> Learning objectives: FL-1.4.1 (K2) explain test activities (the checklist is the output of test analysis — naming test conditions); FL-1.4.3 (K2) differentiate the testware (the checklist is testware produced by test analysis); FL-4.5.2 (K2) classify AC formats (the checklist consumes AC as test conditions); FL-5.1.5 (K3) apply prioritization (must / should / nice tiers = risk-based + requirements-based prioritization).
+> See also: §4.4.3 checklist-based testing technique; §5.2 risk-based testing for how risk drives the priority tiers.
 
 # Checklist design
 
 A checklist is the "table of contents" of the test cases that will be
 written next. Its purpose is to make coverage **inspectable** before
-the worker writes 30 cases that may need restructuring.
+the QA engineer writes 30 cases that may need restructuring.
 
 A good checklist:
 
@@ -85,7 +90,7 @@ A good checklist:
 - Implementation details ("verify the database column is named `totp_secret`")
 - Code review items ("verify the secret is encrypted at rest")
 - Performance ("response time < 200ms") — separate test discipline
-- Things outside the worker's assigned scope
+- Things outside the QA Engineer's assigned scope
 
 ## References
 
@@ -104,7 +109,7 @@ Items without references should be either obvious from the feature
 ## Annotating techniques
 
 If you're applying a specific test design technique, note it in the
-checklist so the Lead can verify the right technique was chosen:
+checklist so the Test Lead can verify the right technique was chosen:
 
 ```markdown
 ### TOTP code input field [3-value BVA]
@@ -124,31 +129,31 @@ Or for a state machine:
 - [ ] Enabled → DisablePrompt → Disabled (if user confirms)
 ```
 
-This makes review trivial — the Lead can verify "yes, valid transitions
+This makes review trivial — the Test Lead can verify "yes, valid transitions
 are all covered".
 
 ## Length
 
-Aim for under 30 items per worker package. If you have more, either:
+Aim for under 30 items per QA Engineer package. If you have more, either:
 
-- The scope is too big (talk to Lead about splitting)
+- The scope is too big (talk to Test Lead about splitting)
 - You're listing cases-as-claims (compress: "Login with N variants of
   invalid TOTP" instead of 5 separate items, where they'd just be data
   variations)
 
-## What the Lead checks
+## What the Test Lead checks
 
-When the Lead reviews your checklist, expect them to look for:
+When the Test Lead reviews your checklist, expect them to look for:
 
 1. **Coverage gaps** — anything in the spec / AC not represented?
-2. **Out-of-scope items** — anything that should be in a different worker
+2. **Out-of-scope items** — anything that should be in a different QA Engineer
    package?
 3. **Missing references** — items with no source where one should exist
 4. **Wrong technique** — if you marked `[3-value BVA]` and didn't include
-   both neighbors of each boundary, the Lead will catch that
+   both neighbors of each boundary, the Test Lead will catch that
 5. **Assumption pile-up** — too many `[ASSUMPTION]` markers signal you
    should have stopped and asked
 
-If the Lead sends back with comments, address each comment specifically.
+If the Test Lead sends back with comments, address each comment specifically.
 Don't just re-submit the checklist with a paragraph saying "addressed
 feedback".

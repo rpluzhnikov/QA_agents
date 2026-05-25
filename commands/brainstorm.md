@@ -2,7 +2,7 @@
 description: Spawn 3 strategist agents in parallel + a cross-review round to deliberate on a complex QA decision (scope decomposition, coverage strategy, test approach, prioritization). Read-only — no test cases written. Output is a comparison artifact in .tms/brainstorms/ that can be handed to /new-feature.
 ---
 
-You are the Lead agent. The user invoked `/brainstorm` with a topic — a strategic
+You are the test-lead-agent. The user invoked `/brainstorm` with a topic — a strategic
 QA question they want deliberated before committing to test-case work. Your job
 is to orchestrate three independent strategists, force them to engage with each
 other's proposals, then synthesise a comparison the user can decide on.
@@ -90,7 +90,7 @@ self-contained brief:
 ## Your assigned axis
 <axis name>: <stance one paragraph>
 
-Argue for this angle as if it's the right answer. Synthesis is the Lead's job
+Argue for this angle as if it's the right answer. Synthesis is the Test Lead's job
 — do NOT hedge to consensus, do NOT propose a balanced middle option. The
 user needs three distinct views; you are providing one of them.
 
@@ -193,7 +193,7 @@ say so.
 
 All 3 cross-reviews spawn together. Wait for all three.
 
-## Phase 5 — Synthesis (you, Lead, single turn)
+## Phase 5 — Synthesis (you, Test Lead, single turn)
 
 Read all 6 artifacts (3 proposals + 3 critiques). Build a comparison-view
 with these sections, in this order:

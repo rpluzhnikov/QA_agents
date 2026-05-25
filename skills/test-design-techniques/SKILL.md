@@ -3,6 +3,11 @@ name: test-design-techniques
 description: ISTQB-grounded test design techniques applicable to manual test cases — equivalence partitioning, boundary value analysis (2-value and 3-value), decision tables, state transitions (0-switch, 1-switch, round-trip), use case / scenario testing, checklist-based testing, error guessing. Use whenever designing what to cover in a test, especially when justifying coverage to QA stakeholders. Cite ISTQB section numbers to defend your choices ("per ISTQB CTFL 4.0 §4.2.3").
 ---
 
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 4 — Test Analysis and Design, §4.1 Test Techniques Overview, §4.2 Black-Box Test Techniques (§4.2.1 EP, §4.2.2 BVA, §4.2.3 decision tables, §4.2.4 state transitions), §4.4 Experience-Based Test Techniques (§4.4.1 error guessing, §4.4.3 checklist-based).
+> Learning objectives: FL-4.1.1 (K2) distinguish black-box / white-box / experience-based; FL-4.2.1 (K3) use EP to derive test cases; FL-4.2.2 (K3) use BVA (2-value + 3-value) to derive test cases; FL-4.2.3 (K3) use decision tables; FL-4.2.4 (K3) use state transitions; FL-4.4.1 (K2) explain error guessing; FL-4.4.3 (K2) explain checklist-based testing.
+> See also: CTAL-TA v4.0 §3.1–§3.4 for advanced extensions (1-switch / round-trip / scenario-based); §1.4.1 for where techniques fit in test analysis & design activities.
+
 # Test design techniques
 
 This skill is your toolbox for deciding **what** to test, grounded in
@@ -35,7 +40,7 @@ items_identified × 100 %`. The summary table at the bottom of this
 skill lists the per-technique "item" definition.
 
 Cite techniques in your checklist as `per ISTQB CTFL 4.0 §X.Y.Z` —
-that's what gives the worker (and the senior QA reading the cases) the
+that's what gives the QA Engineer (and the senior QA reading the cases) the
 audit trail.
 
 ---
@@ -186,8 +191,8 @@ boundary and `{63, 64, 65}` for the upper — **8 coverage items, not 6**.
 
 Many practitioners get this wrong by writing only `{7, 8, 64, 65}`,
 which is 2-value BVA mislabeled. If you mark a group `[3-value BVA]`
-in the checklist and the Lead counts only six items per simple range,
-the Lead will send it back.
+in the checklist and the Test Lead counts only six items per simple range,
+the Test Lead will send it back.
 
 ### Worked example — discount eligibility (order total $50–$500)
 

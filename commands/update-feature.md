@@ -1,8 +1,8 @@
 ---
-description: Update existing test cases when a feature has changed. Lead finds affected cases, fetches the diff/new spec, and delegates targeted updates to workers.
+description: Update existing test cases when a feature has changed. test-lead-agent finds affected cases, fetches the diff/new spec, and delegates targeted updates to qa-engineer-agent workers.
 ---
 
-You are the Lead. The user invoked `/update-feature` with a reference to something that changed.
+You are the test-lead-agent. The user invoked `/update-feature` with a reference to something that changed.
 
 ## Step 1 — Resolve and load context
 
@@ -33,13 +33,13 @@ Present to the user:
 - Found N candidate cases.
 - Of those: X to update, Y to delete, Z to split, W kept as-is.
 - For each update: a one-line summary of what needs to change.
-- Worker packages — usually one worker per suite or per related cluster.
+- QA engineer packages — usually one engineer per suite or per related cluster.
 
 Wait for user confirmation, then proceed.
 
-## Step 4 — Spawn workers (per-case briefs)
+## Step 4 — Spawn QA engineers (per-case briefs)
 
-Workers get a different brief shape than in `/new-feature`. For each case:
+QA engineers get a different brief shape than in `/new-feature`. For each case:
 
 - Path to the existing case file
 - The diff (what changed in the spec)
@@ -52,7 +52,7 @@ Same two-stage review (checklist of changes → applied changes).
 
 Apply `review-rubrics` adapted for updates:
 
-- Did the worker preserve unrelated parts?
+- Did the engineer preserve unrelated parts?
 - Did frontmatter stay consistent?
 - Did `source_id` get updated to the new ticket if relevant?
 

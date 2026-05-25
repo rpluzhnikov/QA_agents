@@ -1,7 +1,12 @@
 ---
 name: web-testing
-description: Web-specific test scenarios for browser-based applications. Covers browser navigation (back/forward/refresh), form validation, deep linking, accessibility basics (keyboard, focus, screen reader), localStorage/cookies, responsive design at common breakpoints, internationalization, and progressive enhancement. Use when the feature under test is a web app. Loaded by the worker when the Lead specifies web platform.
+description: Web-specific test scenarios for browser-based applications. Covers browser navigation (back/forward/refresh), form validation, deep linking, accessibility basics (keyboard, focus, screen reader), localStorage/cookies, responsive design at common breakpoints, internationalization, and progressive enhancement. Use when the feature under test is a web app. Loaded by the QA Engineer when the Test Lead specifies web platform.
 ---
+
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 2 — Testing Throughout the SDLC, §2.2.2 Test Types (functional and non-functional — ISO 25010 quality characteristics: usability, compatibility, portability, reliability); Chapter 4 — Test Analysis and Design, §4.4.3 Checklist-Based Testing.
+> Learning objectives: FL-2.2.2 (K2) distinguish test types (this skill enumerates web-relevant non-functional characteristics per ISO 25010); FL-4.4.3 (K2) explain checklist-based testing (this skill IS a domain checklist for web).
+> See also: §2.2.1 test levels (web cases live mostly at system and acceptance levels); the `sdlc-and-test-lifecycle` skill for the test-type taxonomy.
 
 # Web testing — what not to forget
 

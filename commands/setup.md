@@ -29,14 +29,14 @@ Wait for response. Don't dump 20 questions at once.
 
 1. Ask which sources of truth they use: Linear / Jira / Confluence / Notion / Figma / other / none.
 2. For each named source, ask:
-   - What's the default workspace / team / project / space the Lead should scope
+   - What's the default workspace / team / project / space the Test Lead should scope
      future searches to? This goes into `sot.yaml` and is plugin config — it is
      NOT a credential. OAuth/local-socket handles auth (see below). For Atlassian
      specifically the cloudId is resolved automatically after OAuth, so accept
      anything human-readable (a space key, a project key) or "default" / "all".
    - Do you want me to wire up the MCP server for it during setup? (yes / no)
 3. Unlike `sot.yaml` (which is just plugin config), the MCP servers are what actually
-   lets the Lead read tickets and specs. In Phase 6 you will offer to write a project
+   lets the Test Lead read tickets and specs. In Phase 6 you will offer to write a project
    `.mcp.json` at the repo root containing the servers they said yes to. The plugin
    already bundles its own `sequential-thinking` MCP (declared in `plugin.json`) — do
    NOT add that one to the project file; it is always available.
@@ -44,7 +44,7 @@ Wait for response. Don't dump 20 questions at once.
 4. **For Confluence specifically — discover the spec tree.** After the user names a
    Confluence space, before moving on, do a CQL-based discovery so `sot.yaml.notable_pages`
    is populated with the actual specs, not just an overview page. This step is what
-   prevents the "Lead got stuck on the wiki landing page" failure mode.
+   prevents the "Test Lead got stuck on the wiki landing page" failure mode.
 
    - If the `atlassian` MCP is already connected in the user's environment: call its
      search tool (typically `searchPagesUsingCql` or equivalent — check the available

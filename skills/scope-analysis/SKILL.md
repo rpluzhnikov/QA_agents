@@ -1,13 +1,18 @@
 ---
 name: scope-analysis
-description: How the Lead analyzes a feature spec, identifies what's in and out of scope, and decomposes the work into worker packages. Use at the start of every /new-feature and /update-feature, before delegating any work. This skill is for the Lead role only.
+description: How the Test Lead analyzes a feature spec, identifies what's in and out of scope, and decomposes the work into QA Engineer packages. Use at the start of every /new-feature and /update-feature, before delegating any work. This skill is for the Test Lead role only.
 ---
 
-# Scope analysis — how the Lead plans
+> **ISTQB CTFL v4.0.1 grounding**
+> Chapter 1 — Fundamentals of Testing, §1.4.1 Test Activities and Tasks, §1.4.2 Test Process in Context; Chapter 5 — Managing the Test Activities, §5.1 Test Planning (especially §5.1.1 purpose & content of a test plan), §5.2 Risk Management.
+> Learning objectives: FL-1.4.1 (K2) explain test activities (this skill operationalises planning + test analysis); FL-1.4.2 (K2) explain impact of context (project type, lifecycle, stakeholders shape scope); FL-5.1.1 (K2) exemplify test plan purpose and content (scope analysis produces a mini test plan: in/out scope, decomposition, risks, estimate); FL-5.2.1 (K1) identify risk level via likelihood × impact; FL-5.2.3 (K2) explain risk analysis influence on thoroughness and test scope.
+> See also: the `test-planning` skill for full §5.1 treatment; the `risk-based-testing` skill for the §5.2 register; `testing-fundamentals` for the named activities.
+
+# Scope analysis — how the Test Lead plans
 
 Most quality problems in test case authoring start at scope. Cases that
 weren't needed get written; cases that were critical get missed; two
-workers cover the same area; one case secretly tests two things. Good
+QA Engineers cover the same area; one case secretly tests two things. Good
 scope analysis prevents most of this before any case is written.
 
 ## Inputs
@@ -28,12 +33,12 @@ A scope plan with these sections:
 1. **In scope** — testable claims you intend to cover
 2. **Out of scope** — things that look like they should be covered but
    won't be, with a one-line reason
-3. **Decomposition** — how the in-scope work splits across workers
+3. **Decomposition** — how the in-scope work splits across QA Engineers
 4. **Estimated case count** — per package, ballpark
 5. **Open questions** — things you couldn't resolve from SOT alone
 6. **Risks** — areas where you're uncertain whether coverage is adequate
 
-This goes to the USER for approval before any worker spawns.
+This goes to the USER for approval before any QA Engineer spawns.
 
 ## Step 1 — Read the SOT critically
 
@@ -93,9 +98,9 @@ Be honest: if you're cutting scope because you don't know how to test
 something, say so as an open question rather than hiding it in
 "out of scope".
 
-## Step 4 — Decompose into worker packages
+## Step 4 — Decompose into QA Engineer packages
 
-Default: ONE worker package per feature.
+Default: ONE QA Engineer package per feature.
 
 Split into multiple packages ONLY when:
 
@@ -107,14 +112,14 @@ Split into multiple packages ONLY when:
 3. **Estimated case count > 15 and the split is clean.**
 
 If you split, each package must have:
-- Independent SOT references (the worker doesn't need to read the other
+- Independent SOT references (the QA engineer doesn't need to read the other
   package's spec)
 - No overlap (no claim covered by two packages)
 - A clear interface (what the other package assumes about this one, if
   anything)
 
 If you can't write the package boundaries cleanly, don't split. One
-worker, sequential cases.
+QA Engineer, sequential cases.
 
 ## Step 5 — Estimate case count
 
@@ -135,7 +140,7 @@ Heuristics from CTFL test design techniques:
 For a typical "add a setting" type feature: 5-10 cases.
 For a typical "new flow with several steps": 12-20 cases.
 For a typical "major feature with multiple surfaces": 30-60 cases across
-2-3 workers.
+2-3 QA Engineers.
 
 Mark the estimate as `~`. It's a planning number, not a contract.
 
@@ -145,12 +150,12 @@ After reading the SOT and forming scope, you'll have residual uncertainty.
 Categorize:
 
 - **Critical** — can't proceed without an answer. Ask the user before
-  spawning workers. (Examples: contradiction in the spec; missing
+  spawning QA Engineers. (Examples: contradiction in the spec; missing
   acceptance criterion for a major behavior.)
 - **Important** — can proceed with an assumption, but the user should
   weigh in. Surface in the plan as "I'll assume X unless you say
   otherwise." (Examples: behavior on edge cases not in spec.)
-- **Minor** — can proceed with a reasonable default. Worker will mark
+- **Minor** — can proceed with a reasonable default. QA Engineer will mark
   with `ASSUMPTION:` in the case, you'll catch in review.
 
 Batch the critical and important ones into ONE message to the user. Don't
@@ -193,7 +198,7 @@ Send to the user as a single message:
 - Performance / scale (perf team)
 
 **Decomposition**
-- 1 worker, web-focused (no mobile surfaces in this ticket)
+- 1 QA Engineer, web-focused (no mobile surfaces in this ticket)
 - ~14 cases, target suite `.tms/suites/auth/2fa/`
 
 **Open questions for you**
@@ -216,10 +221,10 @@ Ready to proceed?
 ## When to revise after user response
 
 - User narrows scope → update in/out lists, re-estimate, proceed.
-- User adds scope → update lists, possibly add a worker package,
+- User adds scope → update lists, possibly add a QA Engineer package,
   re-estimate, proceed.
-- User answers open questions → bake answers into worker briefs, drop
+- User answers open questions → bake answers into QA Engineer briefs, drop
   the assumptions.
-- User says "looks good" → proceed to spawn workers.
-- User says "rethink X" → revise, present again. No worker spawns until
+- User says "looks good" → proceed to spawn QA Engineers.
+- User says "rethink X" → revise, present again. No QA Engineer spawns until
   the user signs off on the plan.
