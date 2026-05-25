@@ -27,6 +27,11 @@ sources:
     enabled: false
     base_url: ""
     space_keys: []
+    # Authoritative spec pages within the spaces above. Populated by /setup
+    # via CQL discovery (or by hand). Without this, the Lead can land on a
+    # space overview page and never find the actual specs underneath.
+    # Format: [{id: "655361", title: "Discount Engine"}, ...]
+    notable_pages: []
 
   notion:
     enabled: false

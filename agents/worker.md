@@ -56,7 +56,7 @@ After the Lead approves the checklist (you'll be re-invoked with `stage: cases` 
    - `status: draft` (Lead promotes after review)
    - `tags`
    - `source_id` (the SOT ref the Lead gave you)
-   - `generated_by: kensa-qa@0.1.0`
+   - `generated_by: kensa-qa@0.5.0`
 5. Report back to the Lead with the list of created files and any open questions.
 
 ## Style alignment

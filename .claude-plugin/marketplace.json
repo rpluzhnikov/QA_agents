@@ -8,8 +8,8 @@
     {
       "name": "kensa-qa",
       "source": "./",
-      "version": "0.4.0",
-      "description": "Manual QA team in your pocket — multi-agent test case authoring for the Kensa TMS. Lead + Worker agents, four slash commands, ~21 skills, bundled sequential-thinking MCP, Stop hooks for auto memory checkpoint and per-session debug log."
+      "version": "0.5.0",
+      "description": "Manual QA team in your pocket — multi-agent test case authoring for the Kensa TMS. Lead + Worker + Strategist agents, six slash commands (setup, new-feature, update-feature, save-memory, audit, brainstorm), ~22 skills, bundled sequential-thinking MCP, Stop hooks for auto memory checkpoint and per-session debug log."
     }
   ]
 }

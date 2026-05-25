@@ -1,6 +1,6 @@
 # Installing kensa-qa
 
-This is the production install + smoke-test guide for v0.4.0. Follow it
+This is the production install + smoke-test guide for v0.5.0. Follow it
 top-to-bottom on a fresh machine.
 
 ## 0. Prerequisites
@@ -9,7 +9,7 @@ top-to-bottom on a fresh machine.
 - Node.js + `npx` available on PATH (for the bundled `sequential-thinking` MCP)
 - Windows 11 + Windows PowerShell 5.1 (already present)
   - macOS / Linux: the memory-checkpoint and debug-log hooks are PowerShell
-    only in v0.4.0; the rest of the plugin works without them.
+    only in v0.5.0; the rest of the plugin works without them.
 - A real Kensa project to test against (any directory; if it has no `.tms/`
   yet, `/setup` will offer to create it)
 
@@ -67,8 +67,9 @@ new tab.
 After restart, verify the plugin loaded:
 
 - Run `/help` -- you should see `setup`, `new-feature`, `update-feature`,
-  `save-memory` in the slash command list.
-- Type `@` (mention) -- `lead` and `worker` should appear under agents.
+  `save-memory`, `audit`, `brainstorm` in the slash command list.
+- Type `@` (mention) -- `lead`, `worker`, and `strategist` should appear
+  under agents.
 - Run `/hooks` -- you should see two entries under **Stop**:
   - `kensa-qa: writing debug log`
   - `kensa-qa: checking memory checkpoint`
@@ -174,7 +175,7 @@ Attach:
 
 The `.jsonl` is what I need to debug; the `.md` makes triage faster.
 
-## Known limitations in v0.4.0
+## Known limitations in v0.5.0
 
 - **Hooks are Windows-only.** They invoke `powershell.exe` directly. On
   macOS/Linux they silently fail and the plugin still works, but

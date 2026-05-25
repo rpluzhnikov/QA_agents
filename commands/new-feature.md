@@ -52,6 +52,41 @@ Format:
 
 Wait for the user's go-ahead or feedback. Address feedback, then proceed.
 
+**Ambiguous decomposition?** If there are multiple defensible ways to cut the
+scope and you're not confident in your call, don't guess — suggest the user
+run `/brainstorm <topic>` first. It deliberates the strategic question via 3
+parallel strategists + a cross-review round and produces a comparison artifact
+in `.tms/brainstorms/`. Better to spend a few minutes deliberating than to
+rewrite 30 cases after a wrong decomposition. If a `.tms/brainstorms/<topic>-*.md`
+artifact already exists for this feature (user may point at it explicitly), read
+it as additional context here and pass the decided approach to workers in
+their briefs.
+
+## Step 4.5 — Allocate ID ranges (only if spawning ≥2 workers)
+
+When the plan calls for one worker, skip this step — the worker just reads
+`.tms/config.yaml` `project.next_id` and increments from there.
+
+When the plan calls for two or more workers spawned in the same turn, you MUST
+hand each worker a non-overlapping ID range, otherwise two workers will both
+claim id 1 and produce filename collisions.
+
+1. Read `.tms/config.yaml` and note `project.next_id` (call it `START`).
+2. For each worker package, use its estimated case count from Step 4 as the size
+   (round up — better to over-allocate than collide). Carve contiguous ranges,
+   leaving no gaps and no overlap.
+3. Embed the assigned range in the brief as `id_range: NNN-MMM` (zero-padded to
+   3 digits to match the filename convention). The worker uses NNN as its first
+   case ID and increments locally; if it produces fewer cases than the range, the
+   tail of the range is wasted and that's fine.
+
+Example: `next_id: 1`, three workers estimated at 19 / 19 / 17 cases
+→ worker A: `id_range: 001-019`, worker B: `id_range: 020-038`, worker C: `id_range: 039-055`.
+
+After the workers report back, the actual highest ID used across all workers is
+what gets written back to `config.yaml.next_id` (the Lead does this, not the
+workers — they don't touch config).
+
 ## Step 5 — Spawn workers
 
 For each package, use the Task tool to spawn a worker with:

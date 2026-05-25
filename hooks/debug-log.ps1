@@ -107,9 +107,25 @@ if ($uniqueFiles.Count -gt 0) {
   $fileList = '_(no files written in .tms/ this session)_'
 }
 
+# Stuck-session heuristic: /new-feature or /update-feature was invoked but
+# nothing landed in .tms/. Common causes: MCP not connected, Lead stuck on
+# an overview page, scope question never resolved. Emit a banner so the
+# user notices when reading the digest later.
+$featureCmdCount = ($commands | Where-Object { $_ -match '^/(new-feature|update-feature)' }).Count
+$stuckBanner = ''
+if (($featureCmdCount -ge 3) -and ($uniqueFiles.Count -eq 0)) {
+  $stuckBanner = @"
+
+> **STUCK SESSION** — ``/new-feature`` / ``/update-feature`` invoked $featureCmdCount times but 0 files written under ``.tms/``.
+> Common causes: MCP for the source-of-truth not connected; Lead stuck on a wiki overview page without finding the actual specs; an unresolved scope question silently parking the session.
+> Open the ``.jsonl`` snapshot below and search for the last ``Task`` tool spawn — its absence (or its early failure) shows where the run stalled.
+
+"@
+}
+
 $digest = @"
 # Session $sessionId
-
+$stuckBanner
 | Field | Value |
 |-------|-------|
 | Updated | $now |
@@ -118,6 +134,7 @@ $digest = @"
 | Transcript (snapshot, share this) | ``$snapshotPath`` |
 | Turns observed | $turnCount |
 | Worker spawns (Task tool) | $workerSpawns |
+| Feature cmds invoked | $featureCmdCount |
 
 ## Commands invoked
 

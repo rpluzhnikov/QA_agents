@@ -29,13 +29,34 @@ Wait for response. Don't dump 20 questions at once.
 
 1. Ask which sources of truth they use: Linear / Jira / Confluence / Notion / Figma / other / none.
 2. For each named source, ask:
-   - What's the workspace/team/project ID they want me to use as default? (goes into `sot.yaml`)
+   - What's the default workspace / team / project / space the Lead should scope
+     future searches to? This goes into `sot.yaml` and is plugin config — it is
+     NOT a credential. OAuth/local-socket handles auth (see below). For Atlassian
+     specifically the cloudId is resolved automatically after OAuth, so accept
+     anything human-readable (a space key, a project key) or "default" / "all".
    - Do you want me to wire up the MCP server for it during setup? (yes / no)
 3. Unlike `sot.yaml` (which is just plugin config), the MCP servers are what actually
    lets the Lead read tickets and specs. In Phase 6 you will offer to write a project
    `.mcp.json` at the repo root containing the servers they said yes to. The plugin
    already bundles its own `sequential-thinking` MCP (declared in `plugin.json`) — do
    NOT add that one to the project file; it is always available.
+
+4. **For Confluence specifically — discover the spec tree.** After the user names a
+   Confluence space, before moving on, do a CQL-based discovery so `sot.yaml.notable_pages`
+   is populated with the actual specs, not just an overview page. This step is what
+   prevents the "Lead got stuck on the wiki landing page" failure mode.
+
+   - If the `atlassian` MCP is already connected in the user's environment: call its
+     search tool (typically `searchPagesUsingCql` or equivalent — check the available
+     `mcp__*atlassian*__*` tools at runtime) with a query like `space = "<KEY>" AND
+     type = page ORDER BY lastmodified DESC` and pull the top ~15 pages.
+   - Show the user a numbered list (title + page ID) and ask them to multi-select the
+     ones that are authoritative specs (not announcements / standup notes / archives).
+     Save the selection into `sot.yaml.notable_pages` as `[{id, title}]` entries.
+   - If the MCP is NOT yet connected (typical first-time setup): tell the user
+     "I'll discover notable Confluence pages on the next session once the MCP is
+     wired and you've completed the browser OAuth. For now I'll leave
+     `notable_pages: []` with a TODO." Do not block setup waiting for the MCP.
 
 ### MCP server map — what each source needs in `.mcp.json`
 
@@ -52,13 +73,44 @@ key in the file); the user authenticates in-browser when the server first starts
 
 Notes:
 - Jira and Confluence share ONE `atlassian` server entry — never write it twice.
-- The Figma Dev Mode MCP is read-only design context. The write-capable `use_figma`
-  tool (used by the `figma-use` skill) comes from a separate Figma plugin-API MCP; if
-  the user wants that, ask them for its command/url rather than guessing — leave a
-  commented placeholder in `.mcp.json` and tell them to fill it.
-- If a source needs an API key/token instead of OAuth, write it as an env-var
-  placeholder (`"Authorization": "Bearer ${SOURCE_API_KEY}"`), never the literal
-  secret, and tell the user which variable to export.
+- The Figma Dev Mode MCP is read-only design context for QA (you can see frames,
+  annotations, prototype flows). The write-capable `use_figma` tool exists in a
+  separate Figma plugin-API MCP, but QA workflows don't need it. Do NOT touch
+  `.mcp.json` for write-Figma during /setup. If the user later wants Figma write
+  access for some reason, point them at the `figma-use` skill's own setup notes.
+
+### Authentication — never ask the user for these
+
+**For Linear / Atlassian Cloud / Notion / Figma Dev Mode** (everything in the table
+above), do NOT ask the user for any of the following — they are all handled
+automatically:
+
+- API tokens, bearer keys, or personal access tokens
+- OAuth client IDs / client secrets
+- Refresh tokens or cookies
+- Figma personal access tokens — the Dev Mode MCP authenticates via the
+  running desktop-app session, not a token
+
+When Claude Code first connects to an OAuth-based MCP it opens a browser tab and
+the user signs in there. The local Figma Dev Mode MCP authenticates against the
+running desktop app. Either way, `.mcp.json` for these four sources contains ONLY
+`type` and `url` — no `headers`, no `env`, no `Authorization`.
+
+Tell the user about this ONCE at the end of Phase 6 ("the browser will open the
+first time each MCP connects — sign in there"). Do NOT surface it as a question
+during the interview.
+
+### Token fallback — for non-OAuth sources ONLY
+
+This applies only when the user names a SOT that is NOT in the table above — for
+example a self-hosted Jira behind a custom auth proxy, an internal Notion-clone,
+or a bespoke REST tracker. **SKIP this entirely for Linear, Atlassian Cloud,
+Notion, and Figma Dev Mode — those are OAuth/local and never need a token here.**
+
+If a non-listed source genuinely needs an API key: write it as an env-var
+placeholder (e.g. `"Authorization": "Bearer ${CUSTOM_TRACKER_TOKEN}"`), NEVER
+the literal secret, and tell the user which variable to export from their shell
+profile.
 
 ## Phase 4 — Style learning (only if existing cases were found)
 
@@ -108,9 +160,15 @@ Notes:
    - Use the entries from the Phase 3 MCP server map. Remember Jira+Confluence collapse
      to one `atlassian` entry.
    - Show the user the exact diff/content before writing, and get confirmation.
+   - Make sure `sot.yaml` is written with a `notable_pages` field for Confluence
+     (the Phase 3 discovery output, or an empty array with a TODO if discovery was
+     deferred). Same applies symmetrically for Notion `relevant_database_ids` if
+     the user picked Notion.
    - After writing, tell them: "MCP config written to `.mcp.json`. Restart Claude Code
-     (or run `/reload-plugins`) so the servers start, then approve them when prompted.
-     The first connect to a remote server opens a browser for OAuth."
+     (or run `/reload-plugins`) so the servers start. For each of Linear / Atlassian /
+     Notion a browser tab will open on first connect — sign in there. The Figma Dev
+     Mode MCP needs the Figma desktop app running with Dev Mode MCP enabled — no
+     browser step. No API tokens to configure for any of these four."
 5. **Update `.gitignore`** at repo root to keep `.tms/debug/` out of git
    (the Stop hook in `plugin.json` writes per-session digests and transcript
    snapshots there; not safe to commit -- transcripts may contain ticket text,

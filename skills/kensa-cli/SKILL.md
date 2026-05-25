@@ -454,3 +454,40 @@ kensa bulk update --filter "tag=smoke" --set priority=medium --dry-run  # previe
 kensa bulk update --filter "tag=smoke" --set priority=medium --yes      # apply
 kensa validate                                                           # confirm
 ```
+
+### Audit workflow (used by `/audit`)
+
+Repository-wide health check. Read-only; combine the JSON outputs into a
+single report. Order matters — cheap checks first, sample-based checks last.
+
+```sh
+# 1. Scope & preflight
+kensa --version
+kensa stats --format json
+
+# 2. Mechanical checks — collect JSON, do not abort on exit code 3 from validate
+kensa validate --format json
+kensa lint --format json
+kensa doctor --format json
+kensa duplicates --threshold 0.85 --format json
+kensa stale --days 90 --format json
+kensa shared-step orphan --format json
+kensa gaps --against shared-steps --format json
+kensa coverage --by-source --format json
+kensa coverage --by-tag --format json
+
+# 3. Cross-reference (combine with .tms/memory/sot.yaml and learned/tags.md)
+kensa filter 'source_id != ""' --format json          # all cases with a source
+kensa filter 'tag:<X> and not tag:<Y>' --format ids   # required_with violations
+kensa filter 'status = draft and tag:tbd and mtime > 30d' --format ids
+
+# 4. Qualitative sample
+kensa list --format ids                                # pick a stratified sample
+kensa show <ID>                                        # for each sampled case
+```
+
+See `commands/audit.md` for the full Lead workflow including how to bucket
+findings by severity and write the `.tms/reports/audit-YYYY-MM-DD.md`
+artifact. The optional fix phase reuses existing CLI primitives (`rename-tag`,
+`bulk delete --to-trash`, `bulk update --set status=deprecated`) with the
+dry-run-then-`--yes` discipline above.

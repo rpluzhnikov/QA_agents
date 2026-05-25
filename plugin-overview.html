@@ -161,8 +161,8 @@
 </head>
 <body>
 
-<h1>Kensa QA <span class="v">v0.1 — v0.3 (текущее состояние)</span></h1>
-<div class="sub">Мульти-агентный Claude Code плагин: команда мануального QA в кармане. Lead планирует и ревьюит, Worker пишет чек-листы и тест-кейсы. Это схема того, как сейчас всё устроено и куда что течёт.</div>
+<h1>Kensa QA <span class="v">v0.5 (текущее состояние)</span></h1>
+<div class="sub">Мульти-агентный Claude Code плагин: команда мануального QA в кармане. Lead планирует и ревьюит, Worker пишет чек-листы и тест-кейсы, Strategist деберутует сложные стратегические вопросы. Это схема того, как сейчас всё устроено и куда что течёт.</div>
 
 <div class="legend">
   <span class="u">Пользователь</span>
@@ -175,7 +175,7 @@
 
 <!-- ──────────────────────────────────────────────────────────── -->
 <h2>1 · Slash-команды (точки входа)</h2>
-<div class="row cols-4">
+<div class="row cols-3">
   <div class="card">
     <div class="title"><span class="pill lead">Lead</span> /setup</div>
     <div class="desc">Один раз на проект. Интервью → создаёт <code>.tms/memory/</code>, пишет <code>.mcp.json</code> с SOT-серверами, учит конвенции из существующих кейсов.</div>
@@ -191,6 +191,14 @@
   <div class="card">
     <div class="title"><span class="pill lead">Lead</span> /save-memory</div>
     <div class="desc">Зафиксировать выученное за сессию в <code>conventions.md</code> / <code>glossary.md</code> / <code>learned/*</code>. Только с подтверждения юзера.</div>
+  </div>
+  <div class="card">
+    <div class="title"><span class="pill lead">Lead</span> /audit</div>
+    <div class="desc">Health-check репо: <code>kensa-cli</code> (validate, lint, duplicates, stale, orphans) + cross-reference с <code>sot.yaml</code> и taxonomy + sample против conventions. Отчёт в <code>.tms/reports/audit-YYYY-MM-DD.md</code>. Read-only по умолчанию; opt-in fixes в конце.</div>
+  </div>
+  <div class="card">
+    <div class="title"><span class="pill lead">Lead</span> /brainstorm &lt;topic&gt;</div>
+    <div class="desc">3 Strategist'а параллельно + cross-review раунд для сложных стратегических вопросов (декомпозиция, coverage strategy, prioritization). Synthesis с finalist'ами; user выбирает. Артефакт в <code>.tms/brainstorms/</code> для следующего <code>/new-feature</code>.</div>
   </div>
 </div>
 
@@ -246,7 +254,7 @@
     <!-- column 6: output -->
     <div class="lane">
       <div class="node head out">📁 Артефакты</div>
-      <div class="node"><code>.tms/suites/&lt;area&gt;/*.md</code> — тест-кейсы со <code>status: draft</code>, <code>generated_by: kensa-qa@0.1.0</code>, <code>source_id</code> из тикета</div>
+      <div class="node"><code>.tms/suites/&lt;area&gt;/*.md</code> — тест-кейсы со <code>status: draft</code>, <code>generated_by: kensa-qa@0.5.0</code>, <code>source_id</code> из тикета</div>
       <div class="node">Ссылки на shared steps из <code>.tms/shared-steps/</code> вместо дублирования</div>
       <div class="node head mem">🧠 Память (по согласию)</div>
       <div class="node">Новые паттерны → <code>.tms/memory/learned/*</code></div>
@@ -257,19 +265,26 @@
 
 <!-- ──────────────────────────────────────────────────────────── -->
 <h2>3 · Агенты и их инструменты</h2>
-<div class="row cols-2">
+<div class="row cols-3">
   <div class="card">
     <div class="title"><span class="pill lead">Lead</span> agents/lead.md</div>
     <div class="desc">
-      Только Lead говорит с пользователем. Tools: <code>Read, Glob, Grep, Task, mcp__*</code> — НЕТ Write/Edit, он не пишет кейсы руками.<br/><br/>
-      Скиллы, которые он триггерит сам: <code>scope-analysis</code>, <code>review-rubrics</code>, <code>task-assignment</code>, <code>clarification-protocol</code>, <code>checklist-design</code>, <code>kensa-cli</code> (для оринтации в проекте), <code>sequential-thinking</code> (только для сложных решений).
+      Только Lead говорит с пользователем. Tools: <code>Read, Glob, Grep, Bash, Task, mcp__*</code> — НЕТ Write/Edit, он не пишет кейсы руками.<br/><br/>
+      Скиллы, которые он триггерит сам: <code>scope-analysis</code>, <code>review-rubrics</code>, <code>task-assignment</code>, <code>clarification-protocol</code>, <code>checklist-design</code>, <code>kensa-cli</code> (включая <code>/audit</code> workflow), <code>sequential-thinking</code>.
     </div>
   </div>
   <div class="card">
     <div class="title"><span class="pill worker">Worker</span> agents/worker.md</div>
     <div class="desc">
-      Спавнится Lead'ом через <code>Task</code>, с юзером не общается. Tools: <code>Read, Write, Edit, Glob, Grep, mcp__*</code> — пишет файлы.<br/><br/>
+      Спавнится Lead'ом через <code>Task</code> в <code>/new-feature</code> и <code>/update-feature</code>. С юзером не общается. Tools: <code>Read, Write, Edit, Glob, Grep, mcp__*</code> — пишет файлы.<br/><br/>
       Lead в брифе явно перечисляет ему скиллы: always — <code>kensa-test-authoring</code>, <code>test-case-writing-craft</code>, <code>test-design-techniques</code>, <code>negative-and-edge-cases</code>; одна платформа — <code>web-testing</code> / <code>mobile-testing</code> / <code>backend-api-testing</code> / <code>security-testing</code>; один SOT-скилл; опционально <code>kensa-cli</code>.
+    </div>
+  </div>
+  <div class="card">
+    <div class="title"><span class="pill lead">Strategist</span> agents/strategist.md</div>
+    <div class="desc">
+      Спавнится Lead'ом группами по 3 в <code>/brainstorm</code>. Tools: <code>Read, Glob, Grep, mcp__*</code> — БЕЗ Task, БЕЗ Bash. Не пишет кейсы, не запускает CLI.<br/><br/>
+      Mission: аргументировать назначенную ось (Scope / Decomposition / Test strategy / Prioritization / Effort / Maintainability) как единственно правильный ответ. Synthesis — задача Lead'а. Round 1: independent proposal. Round 2: cross-review других двух пропозалов.
     </div>
   </div>
 </div>
@@ -294,7 +309,7 @@
 </div>
 
 <!-- ──────────────────────────────────────────────────────────── -->
-<h2>5 · Скиллы (~21, авто-подгрузка из <code>skills/</code>)</h2>
+<h2>5 · Скиллы (~22, авто-подгрузка из <code>skills/</code>)</h2>
 <div class="skills-grid">
   <div class="skill"><div class="n">scope-analysis</div><div class="t">Декомпозиция требований Lead'ом</div></div>
   <div class="skill"><div class="n">review-rubrics</div><div class="t">2-ступенчатое ревью чек-листа и кейсов</div></div>
@@ -359,7 +374,7 @@
 #   status: draft
 #   tags, source_id
 #   generated_by:
-#     kensa-qa@0.1.0</span>
+#     kensa-qa@0.5.0</span>
 
 .tms/shared-steps/
   step-XYZ.md</div>
@@ -397,11 +412,13 @@
 
 <!-- ──────────────────────────────────────────────────────────── -->
 <h2>8 · Roadmap (как это понимает сам плагин)</h2>
-<div class="row cols-4">
+<div class="row cols-3">
   <div class="card"><div class="title">v0.1</div><div class="desc">Lead + Worker, 4 команды, шаблоны памяти.</div></div>
-  <div class="card"><div class="title">v0.2</div><div class="desc">Memory keeper agent для логирования сессий и промоушена паттернов.</div></div>
-  <div class="card"><div class="title">v0.3 — сейчас</div><div class="desc">SOT-скиллы заполнены по источникам; <code>sequential-thinking</code> + <code>figma-use</code> + <code>kensa-cli</code> + <code>kensa-test-authoring</code>; <code>/setup</code> пишет MCP в <code>.mcp.json</code>.</div></div>
-  <div class="card"><div class="title">v0.4 → v0.5</div><div class="desc"><code>/explore</code> (exploratory mode), затем bulk-ops <code>/bulk-update</code>, <code>/audit</code>.</div></div>
+  <div class="card"><div class="title">v0.2</div><div class="desc">Memory checkpoint протокол.</div></div>
+  <div class="card"><div class="title">v0.3</div><div class="desc">SOT-скиллы по источникам; <code>sequential-thinking</code> + <code>figma-use</code> + <code>kensa-cli</code> + <code>kensa-test-authoring</code> интегрированы; <code>/setup</code> пишет MCP в <code>.mcp.json</code>.</div></div>
+  <div class="card"><div class="title">v0.4</div><div class="desc">Stop-хуки для auto-checkpoint и debug log; marketplace manifest; INSTALL.md smoke-test guide.</div></div>
+  <div class="card"><div class="title">v0.5 — сейчас</div><div class="desc"><code>/audit</code> (health check репо), <code>/brainstorm</code> (multi-strategist deliberation), Strategist агент, MCP-setup OAuth clarity, Confluence multi-page discovery, pre-seeded tag taxonomy, parallel-worker ID-range allocation, stuck-session detection.</div></div>
+  <div class="card"><div class="title">v0.6</div><div class="desc">Bash-порт хуков (macOS/Linux); fixture registry (<code>.tms/fixtures/</code>); exploratory mode <code>/explore</code>; auto-discovery brainstorm-артефактов в <code>/new-feature</code>.</div></div>
 </div>
 
 <footer>
