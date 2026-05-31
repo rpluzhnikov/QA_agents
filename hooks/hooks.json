@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$PLUGIN_ROOT/hooks/save-memory-stop.sh\"",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%PLUGIN_ROOT%\\hooks\\save-memory-stop.ps1\"",
+            "timeout": 10,
+            "statusMessage": "kensa-qa: checking memory checkpoint"
+          },
+          {
+            "type": "command",
+            "command": "sh \"$PLUGIN_ROOT/hooks/debug-log.sh\"",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"%PLUGIN_ROOT%\\hooks\\debug-log.ps1\"",
+            "timeout": 10,
+            "statusMessage": "kensa-qa: writing debug log"
+          }
+        ]
+      }
+    ]
+  }
+}

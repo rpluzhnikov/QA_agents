@@ -1,0 +1,20 @@
+{
+  "name": "kensa-local",
+  "interface": {
+    "displayName": "kensa-qa (local)"
+  },
+  "plugins": [
+    {
+      "name": "kensa-qa",
+      "source": {
+        "source": "local",
+        "path": "./plugins/kensa-qa"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

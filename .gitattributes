@@ -1,0 +1,4 @@
+# Hook + helper shell scripts must stay LF even when the repo is checked out on
+# Windows — a CRLF on the shebang line breaks execution on macOS/Linux (and the
+# Codex hooks run there). Force LF for all POSIX scripts.
+*.sh text eol=lf
