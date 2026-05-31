@@ -1,24 +1,26 @@
 # Installing kensa-qa
 
-This is the production install + smoke-test guide for v0.5.0. Follow it
-top-to-bottom on a fresh machine.
+This is the production install + smoke-test guide for v0.8.0. Follow it
+top-to-bottom on a fresh machine. kensa-qa runs in three modes — Claude Code,
+native Codex, or hybrid (Claude delegates to Codex). See [§1B](#1b-the-installer-claude-codex-or-hybrid)
+for the installer and [CODEX_INTEGRATION.md](CODEX_INTEGRATION.md) for Codex.
 
 ## 0. Prerequisites
 
-- Claude Code installed and logged in
-- Node.js + `npx` available on PATH (for the bundled `sequential-thinking` MCP)
-- Windows 11 + Windows PowerShell 5.1 (already present)
-  - macOS / Linux: the memory-checkpoint and debug-log hooks are PowerShell
-    only in v0.5.0; the rest of the plugin works without them.
+- Claude Code installed and logged in (modes A/C) and/or the OpenAI Codex CLI
+  (modes B/C)
+- Node.js + `npx` available on PATH (for the optional `sequential-thinking` MCP)
+- Hooks run on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`) as
+  of v0.8.0 — the bash port shipped.
 - A real Kensa project to test against (any directory; if it has no `.tms/`
   yet, `/setup` will offer to create it)
 
 ## 1. Install the plugin
 
-Three options. Use **A** for normal use, **B** while developing the plugin
-itself, **C** if A isn't available in your Claude Code version.
+For **Claude Code** you can use the classic marketplace (**1A**) or the installer
+(**1B**). For **Codex** or **hybrid**, use the installer (**1B**).
 
-### Option A: marketplace (recommended)
+### Option A: marketplace (Claude Code)
 
 The repo is its own single-plugin marketplace (declared in
 `.claude-plugin/marketplace.json`). Inside Claude Code:
@@ -57,6 +59,35 @@ git clone https://github.com/rpluzhnikov/QA_agents.git `
 ```
 
 You'll need to `git pull` to get updates.
+
+### 1B. The installer (Claude, Codex, or hybrid)
+
+Clone the repo, then run the installer for your OS. It detects which engines you
+have, asks for the mode and copy-vs-symlink, and wires everything up. Re-runnable.
+
+```powershell
+# Windows
+git clone https://github.com/rpluzhnikov/QA_agents.git; cd QA_agents
+.\install.ps1                 # interactive menu
+.\install.ps1 -Both           # or -Claude / -Codex / -Hybrid / -Marketplace ; add -Symlink for dev
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/rpluzhnikov/QA_agents.git && cd QA_agents
+./install.sh                  # interactive menu
+./install.sh --both           # or --claude / --codex / --hybrid / --marketplace ; add --symlink for dev
+```
+
+- **Claude** target: copies (or symlinks) the plugin into `~/.claude/plugins/kensa-qa`.
+  Restart Claude Code afterwards.
+- **Codex** target: stages a native Codex plugin and runs `codex plugin add`
+  (31 skills + Stop hooks), then drops the 3 subagents into `~/.codex/agents/` and
+  the `/kensa-*` prompts into `~/.codex/prompts/`. Trust the hooks via `/plugins`
+  in Codex. **Codex needs a usable default model** — ChatGPT-account logins must
+  set `model = "gpt-5.5"` in `~/.codex/config.toml` (see CODEX_INTEGRATION.md).
+- **Hybrid** target: installs the Claude plugin and runs a `codex exec` smoke test;
+  `/setup` then asks how the Test Lead should use Codex (worker / reviewer / off).
 
 ## 2. Restart Claude Code
 
@@ -177,13 +208,18 @@ Attach:
 
 The `.jsonl` is what I need to debug; the `.md` makes triage faster.
 
-## Known limitations in v0.5.0
+## Known limitations in v0.8.0
 
-- **Hooks are Windows-only.** They invoke `powershell.exe` directly. On
-  macOS/Linux they silently fail and the plugin still works, but
-  auto-checkpoint and debug-log are inactive. Bash port is tracked for v0.5.
-- **`sequential-thinking` MCP requires `npx`.** First invocation downloads
-  `@modelcontextprotocol/server-sequential-thinking` via `npx -y`. If `npx`
-  isn't in PATH the MCP won't start; the rest of the plugin still works.
+- **Hooks now run cross-platform.** PowerShell `*.ps1` on Windows, POSIX `*.sh`
+  on macOS/Linux (Claude Code picks the `.ps1`; Codex's `hooks.json` dispatches
+  `.sh` by default and `.ps1` via `commandWindows`). On Codex, plugin hooks must
+  be trusted via `/plugins` before they fire.
+- **Remote Codex marketplace not wired yet.** Codex install is via the installer
+  (it stages a local marketplace). `codex plugin marketplace add rpluzhnikov/QA_agents`
+  is a v0.9 item — it needs the plugin in a repo subdirectory, which would
+  duplicate the shared `skills/` tree.
+- **`sequential-thinking` MCP requires `npx`** and is optional on Codex (not
+  bundled — add via `codex mcp add` if wanted). First invocation downloads
+  `@modelcontextprotocol/server-sequential-thinking` via `npx -y`.
 - **Figma write-capable MCP** (used by the `figma-use` skill) is not
   auto-wired -- `/setup` writes a commented placeholder.

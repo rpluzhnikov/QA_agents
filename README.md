@@ -87,41 +87,66 @@ The Test Lead loads the management & static skills on demand. Every QA Engineer 
 
 ## Install
 
+kensa-qa runs in three modes. Pick one — the interactive installer wires it up.
+
+| Mode | What runs the team | Best for |
+|---|---|---|
+| **A · Claude Code** | Claude | the original experience |
+| **B · Native Codex** | Codex | running entirely on the OpenAI Codex CLI |
+| **C · Hybrid** | Claude orchestrates, delegates QA packages to Codex | spreading load — Codex drafts cases, Claude reviews |
+
+### Option 1 — classic marketplace (Claude Code)
+
 ```
 /plugin marketplace add rpluzhnikov/QA_agents
 /plugin install kensa-qa@rpluzhnikov
 ```
 
-**Then fully restart Claude Code** (not a new tab). Plugin manifest, agents, commands, and hooks load at session start.
+**Then fully restart Claude Code** (not a new tab). Update later: `/plugin marketplace update rpluzhnikov`.
 
-Update later: `/plugin marketplace update rpluzhnikov`.
+### Option 2 — the installer (Claude, Codex, or both)
+
+Clone the repo and run the installer for your OS. It detects what you have (Claude
+Code / Codex), asks which mode and whether to copy or symlink, and wires it up.
+
+```powershell
+# Windows (PowerShell)
+git clone https://github.com/rpluzhnikov/QA_agents.git; cd QA_agents
+.\install.ps1                 # interactive
+.\install.ps1 -Both           # or -Claude / -Codex / -Hybrid / -Marketplace
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/rpluzhnikov/QA_agents.git && cd QA_agents
+./install.sh                  # interactive
+./install.sh --both           # or --claude / --codex / --hybrid / --marketplace
+```
+
+For **Codex**, the installer stages a native Codex plugin and runs `codex plugin
+add` (skills + Stop hooks), then places the three subagents in `~/.codex/agents/`
+and the `/kensa-*` prompts in `~/.codex/prompts/`. Restart Claude Code after a
+Claude install; review/trust the plugin's hooks in Codex via `/plugins`.
 
 <details>
-<summary><b>Prerequisites & alternative install paths</b></summary>
+<summary><b>Prerequisites & details</b></summary>
 
 **Required**
-- [Claude Code](https://docs.claude.com/claude-code/install) installed and signed in
-- Node.js with `npx` on PATH (for the bundled `sequential-thinking` MCP)
-- Windows 11 + PowerShell 5.1 for the auto-checkpoint and debug-log hooks. Other OSes work; hooks silently no-op until the bash port lands.
+- [Claude Code](https://docs.claude.com/claude-code/install) (modes A/C) and/or the [OpenAI Codex CLI](https://developers.openai.com/codex) (modes B/C), installed and signed in.
+- Node.js with `npx` on PATH (for the optional `sequential-thinking` MCP).
+- Hooks (auto-checkpoint + debug log) run on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`) — the bash port shipped in v0.8.
 - No API keys: Linear / Atlassian / Notion / Figma all use browser OAuth on first connect.
 
-**Symlink for plugin development**
+**Codex model gotcha:** the hybrid/native paths call `codex exec` with the model
+from `~/.codex/config.toml`. ChatGPT-account logins must set `model = "gpt-5.5"`
+(not `gpt-5`) or every call returns HTTP 400. See [CODEX_INTEGRATION.md](CODEX_INTEGRATION.md).
 
-Windows (admin PowerShell or Developer Mode):
-```powershell
-New-Item -ItemType SymbolicLink `
-  -Path "$env:USERPROFILE\.claude\plugins\kensa-qa" `
-  -Target "C:\path\to\your\QA_agents"
-```
+**Symlink (dev) instead of copy:** `install.ps1 -Symlink` / `install.sh --symlink`
+links the live checkout into the plugin dir (Windows needs Developer Mode or admin;
+the installer falls back to copy automatically). Or direct clone:
+`git clone … ~/.claude/plugins/kensa-qa`.
 
-macOS / Linux:
-```bash
-ln -s /path/to/QA_agents ~/.claude/plugins/kensa-qa
-```
-
-Or direct clone: `git clone https://github.com/rpluzhnikov/QA_agents.git ~/.claude/plugins/kensa-qa` and `git pull` manually for updates.
-
-See [INSTALL.md](INSTALL.md) for diagnostics.
+See [INSTALL.md](INSTALL.md) for diagnostics and the full hybrid walkthrough.
 </details>
 
 ---
@@ -134,7 +159,7 @@ After restart, in any project:
 |---|---|
 | `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability` |
 | Type `@` | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
-| `/hooks` (Windows) | Two **Stop** hooks: writing debug log + checking memory checkpoint |
+| `/hooks` | Two **Stop** hooks: writing debug log + checking memory checkpoint |
 
 Anything missing → restart Claude Code fully. Persistent issues → [INSTALL.md §2](INSTALL.md).
 
@@ -273,7 +298,11 @@ Byte-exact case file format: see `skills/kensa-test-authoring/`.
 <details>
 <summary><b>macOS / Linux — do the hooks work?</b></summary>
 
-Not in v0.5. Auto-checkpoint and debug-log are Windows + PowerShell only. The rest of the plugin works normally. Workaround: run `/save-memory` manually at the end of each session. Bash port is on the roadmap.
+Yes, as of v0.8. The auto-checkpoint and debug-log Stop hooks now ship as POSIX
+`*.sh` alongside the Windows `*.ps1` (`hooks/save-memory-stop.sh`,
+`hooks/debug-log.sh`), with the identical stdin/stdout contract. On Codex, one
+`hooks/hooks.json` dispatches the `.sh` by default and the `.ps1` via
+`commandWindows`.
 </details>
 
 <details>
@@ -326,7 +355,7 @@ The Windows-only auto-checkpoint hook requires `/save-memory` after `/new-featur
 <summary><b>Under the hood</b> (for the curious / plugin developers)</summary>
 
 ### Auto memory checkpoint
-After every `/new-feature` and `/update-feature`, a `Stop` hook (`hooks/save-memory-stop.ps1`) blocks the session from ending until the Lead emits `memory-checkpoint: done`. Behavior is controlled by `auto_save_learnings` in `.tms/memory/project.md`:
+After every `/new-feature` and `/update-feature`, a `Stop` hook (`hooks/save-memory-stop.ps1` on Windows, `hooks/save-memory-stop.sh` on macOS/Linux) blocks the session from ending until the Lead emits `memory-checkpoint: done`. Behavior is controlled by `auto_save_learnings` in `.tms/memory/project.md`:
 - `true` — silent saves, one-line report
 - `false` (default) — yes/no/edit per candidate
 
@@ -377,8 +406,9 @@ A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every ses
 | v0.4 | Stop hooks (auto-checkpoint + debug log); marketplace manifest; `INSTALL.md` |
 | v0.5 | `/audit`, `/brainstorm`, `strategist` agent, OAuth clarity, Confluence multi-page discovery, pre-seeded tag taxonomy, parallel-worker ID-range allocation, stuck-session detection |
 | v0.6 | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
-| **v0.7 (current)** | **SDLC coverage** — 6 read-only analysis commands: `/pull-context`, `/review-spec`, `/risk-assess`, `/test-plan` (shift-left) and `/analyze-cases`, `/traceability` (test-base intelligence). `qa-engineer-agent` gains an `analyze` mode for fan-out review. No new agents or skills. |
-| v0.8 (planned) | Bash port of hooks (macOS / Linux); fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`); brainstorm artifact auto-discovery in `/new-feature` |
+| v0.7 | **SDLC coverage** — 6 read-only analysis commands: `/pull-context`, `/review-spec`, `/risk-assess`, `/test-plan` (shift-left) and `/analyze-cases`, `/traceability` (test-base intelligence). `qa-engineer-agent` gains an `analyze` mode for fan-out review. No new agents or skills. |
+| **v0.8 (current)** | **Multi-engine + installer.** Three install modes (Claude / native Codex / hybrid Claude→Codex worker) via an interactive `install.ps1` (Windows) / `install.sh` (macOS/Linux). Native Codex plugin (`.codex-plugin/`, TOML subagents, `/kensa-*` prompts, `AGENTS.md`). Hybrid delegation: `/setup` detects Codex and asks worker/reviewer/off; the Test Lead offloads packages to `codex exec`, fail-closed. **Bash port of the hooks** (macOS/Linux) — the long-promised cross-platform hooks. |
+| v0.9 (planned) | Remote Codex marketplace; fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
 
 ---
 

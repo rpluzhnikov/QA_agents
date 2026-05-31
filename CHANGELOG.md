@@ -3,6 +3,46 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.8.0 -- 2026-05-31
+
+### Added — multi-engine support + an interactive installer
+
+kensa-qa now runs in three modes, wired up by a cross-platform installer.
+
+- **Installer** — `install.ps1` (Windows / PowerShell) and `install.sh`
+  (macOS / Linux). Interactive menu or flags (`-Claude`/`--claude`, `-Codex`,
+  `-Both`, `-Hybrid`, `-Marketplace`); detects which engines are present, offers
+  copy or symlink, idempotent.
+- **Mode B — native Codex plugin.** `.codex-plugin/plugin.json` reuses the 31
+  `skills/` **verbatim** (identical `SKILL.md` format) and bundles the Stop hooks
+  via `hooks/hooks.json`. The 3 agents ship as Codex subagents
+  (`.codex/agents/*.toml` → `~/.codex/agents/`) and the 12 commands as `/kensa-*`
+  slash prompts (`prompts/kensa-*.md` → `~/.codex/prompts/`). `AGENTS.md` is the
+  Codex operating manual. Installed via the Codex plugin system
+  (`codex plugin marketplace add` + `codex plugin add`), staged by the installer.
+- **Mode C — hybrid.** `/setup` Phase 3.5 detects Codex and asks `worker` /
+  `reviewer` / `off` (persisted to `.tms/memory/codex.yaml`). As **worker** the
+  Test Lead offloads test-case packages to `codex exec` (Codex drafts, Claude
+  writes + reviews); as **reviewer** Codex gives a second-opinion review. Templates
+  in `codex/prompts/`. Detection helper `hooks/codex-detect.{sh,ps1}` (cached to
+  `.tms/.codex-availability`). Everything **fail-closed** — any Codex error falls
+  back to internal agents silently.
+
+### Added — cross-platform hooks (the long-promised bash port)
+
+- `hooks/save-memory-stop.sh` and `hooks/debug-log.sh` — POSIX twins of the
+  PowerShell Stop hooks, identical stdin/stdout contract. macOS/Linux Claude Code
+  and native Codex now get auto-checkpoint + debug logging. `.gitattributes`
+  forces LF on `*.sh`.
+
+### Changed
+
+- `commands/setup.md`, `agents/test-lead-agent.md`, `agents/qa-engineer-agent.md`,
+  `commands/new-feature.md`, `commands/update-feature.md` gained the Codex
+  delegation paths. `CODEX_INTEGRATION.md` rewritten (the old "no native plugin"
+  premise is obsolete). Version bumped to 0.8.0; fixed the marketplace manifest
+  version drift (was pinned at 0.6.0).
+
 ## 0.7.0 -- 2026-05-31
 
 ### Added — SDLC coverage (6 read-only commands)
