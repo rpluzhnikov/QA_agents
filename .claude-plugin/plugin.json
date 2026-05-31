@@ -1,7 +1,7 @@
 {
   "name": "kensa-qa",
-  "version": "0.6.0",
-  "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent for test case authoring (Kensa TMS)",
+  "version": "0.7.0",
+  "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent for test case authoring, plus read-only SDLC analysis commands (spec review, risk, test plan, traceability) for Kensa TMS",
   "author": {
     "name": "Roman Pluzhnikov",
     "url": "https://github.com/rpluzhnikov"

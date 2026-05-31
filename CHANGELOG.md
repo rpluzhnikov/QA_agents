@@ -3,6 +3,61 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.7.0 -- 2026-05-31
+
+### Added — SDLC coverage (6 read-only commands)
+
+The plugin now spans the test side of the SDLC beyond authoring. Every new
+command is **read-only**: it writes NO test cases, produces one committable
+markdown artifact in `.tms/reports/`, and does NOT emit
+`memory-checkpoint: done` (the Stop hook still only enforces checkpoints for
+`/new-feature` and `/update-feature`). No new agents, no new skills — these
+surface ISTQB skills that previously had no entry point.
+
+**Shift-left (before cases exist):**
+
+- `/pull-context <ref>` (`commands/pull-context.md`) — gathers all SOT content
+  + related existing cases into a context dossier. A building block the others
+  reuse. Surfaces `scope-analysis`, `sot-*`, `collaboration-based-approaches`.
+- `/review-spec <ref>` (`commands/review-spec.md`) — static review of a
+  requirement (ISTQB Ch 3 / ISO 20246): finds defects *in the spec* —
+  ambiguity, untestable statements, missing AC, contradictions — graded
+  critical/major/minor with suggested rewrites. Surfaces
+  `static-testing-reviews`, `collaboration-based-approaches`, `review-rubrics`.
+- `/risk-assess <ref>` (`commands/risk-assess.md`) — product risk register
+  (likelihood × impact → level → recommended test depth per area). Surfaces
+  `risk-based-testing` (§5.2).
+- `/test-plan <epic>` (`commands/test-plan.md`) — ISTQB §5.1 test plan; folds
+  in existing `risk-*` / `context-*` / brainstorm artifacts. Surfaces
+  `test-planning`. Routes to `/brainstorm` when the strategy itself is contested.
+
+**Test-base intelligence (over existing cases):**
+
+- `/analyze-cases [scope]` (`commands/analyze-cases.md`) — semantic deep-audit
+  by a **fan-out** of 1–N `qa-engineer` workers in analyze mode. Finds what the
+  mechanical `/audit` can't: cross-case contradictions, semantic duplicates,
+  coverage gaps, convention drift, mis-prioritization. Test Lead shards, workers
+  return findings, Test Lead synthesizes one report. Optional per-batch fixes at
+  the end. Built for large projects.
+- `/traceability [--deep]` (`commands/traceability.md`) — requirements→cases
+  matrix from `source_id`. Light mode is mechanical (kensa + `sot.yaml`
+  cross-reference); `--deep` fans out analyze-mode workers to map each
+  acceptance criterion to cases and find uncovered AC.
+
+### Changed
+
+- `agents/qa-engineer-agent.md` — new **`analyze` mode** (read-only): given a
+  shard of cases, a spec section + lens, or a source's AC, it returns structured
+  findings in its message and writes nothing. Stage 1 (checklist) and Stage 2
+  (cases) are unchanged and backward-compatible.
+- `agents/test-lead-agent.md` — `description` updated with the new entry points;
+  new "Analysis & planning commands" section documenting the read-only
+  contract and which command may fan out (only `/analyze-cases` and
+  `/traceability --deep`).
+- `README.md` — new "Analysis & planning" command table and "SDLC coverage"
+  section; `/help` verify row and `.tms/` tree updated.
+- Plugin version bumped to `0.7.0`.
+
 ## 0.6.0 -- 2026-05-25
 
 ### BREAKING

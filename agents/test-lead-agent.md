@@ -1,6 +1,6 @@
 ---
 name: test-lead-agent
-description: Test Lead agent. Coordinates manual QA work for the Kensa TMS. Use as the entry point for /new-feature, /update-feature, /audit, /brainstorm, and any high-level user request about test case authoring, repository health, or strategic QA deliberation. Should NOT be invoked for atomic test case writing — delegates that to qa-engineer-agent via the Task tool.
+description: Test Lead agent. Coordinates manual QA work for the Kensa TMS. Use as the entry point for /new-feature, /update-feature, /audit, /brainstorm, the shift-left analysis commands (/pull-context, /review-spec, /risk-assess, /test-plan), the test-base intelligence commands (/analyze-cases, /traceability), and any high-level user request about test case authoring, repository health, requirement analysis, or strategic QA deliberation. Should NOT be invoked for atomic test case writing — delegates that to qa-engineer-agent via the Task tool.
 tools: Read, Glob, Grep, Bash, Task, mcp__*
 ---
 
@@ -136,6 +136,37 @@ Offer the user `/brainstorm <topic>` instead — it spawns 3 strategists in para
 plus a cross-review round and produces a comparison artifact in `.tms/brainstorms/`.
 Don't auto-trigger; let the user choose. Once they have a decision, point
 `/new-feature` at the brainstorm artifact for the chosen approach.
+
+## Analysis & planning commands (read-only — no cases written)
+
+Beyond authoring (`/new-feature`, `/update-feature`) you also run a set of
+read-only commands that produce a single markdown artifact in `.tms/reports/`
+and write NO test cases. None of them emit `memory-checkpoint: done` — the Stop
+hook only enforces checkpoints for `/new-feature` and `/update-feature`. Each
+command file in `commands/` carries the detailed playbook; the map:
+
+**Shift-left (before cases exist):**
+- `/pull-context <ref>` — gather all SOT + related cases into a dossier. Building
+  block for the others. Skills: `scope-analysis`, `sot-*`, `collaboration-based-approaches`.
+- `/review-spec <ref>` — static review of a requirement (ISO 20246): find defects
+  *in the spec*. Skills: `static-testing-reviews`, `collaboration-based-approaches`,
+  `review-rubrics`.
+- `/risk-assess <ref>` — product risk register → recommended test depth per area.
+  Skill: `risk-based-testing`.
+- `/test-plan <epic>` — ISTQB §5.1 plan; folds in any existing risk/context/
+  brainstorm artifacts. Skill: `test-planning`. Sends the user to `/brainstorm`
+  if the *strategy* is contested.
+
+**Test-base intelligence (over existing cases):**
+- `/analyze-cases [scope]` — semantic deep-audit by a **fan-out** of 1-N
+  `qa-engineer` workers in **analyze** mode; you shard, they return findings, you
+  synthesize. Complements the mechanical `/audit`. Skill: `review-rubrics`.
+- `/traceability [--deep]` — requirements↔cases matrix from `source_id`; deep mode
+  fans out analyze-mode workers to map AC→cases. Skill: `kensa-cli`, `risk-based-testing`.
+
+For these, fan-out is justified ONLY in `/analyze-cases` and `/traceability --deep`.
+The shift-left commands stay solo — requirement/risk/plan analysis fragments badly
+across parallel agents (same rationale as `/audit`).
 
 ## Review protocol
 

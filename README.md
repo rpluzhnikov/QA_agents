@@ -45,6 +45,8 @@ On large suites: flag stale drafts, duplicates, orphan steps, tag drift, missing
 
 It writes manual test cases. It does **not** execute, automate, or replace a test runner.
 
+Beyond authoring, it now spans the test side of the SDLC with **read-only analysis commands** — pull context from your trackers, statically review a spec for defects before any code, assess product risk, draft a test plan, deep-audit the whole case base by a fan-out of reviewers, and build a requirements→cases traceability matrix. See [SDLC coverage](#sdlc-coverage) below.
+
 ---
 
 ## How it works
@@ -130,7 +132,7 @@ After restart, in any project:
 
 | Check | Expected |
 |---|---|
-| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm` |
+| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability` |
 | Type `@` | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
 | `/hooks` (Windows) | Two **Stop** hooks: writing debug log + checking memory checkpoint |
 
@@ -162,6 +164,19 @@ Writes:
 | `/audit` | Schema validation, duplicates, drift, tag check on the whole `.tms/`. Read-only by default |
 | `/save-memory` | Captures session learnings to `.tms/memory/learned/`. Auto-runs after authoring on Windows |
 | `/setup` | Bootstraps `.tms/memory/` and `.mcp.json`. Re-run to add a new SOT |
+
+### Analysis & planning (read-only)
+
+These six write **no** test cases — each produces one committable markdown artifact in `.tms/reports/` and never emits the memory checkpoint.
+
+| Command | What it does |
+|---|---|
+| `/pull-context <ref>` | Gathers all SOT content + related cases into a dossier. Building block for the rest |
+| `/review-spec <ref>` | Static review of a requirement (ISO 20246) — finds defects *in the spec* before any case is written |
+| `/risk-assess <ref>` | Product risk register (likelihood × impact → level → recommended test depth) |
+| `/test-plan <epic>` | ISTQB §5.1 test plan; folds in existing risk / context / brainstorm artifacts |
+| `/analyze-cases [scope]` | Semantic deep-audit of the case base by a fan-out of 1–N reviewers — contradictions, semantic dupes, coverage gaps, convention drift. Complements the mechanical `/audit` |
+| `/traceability [--deep]` | Requirements→cases matrix from `source_id`; `--deep` maps each acceptance criterion to cases |
 
 <details>
 <summary><b>Command details and examples</b></summary>
@@ -196,6 +211,21 @@ Auto-runs after `/new-feature` and `/update-feature` (enforced by the auto-check
 
 ---
 
+## SDLC coverage
+
+The commands map onto the QA side of the software lifecycle — shift-left first, authoring in the middle, repo intelligence across the whole base:
+
+| SDLC stage | Command(s) | ISTQB skill surfaced |
+|---|---|---|
+| Requirements / static testing | `/pull-context`, `/review-spec` | `static-testing-reviews` (Ch 3) |
+| Risk analysis & planning | `/risk-assess`, `/test-plan`, `/brainstorm` | `risk-based-testing` (§5.2), `test-planning` (§5.1) |
+| Test design / authoring | `/new-feature`, `/update-feature` | `test-design-techniques` (Ch 4) |
+| Test-base health & coverage | `/audit`, `/analyze-cases`, `/traceability` | `review-rubrics` (§3.2) |
+
+Everything except authoring is read-only. The whole suite stays inside the mission — **it designs and reasons about tests, it does not execute them.**
+
+---
+
 ## Sources of truth
 
 | Source | Auth | Notes |
@@ -227,7 +257,7 @@ Everything the plugin learns lives in plain markdown / YAML. Read, edit, commit.
 │       └── tags.md
 ├── suites/                ← test cases, organized by feature
 ├── shared-steps/          ← reusable step sequences
-├── reports/               ← /audit output (commit)
+├── reports/               ← /audit + analysis commands output (commit)
 ├── brainstorms/           ← /brainstorm output (commit)
 └── debug/                 ← per-session logs (gitignored)
 ```
@@ -346,8 +376,9 @@ A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every ses
 | v0.3 | SOT extraction skills; `sequential-thinking`, `figma-use`, `kensa-cli`, `kensa-test-authoring` integrated; `.mcp.json` writer |
 | v0.4 | Stop hooks (auto-checkpoint + debug log); marketplace manifest; `INSTALL.md` |
 | v0.5 | `/audit`, `/brainstorm`, `strategist` agent, OAuth clarity, Confluence multi-page discovery, pre-seeded tag taxonomy, parallel-worker ID-range allocation, stuck-session detection |
-| **v0.6 (current)** | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
-| v0.7 (planned) | Bash port of hooks (macOS / Linux); fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); brainstorm artifact auto-discovery in `/new-feature` |
+| v0.6 | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
+| **v0.7 (current)** | **SDLC coverage** — 6 read-only analysis commands: `/pull-context`, `/review-spec`, `/risk-assess`, `/test-plan` (shift-left) and `/analyze-cases`, `/traceability` (test-base intelligence). `qa-engineer-agent` gains an `analyze` mode for fan-out review. No new agents or skills. |
+| v0.8 (planned) | Bash port of hooks (macOS / Linux); fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`); brainstorm artifact auto-discovery in `/new-feature` |
 
 ---
 
