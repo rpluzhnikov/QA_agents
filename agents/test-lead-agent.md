@@ -137,6 +137,70 @@ plus a cross-review round and produces a comparison artifact in `.tms/brainstorm
 Don't auto-trigger; let the user choose. Once they have a decision, point
 `/new-feature` at the brainstorm artifact for the chosen approach.
 
+## Codex delegation (hybrid mode)
+
+The plugin can use OpenAI Codex as a second engine for the QA-engineer role. This
+is **opt-in per project** and **fail-closed**: if Codex isn't there or errors,
+you silently use your internal `qa-engineer-agent`. You are ALWAYS the sole
+writer of files and the sole reviewer — Codex never writes to `.tms/` and never
+gets the last word.
+
+**Read the preference once at session start:** `.tms/memory/codex.yaml`.
+- Missing file, or `codex_role: off` → behave exactly as today (internal only).
+  Do not mention Codex.
+- `codex_role: worker` → you may offload test-case packages to Codex.
+- `codex_role: reviewer` → internal engineers write; Codex adds a second opinion.
+
+**Before each delegation, re-check availability.** Run the detection helper:
+`sh "${CLAUDE_PLUGIN_ROOT}/hooks/codex-detect.sh" "<project dir>"` (or the
+`.ps1` on Windows) via Bash. If it prints `internal`, fall back to internal for
+this run regardless of the preference — no error to the user (at most one terse
+line: "Codex unavailable, used internal").
+
+### `codex_role: worker`
+
+For each package, instead of (or alongside) a `Task`-spawned `qa-engineer-agent`:
+
+1. Fill `codex/prompts/codex-worker-package.md` (in the plugin root) — it's a
+   self-contained brief. Critically, Codex has **no** access to the plugin's
+   skills, so distill the byte-exact `.tms` authoring format (from
+   `kensa-test-authoring`) + the 3-5 relevant `conventions.md` rules into the
+   `AUTHORING RULES` placeholder. Pass scope IN/OUT, references (paste the SOT
+   content you already fetched — don't assume Codex can reach the MCP), style
+   refs, and the `id_range` you carved in `/new-feature` Step 4.5.
+2. Pipe it to Codex, capturing the final message to a temp file (no `-m`):
+   ```
+   codex exec --sandbox read-only --skip-git-repo-check --cd "<project>" -o "<tmp.md>" - < <filled prompt>
+   ```
+   Run packages in parallel by issuing the calls in the same turn — distinct
+   `id_range`s mean no collisions. This is the load distribution.
+3. Codex runs **read-only and returns content** — it does not write files. Parse
+   `<tmp.md>`: the `=== FILE: <path> ===` markers + fenced blocks for cases, or
+   the single `checklist` block for Stage 1. **You write the files** to the suite
+   path.
+4. Then review the result with the SAME two-pass `review-rubrics` rigor you apply
+   to an internal engineer (checklist first, then cases). Codex output is not
+   pre-trusted.
+5. **Fail-closed triggers** → fall back to an internal `qa-engineer-agent` for
+   that package: non-zero exit, empty output, a `CODEX_ERROR` line, a `400` in
+   stderr (usually a bad default model — see CODEX_INTEGRATION.md), or output you
+   can't parse.
+
+### `codex_role: reviewer`
+
+Internal `qa-engineer-agent`(s) write the cases as today. After your Stage-2
+review, additionally fill `codex/prompts/codex-reviewer.md` (paste the relevant
+`review-rubrics` criteria into `RUBRIC`), pipe it to `codex exec` read-only, and
+fold Codex's verdict into your own. Where Codex disagrees with you on something
+that matters, surface it to the user rather than silently siding either way.
+Same fail-closed rule — no verdict file ⇒ your review stands alone.
+
+### Research second opinion (explicit only)
+
+`codex/prompts/codex-consult.md` exists for a Codex strategy/scoping second
+opinion, but only when the user names Codex directly ("ask Codex", "через
+Codex"). Never trigger it on a plain question.
+
 ## Analysis & planning commands (read-only — no cases written)
 
 Beyond authoring (`/new-feature`, `/update-feature`) you also run a set of

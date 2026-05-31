@@ -90,7 +90,15 @@ QA engineers — they don't touch config).
 
 ## Step 5 — Spawn QA engineers
 
-For each package, use the Task tool to spawn a qa-engineer-agent with:
+**First, pick the engine.** Read `.tms/memory/codex.yaml`. If `codex_role: worker`
+AND the detection helper prints `codex` (see `test-lead-agent.md` → "Codex
+delegation"), you may delegate packages to Codex instead of the internal agent;
+otherwise (missing file, `off`, `reviewer`, or detection `internal`) use the
+internal `qa-engineer-agent` exactly as below. The choice is per-package and
+fail-closed — any Codex error drops that package back to internal.
+
+**Internal path (default).** For each package, use the Task tool to spawn a
+qa-engineer-agent with:
 
 - Scope (in/out)
 - References (SOT links + section pointers)
@@ -101,6 +109,16 @@ For each package, use the Task tool to spawn a qa-engineer-agent with:
 - Stage: `checklist`
 
 If multiple engineers: spawn in parallel, same turn.
+
+**Codex worker path (`codex_role: worker`).** For each package handed to Codex,
+fill `codex/prompts/codex-worker-package.md` and run `codex exec` read-only,
+capturing the final message — per the procedure in `test-lead-agent.md` → "Codex
+delegation → `codex_role: worker`". Key points: paste the SOT content and the
+distilled authoring rules into the brief (Codex has no skills and no MCP); reuse
+the Step 4.5 `id_range` carving for parallel packages; Codex **returns** content,
+**you write** the files; then run the same Step 6/7 two-pass review on the
+result. If a package fails (non-zero exit, empty/garbled output, `CODEX_ERROR`,
+`400`), silently fall back to an internal `qa-engineer-agent` for it.
 
 ## Step 6 — Review checklists
 
@@ -115,6 +133,13 @@ When QA engineers return finished cases, apply the `review-rubrics` skill (cases
 
 - If approved: cases stay where they are.
 - If send-back: re-invoke the engineer with specific feedback. Cap at 2 rounds.
+
+**Codex second opinion (`codex_role: reviewer`, or `codex_review: on`/`auto`
+with Codex available).** After your own cases-rubric pass, fill
+`codex/prompts/codex-reviewer.md` and pipe it to `codex exec` read-only for an
+independent verdict, then fold it into your decision — see `test-lead-agent.md` →
+"Codex delegation → `codex_role: reviewer`". Advisory only; surface genuine
+disagreements to the user. Fail-closed: no verdict ⇒ your review stands alone.
 
 ## Step 8 — Report
 

@@ -229,6 +229,28 @@ point at examples.
 Don't load all skills "just in case". Each skill in context is tokens.
 Pick the 4-6 that actually apply.
 
+## Delegating to a Codex worker (hybrid mode)
+
+When the project sets `codex_role: worker` (`.tms/memory/codex.yaml`) and Codex
+is available, the Test Lead may hand a package to `codex exec` instead of
+spawning a `qa-engineer-agent`. The brief is the same in spirit, but Codex has
+**no plugin skills and no MCP access**, so two sections must change:
+
+- **Skills to load** → replaced by a self-contained **AUTHORING RULES** block:
+  paste the byte-exact `.tms` case format (frontmatter key order, step layout,
+  shared-step reference syntax, trailing newline, required frontmatter fields)
+  plus the 3-5 most relevant `conventions.md` rules. Codex can't load
+  `kensa-test-authoring` — if it isn't in the brief, it doesn't exist for Codex.
+- **References** → paste the actual SOT content you already fetched, not just
+  links. Codex can read files under the project dir (read-only) but cannot reach
+  Linear/Jira/Confluence/etc.
+
+Everything else — Scope IN/OUT, style refs, `id_range`, output target — carries
+over unchanged. The fill-in template lives at `codex/prompts/codex-worker-package.md`;
+it defines the exact return format (a `checklist` block, or `=== FILE: ===` +
+fenced blocks the Lead writes to disk). See `agents/test-lead-agent.md` →
+"Codex delegation" for the invocation and fail-closed rules.
+
 ## Spawning the QA Engineer
 
 In Claude Code, use `Task` tool with the brief as the prompt. Specify

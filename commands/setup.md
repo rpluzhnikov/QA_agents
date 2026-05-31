@@ -112,6 +112,43 @@ placeholder (e.g. `"Authorization": "Bearer ${CUSTOM_TRACKER_TOKEN}"`), NEVER
 the literal secret, and tell the user which variable to export from their shell
 profile.
 
+## Phase 3.5 — Codex engine (only if the Codex CLI is installed)
+
+The plugin can use OpenAI Codex as an optional second engine. This phase decides
+whether and how the Test Lead uses it. **Skip the question entirely if Codex is
+not installed** — don't make the user think about a tool they don't have.
+
+1. **Detect Codex.** Run the plugin's detection helper (it prints `codex` or
+   `internal` on stdout and never errors):
+   - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/hooks/codex-detect.ps1" "<project dir>"`
+   - macOS/Linux: `sh "${CLAUDE_PLUGIN_ROOT}/hooks/codex-detect.sh" "<project dir>"`
+
+   If it prints `internal`, skip this entire phase silently — do not write
+   `codex.yaml`, do not mention Codex.
+
+2. **If it prints `codex`, ask ONE question** (per `clarification-protocol`):
+   > "I see the Codex CLI is installed. Want the Test Lead to use it?
+   > - **worker** — I offload test-case packages to Codex (it drafts, I review and write the files). Good for spreading load across packages.
+   > - **reviewer** — I write the cases and Codex gives an independent second-opinion review.
+   > - **off** — Claude only.
+   >
+   > Either way it's fail-closed: if Codex ever errors, I just fall back to my internal team."
+
+3. **Persist the answer** to `.tms/memory/codex.yaml` (from `templates/codex.yaml`):
+   set `codex_role` to the chosen value, leave `codex_review: auto`. Written at
+   commit time in Phase 6 with the rest of memory.
+
+4. **Offer the smoke test** (don't force it). `codex --version` passing does NOT
+   mean `codex exec` works — a default model the account can't use (e.g. `gpt-5`
+   on a ChatGPT login) fails only at call time. Offer to run:
+   ```
+   printf 'Reply with exactly the single word: PONG\n' | codex exec --sandbox read-only --skip-git-repo-check --cd "<project>" -
+   ```
+   A clean `PONG` + exit 0 confirms the engine. A `400 ... model is not
+   supported` means the model in `~/.codex/config.toml` isn't entitled — tell the
+   user to set `model = "gpt-5.5"` (ChatGPT logins) and point them at
+   [CODEX_INTEGRATION.md](../CODEX_INTEGRATION.md).
+
 ## Phase 4 — Style learning (only if existing cases were found)
 
 1. Read 10-20 random cases from `.tms/suites/` (sample across suites, not all from one).
@@ -143,6 +180,7 @@ profile.
    ├── conventions.md
    ├── glossary.md
    ├── sot.yaml
+   ├── codex.yaml  (only if Codex was detected in Phase 3.5)
    └── learned/
        ├── patterns.md  (empty for now)
        ├── shared-steps.md  (empty for now)
@@ -159,6 +197,13 @@ profile.
    - If it doesn't exist: create it with `{ "mcpServers": { ... } }`.
    - Use the entries from the Phase 3 MCP server map. Remember Jira+Confluence collapse
      to one `atlassian` entry.
+   - **Codex note:** `.mcp.json` is the Claude Code project format. In *hybrid*
+     mode (`codex_role: worker`/`reviewer`) the Codex worker doesn't need these
+     MCPs — the Test Lead pastes the SOT content it already fetched into the
+     worker brief. Only a *native* Codex install (Mode B) reads MCP, and it reads
+     it from `~/.codex/config.toml` `[mcp_servers.*]`, not `.mcp.json`; that
+     wiring is handled by the Codex `kensa-setup` flow / the installer, not here.
+     See [CODEX_INTEGRATION.md](../CODEX_INTEGRATION.md).
    - Show the user the exact diff/content before writing, and get confirmation.
    - Make sure `sot.yaml` is written with a `notable_pages` field for Confluence
      (the Phase 3 discovery output, or an empty array with a TODO if discovery was
@@ -176,6 +221,8 @@ profile.
    - If `.gitignore` exists and already has a `.tms/debug/` line: skip.
    - If `.gitignore` exists without it: append a comment + the rule.
    - If `.gitignore` doesn't exist: create it with the rule.
+   - Also ignore `.tms/.codex-availability` (the Codex detection cache — a
+     property of the local environment, re-checked every task, never committed).
    - Show the user the diff before writing and confirm.
 6. Tell the user how to use it: "Run `/new-feature <ref>` and I'll take it from here. Edit any file in `.tms/memory/` directly when conventions change — I re-read on every session. Per-session debug logs land in `.tms/debug/` if you ever need to share what happened."
 

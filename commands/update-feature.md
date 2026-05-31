@@ -48,6 +48,15 @@ QA engineers get a different brief shape than in `/new-feature`. For each case:
 
 Same two-stage review (checklist of changes → applied changes).
 
+**Engine choice — same rules as `/new-feature` Step 5.** Read
+`.tms/memory/codex.yaml`. With `codex_role: worker` + Codex available, you may
+hand update packages to Codex via `codex/prompts/codex-worker-package.md` (paste
+the existing case content AND the diff into the brief, since Codex is read-only
+and returns the revised content for you to write). With `codex_role: reviewer`,
+add a Codex second opinion in Step 5. Everything fail-closed — any error drops
+back to the internal `qa-engineer-agent`. See `test-lead-agent.md` → "Codex
+delegation".
+
 ## Step 5 — Review
 
 Apply `review-rubrics` adapted for updates:

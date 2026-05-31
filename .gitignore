@@ -6,6 +6,11 @@
 # output lands here -- not part of the plugin itself.
 .tms/debug/
 
+# Codex availability cache (written by hooks/codex-detect.*). Availability is a
+# property of the local environment, re-checked every task — never committed.
+.tms/.codex-availability
+.codex-availability
+
 # Temporary working directories (plan docs, PDF extracts, scratch)
 .tmp-*/
 
