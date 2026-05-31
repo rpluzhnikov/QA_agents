@@ -8,8 +8,8 @@
     {
       "name": "kensa-qa",
       "source": "./",
-      "version": "0.6.0",
-      "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test case authoring for the Kensa TMS. test-lead-agent + qa-engineer-agent + strategist, six slash commands (setup, new-feature, update-feature, save-memory, audit, brainstorm), 31 skills (21 ISTQB-grounded + 10 plugin tooling), bundled sequential-thinking MCP, Stop hooks for auto memory checkpoint and per-session debug log."
+      "version": "0.8.0",
+      "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test case authoring for the Kensa TMS. Multi-engine: runs on Claude Code, replicates as a native Codex plugin, or runs hybrid (Claude delegates QA packages to Codex). test-lead-agent + qa-engineer-agent + strategist, twelve slash commands, 31 skills (21 ISTQB-grounded + 10 plugin tooling), bundled sequential-thinking MCP, cross-platform Stop hooks for auto memory checkpoint and per-session debug log. Interactive installer (install.sh / install.ps1)."
     }
   ]
 }
