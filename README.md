@@ -225,7 +225,7 @@ The Test Lead finds cases referencing the changed source (via `source_id` in fro
 The Test Lead picks three angles (scope, decomposition strategy, test technique), three strategists each argue one angle in parallel, cross-review round, then a comparison view with 2–3 finalists. Saved to `.tms/brainstorms/`, referenceable from `/new-feature` later.
 
 #### `/audit`
-Walks `.tms/` via the `kensa` CLI: schema validation, duplicates, stale drafts, orphan shared-steps, tag drift, qualitative sampling. Output to terminal + `.tms/reports/audit-YYYY-MM-DD.md`. Opt-in fixes per-batch with confirmation.
+Walks `.tms/` via the `kensa-cli` CLI: schema validation, duplicates, stale drafts, orphan shared-steps, tag drift, qualitative sampling. Output to terminal + `.tms/reports/audit-YYYY-MM-DD.md`. Opt-in fixes per-batch with confirmation.
 
 #### `/save-memory`
 Auto-runs after `/new-feature` and `/update-feature` (enforced by the auto-checkpoint hook on Windows). Run manually mid-session to capture a new convention before more work happens.
@@ -382,7 +382,7 @@ A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every ses
 
 **Non-ISTQB tooling (10):**
 - `kensa-test-authoring` — byte-exact `.tms/` on-disk format
-- `kensa-cli` — drive the `kensa` CLI (queries, bulk edits, context bundling, audit)
+- `kensa-cli` — drive the `kensa-cli` CLI (queries, bulk edits, context bundling, audit)
 - `sequential-thinking` — structured reasoning
 - `figma-use` — programmatic Figma access for deep node inspection
 - `sot-linear` / `sot-jira` / `sot-confluence` / `sot-notion` / `sot-figma` — extraction guides per source

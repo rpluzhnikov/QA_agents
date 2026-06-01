@@ -178,7 +178,7 @@ format it per the rule above, write `suites/<suite>/<id>.md`, then **increment
 highest id on disk to survive merge collisions — if hand-creating, set `next_id`
 past the highest existing numeric id to be safe.)
 
-> Easiest path: let `kensa` or the GUI allocate the id. Only hand-allocate when
+> Easiest path: let `kensa-cli` or the GUI allocate the id. Only hand-allocate when
 > editing files outside the app.
 
 ---
@@ -402,17 +402,17 @@ person — or an AI agent — can execute without guessing.
 ## Authoring workflow
 
 ```
-1. Orient    → kensa list --tree ; kensa stats        (what suites/cases exist)
-2. Pick id   → read .tms/config.yaml project.next_id  (or let kensa/GUI allocate)
+1. Orient    → kensa-cli list --tree ; kensa-cli stats        (what suites/cases exist)
+2. Pick id   → read .tms/config.yaml project.next_id  (or let kensa-cli/GUI allocate)
 3. Write     → suites/<suite>/<id>.md  (match canonical format above)
 4. Bump      → increment next_id in .tms/config.yaml  (if you hand-allocated)
-5. Validate  → kensa validate  (schema)  ; kensa lint  (quality)  ; kensa doctor (integrity)
+5. Validate  → kensa-cli validate  (schema)  ; kensa-cli lint  (quality)  ; kensa-cli doctor (integrity)
 ```
 
 - **Reads & bulk edits**: use the **`kensa-cli`** skill (`filter`, `bulk update`,
   `context bundle`, etc.) — it's faster and safer than hand-editing many files.
 - **Single-artifact authoring**: hand-edit the file using the formats here.
-- **After any hand-edit batch**: run `kensa validate && kensa lint && kensa doctor`
+- **After any hand-edit batch**: run `kensa-cli validate && kensa-cli lint && kensa-cli doctor`
   to catch schema violations, empty steps, and id/filename drift.
 - **Never** invent top-level frontmatter keys (use `custom:`), break the
   filename==id invariant, or hard-delete a case (move to `.tms/trash/`).

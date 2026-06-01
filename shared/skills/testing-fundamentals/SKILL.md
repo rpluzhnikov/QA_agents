@@ -209,8 +209,8 @@ status: ready
 The `source_id` field IS the test basis → testware link of §1.4.4.
 This is what powers coverage queries:
 
-- `kensa coverage --by-source LIN-89` — which AC have cases?
-- `kensa coverage --by-risk risk-2fa-bypass` — what mitigates this risk?
+- `kensa-cli coverage --by-source LIN-89` — which AC have cases?
+- `kensa-cli coverage --by-risk risk-2fa-bypass` — what mitigates this risk?
 - Reverse: when an AC changes, `grep source_ac: AC-1` finds every
   affected case.
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "plugin": "kensa-qa",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Integration manifest for IDEs. Lists the installable engine builds, where to copy each into a project, and the post-install steps. The IDE reads this, offers the engines to the user, then copies the chosen build's contents into the project.",
   "engines": [
     {
@@ -18,7 +18,7 @@
       "verify": [
         "/help lists: setup, new-feature, update-feature, audit, brainstorm, pull-context, review-spec, risk-assess, test-plan, analyze-cases, traceability, save-memory",
         "@ shows agents: test-lead-agent, qa-engineer-agent, strategist",
-        "/hooks shows two Stop hooks (debug log + memory checkpoint)"
+        "/hooks shows one PostToolUse hook (case-counter sync) and two Stop hooks (debug log + memory checkpoint)"
       ]
     },
     {

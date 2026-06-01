@@ -26,7 +26,7 @@ marketplace install is complete:
 Verify:
 - `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `save-memory`
 - `@` shows `test-lead-agent`, `qa-engineer-agent`, `strategist`
-- `/hooks` shows two **Stop** hooks (debug log + memory checkpoint)
+- `/hooks` shows one **PostToolUse** hook (case-counter sync) and two **Stop** hooks (debug log + memory checkpoint)
 
 Then run `/setup` in your project.
 
@@ -74,6 +74,25 @@ into `~/.codex/prompts/`, and merge `AGENTS.md` into `~/.codex/AGENTS.md`.
 > Installing the Codex build via `codex plugin marketplace add` would deliver only
 > the `skills/` + `hooks/` (the plugin manifest can't carry subagents), so it is
 > **not** a complete install on its own. Use the copy above.
+
+---
+
+## `kensa-cli` on PATH (for the auto-sync hook)
+
+Both builds ship a **PostToolUse** hook that runs `kensa-cli sync` after an agent
+writes or edits a case file, keeping the id counters in `.tms/config.yaml`
+(`project.next_id`, …) in step with what's on disk — without opening the Kensa IDE.
+It then runs a non-fatal `kensa-cli doctor` advisory check.
+
+This hook needs **`kensa-cli` on the system PATH** of the process that runs Claude
+Code / Codex. The hook runs in the agent host process, **not** Kensa's embedded
+terminal, so Kensa's terminal PATH injection does **not** apply here — make sure
+`kensa-cli` resolves in a plain shell (`kensa-cli --version`). If `kensa-cli` is not
+found, the hook silently no-ops and never blocks the edit; you just won't get
+automatic counter sync until the IDE next allocates.
+
+The hook is also safe outside Kensa projects: it does nothing unless the working
+directory contains `.tms/config.yaml`.
 
 ---
 

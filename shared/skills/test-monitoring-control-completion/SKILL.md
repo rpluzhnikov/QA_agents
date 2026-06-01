@@ -63,9 +63,9 @@ Kensa can produce:
 > # of test cases run/not run, passed/failed, execution time.
 
 Kensa can produce:
-- Number of cases authored: `kensa stats`.
+- Number of cases authored: `kensa-cli stats`.
 - Number of cases by status (draft / ready / deprecated):
-  `kensa stats --by-status`.
+  `kensa-cli stats --by-status`.
 - Pass/fail/run metrics: NOT directly — these require a test run,
   which lives downstream in `.tms/runs/` if the user is using runs.
 
@@ -104,7 +104,7 @@ Kensa can produce:
 > Requirements coverage, code coverage.
 
 Kensa can produce:
-- Requirements coverage: `kensa coverage --by-source LIN-89` shows
+- Requirements coverage: `kensa-cli coverage --by-source LIN-89` shows
   which AC have cases. This is the most actionable Kensa metric.
 - Code coverage: NOT producible — handed off to dev/automation tools.
 
@@ -121,13 +121,13 @@ When producing a completion report, include these where available:
 
 | Metric | Command/source | Always include? |
 |---|---|---|
-| Cases authored | `kensa stats` | Yes |
-| Cases by suite | `kensa stats --by-suite` | If multi-suite session |
-| Cases by status | `kensa stats --by-status` | Yes |
-| Coverage by source | `kensa coverage --by-source <SOT-ID>` | Yes |
-| Coverage by risk | `kensa coverage --by-risk <risk-id>` | If risk register has IDs |
-| Lint warnings | `kensa lint` | If any |
-| Duplicate cases | `kensa duplicates` | If any |
+| Cases authored | `kensa-cli stats` | Yes |
+| Cases by suite | `kensa-cli stats --by-suite` | If multi-suite session |
+| Cases by status | `kensa-cli stats --by-status` | Yes |
+| Coverage by source | `kensa-cli coverage --by-source <SOT-ID>` | Yes |
+| Coverage by risk | `kensa-cli coverage --by-risk <risk-id>` | If risk register has IDs |
+| Lint warnings | `kensa-cli lint` | If any |
+| Duplicate cases | `kensa-cli duplicates` | If any |
 | Residual risks | From scope plan vs final cases | Yes |
 | Open questions | Carried from scope plan | If any unresolved |
 
@@ -220,8 +220,8 @@ execution.
 - No new risks emerged.
 
 **Metrics**
-- 14 cases authored (`kensa stats`)
-- 6/6 AC covered (`kensa coverage --by-source LIN-89`)
+- 14 cases authored (`kensa-cli stats`)
+- 6/6 AC covered (`kensa-cli coverage --by-source LIN-89`)
 - 0 lint warnings
 - 0 duplicates
 
@@ -297,7 +297,7 @@ cases authored.
 
 **Summary:** 5 cases for happy + key negatives. All AC covered.
 
-**Coverage:** 3/3 AC (kensa coverage --by-source LIN-42).
+**Coverage:** 3/3 AC (kensa-cli coverage --by-source LIN-42).
 
 **Risks:** Low overall (no PII new, no auth change). 1 risk
 accepted: deep i18n testing on name field (low likelihood, low

@@ -48,7 +48,7 @@ means you read all three. Note the canonical source vs WIP explorations
 
 ## Step 4 — Cross-link with the existing test base
 
-- `kensa filter 'source_id = <ref>' --format json` → cases already traced to this ref.
+- `kensa-cli filter 'source_id = <ref>' --format json` → cases already traced to this ref.
 - Grep `.tms/suites/` on the feature name, glossary terms, and key nouns → related cases under a different or missing `source_id`.
 - If you find related cases, note their paths and whether the new work overlaps,
   extends, or supersedes them (informational — do not modify them).

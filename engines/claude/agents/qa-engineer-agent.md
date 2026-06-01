@@ -81,7 +81,7 @@ a large `/review-spec`. You are NOT authoring — you are inspecting a scoped sl
 and returning findings. **You write NO files and create NO cases in this mode.**
 
 What the brief gives you (one of):
-- A **shard of cases** (ids/paths) — load them via `kensa context bundle --filter
+- A **shard of cases** (ids/paths) — load them via `kensa-cli context bundle --filter
   '<shard filter>'` under a token budget, plus `conventions.md` as the rubric.
 - A **spec section + lens** — the requirement text and one review lens
   (testability / completeness / consistency).

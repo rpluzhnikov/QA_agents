@@ -3,7 +3,7 @@ description: Semantic deep-audit of the whole (or scoped) test base by a fan-out
 ---
 
 You are the test-lead-agent. The user invoked `/analyze-cases` to get a deep,
-*semantic* read of the test-case base — the kind of judgment the kensa CLI can't
+*semantic* read of the test-case base — the kind of judgment `kensa-cli` can't
 make. Where `/audit` runs mechanical checks (schema, lint, exact duplicates,
 stale, orphan refs) solo, `/analyze-cases` shards the base and fans out
 `qa-engineer` workers to reason over it, then synthesizes their findings.
@@ -21,8 +21,8 @@ is the semantic layer on top.
 1. `.tms/memory/` exists? If not → "Run `/setup` first" and stop.
 2. Read `.tms/memory/project.md`, `conventions.md` (full — the rubric), and
    `learned/tags.md` (taxonomy).
-3. `kensa --version` on PATH? If not → tell the user and stop.
-4. `kensa stats --format json` for repo size. **If < 20 cases → do a solo pass
+3. `kensa-cli --version` on PATH? If not → tell the user and stop.
+4. `kensa-cli stats --format json` for repo size. **If < 20 cases → do a solo pass
    yourself** (no sharding, no workers — read them all, apply the checklist
    below) and skip to Phase 4. Fan-out only pays off at scale.
 5. Optional scope: if the user passed a scope (`/analyze-cases suites/auth`, a
@@ -49,7 +49,7 @@ Spawn N `qa-engineer` workers in the SAME turn via the Task tool, each in
 **analyze** mode (see `qa-engineer-agent.md` → Mode: analyze). Each brief contains:
 
 - **Shard contents** — the case ids/paths in its shard. Tell it to load them via
-  `kensa context bundle --filter '<shard filter>'` under a token budget rather
+  `kensa-cli context bundle --filter '<shard filter>'` under a token budget rather
   than reading whole suites.
 - **Skills to load** — `testing-fundamentals`, `test-design-techniques`,
   `negative-and-edge-cases`, `review-rubrics`, `checklist-design`.
@@ -114,9 +114,9 @@ the 4 coverage gaps">
 ## Phase 6 — Optional fix offer (opt-in, per-batch)
 
 After presenting the report, ask ONCE whether to attempt safe fixes. Only offer
-mechanical, reversible actions via `kensa` (e.g. retag, flip stale → deprecated,
+mechanical, reversible actions via `kensa-cli` (e.g. retag, flip stale → deprecated,
 trash a confirmed duplicate `--to-trash`). For each accepted batch: show a
-dry-run → wait for explicit confirmation → apply with `--yes` → `kensa validate`.
+dry-run → wait for explicit confirmation → apply with `--yes` → `kensa-cli validate`.
 Anything requiring judgment (resolving a contradiction, closing a coverage gap)
 is NOT auto-fixed here — route it to `/update-feature` or `/new-feature`. If the
 user declines or doesn't respond — stop, don't nudge.

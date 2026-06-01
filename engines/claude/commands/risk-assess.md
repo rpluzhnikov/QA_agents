@@ -41,8 +41,8 @@ for `sequential-thinking` — otherwise don't over-think it.
    - **Medium** → representative: EP + key boundaries + main negatives.
    - **Low** → smoke: happy path + one or two obvious negatives.
 
-Tie each risk to the affected area/suite where possible (`kensa coverage --by-source`,
-`kensa list --tree`) so the depth recommendation lands on a real target.
+Tie each risk to the affected area/suite where possible (`kensa-cli coverage --by-source`,
+`kensa-cli list --tree`) so the depth recommendation lands on a real target.
 
 ## Step 4 — Write the register
 

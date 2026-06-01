@@ -1,10 +1,10 @@
 ---
 name: kensa-cli
-description: Drive the kensa CLI to query, edit, and maintain QA test cases in a .tms/ project from the terminal.
+description: Drive the kensa-cli command-line tool to query, edit, and maintain QA test cases in a .tms/ project from the terminal.
 ---
 
 > **Non-ISTQB tooling skill**
-> This skill covers project infrastructure (the `kensa` CLI for querying, editing, and maintaining manual test cases stored in `.tms/` + `suites/`). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
+> This skill covers project infrastructure (the `kensa-cli` CLI for querying, editing, and maintaining manual test cases stored in `.tms/` + `suites/`). It is **complementary** to ISTQB CTFL v4.0.1 but not derived from it — no specific learning objective grounds the content. The skill does not contradict ISTQB guidance; where ISTQB is relevant, cross-references are noted inline.
 > Light cross-reference: implements the CTFL §6.1 test management tool category, providing metrics collection per §5.3.1 (`stats`, `coverage --by-source`) and configuration-management support per §5.4.
 
 ## Overview — when to use
@@ -65,10 +65,10 @@ These flags apply to every subcommand.
 All data output is written to **stdout**. All human-readable messages (progress, counts, notes) are written to **stderr**. This means:
 
 ```sh
-kensa list --format json > cases.json          # clean JSON on stdout
-kensa filter "tag=auth" --format ids           # one id per line → pipe-safe
-kensa filter "priority=high" --format paths    # one path per line
-kensa validate 2>errors.txt                    # messages go to stderr
+kensa-cli list --format json > cases.json          # clean JSON on stdout
+kensa-cli filter "tag=auth" --format ids           # one id per line → pipe-safe
+kensa-cli filter "priority=high" --format paths    # one path per line
+kensa-cli validate 2>errors.txt                    # messages go to stderr
 ```
 
 ---
@@ -80,8 +80,8 @@ All write commands that affect many cases (`bulk`, `rename-tag`, `bulk-apply`, `
 `update` (single case) and `trash restore` apply immediately (no `--yes` required).
 
 ```sh
-kensa bulk update --filter "status=draft" --set status=active --dry-run  # default
-kensa bulk update --filter "status=draft" --set status=active --yes       # applies
+kensa-cli bulk update --filter "status=draft" --set status=active --dry-run  # default
+kensa-cli bulk update --filter "status=draft" --set status=active --yes       # applies
 ```
 
 ---
@@ -124,12 +124,12 @@ Standard fields: `id`, `title`, `priority`, `status`, `tags`, `suite`, `source_i
 ### Examples
 
 ```sh
-kensa filter "tag=auth and priority=high"
-kensa filter "status in [draft, active]"
-kensa filter "title ~ login"
-kensa filter "mtime > 30d"                  # modified in last 30 days
-kensa filter "not tag=deprecated"
-kensa filter "suite = auth/flows and status != deprecated"
+kensa-cli filter "tag=auth and priority=high"
+kensa-cli filter "status in [draft, active]"
+kensa-cli filter "title ~ login"
+kensa-cli filter "mtime > 30d"                  # modified in last 30 days
+kensa-cli filter "not tag=deprecated"
+kensa-cli filter "suite = auth/flows and status != deprecated"
 ```
 
 Duration literals: `7d` (days), `2w` (weeks), `1m` (months), `1h` (hours).
@@ -143,59 +143,59 @@ Duration literals: `7d` (days), `2w` (weeks), `1m` (months), `1h` (hours).
 #### `list [suite] [--tree]`
 List cases, optionally restricted to a suite path. `--tree` renders the suite hierarchy with per-suite case counts.
 ```sh
-kensa list
-kensa list auth/flows
-kensa list --tree
-kensa list --format ids        # one id per line
+kensa-cli list
+kensa-cli list auth/flows
+kensa-cli list --tree
+kensa-cli list --format ids        # one id per line
 ```
 
 #### `show <id> [--field <name>] [--raw]`
 Show a single case by id. `--field <name>` prints only that frontmatter field's value. `--raw` prints the raw file bytes.
 ```sh
-kensa show AUTH-001
-kensa show AUTH-001 --field priority
-kensa show AUTH-001 --raw
+kensa-cli show AUTH-001
+kensa-cli show AUTH-001 --field priority
+kensa-cli show AUTH-001 --raw
 ```
 
 #### `filter <expr>`
 Filter cases with the DSL. Outputs matching cases.
 ```sh
-kensa filter "tag=smoke and status=active" --format ids
-kensa filter "priority=critical" --format json
+kensa-cli filter "tag=smoke and status=active" --format ids
+kensa-cli filter "priority=critical" --format json
 ```
 
 #### `find <query> [--limit <N>]`
 Fuzzy-find cases by title or tags. `--limit` caps results (default 20).
 ```sh
-kensa find "login flow"
-kensa find "payment" --limit 5
+kensa-cli find "login flow"
+kensa-cli find "payment" --limit 5
 ```
 
 #### `stats`
 Aggregate statistics over the project (total cases, by priority, by status, by suite).
 ```sh
-kensa stats
-kensa stats --format json
+kensa-cli stats
+kensa-cli stats --format json
 ```
 
 #### `validate`
 Validate all cases against the project schema. Exit code 3 if violations found.
 ```sh
-kensa validate
-kensa validate --format json
+kensa-cli validate
+kensa-cli validate --format json
 ```
 
 #### `describe`
 Emit a machine-readable JSON manifest of the CLI surface (subcommands, flags, project paths, case field definitions). Useful for agents to self-orient.
 ```sh
-kensa describe
-kensa describe --format json | jq '.commands[].name'
+kensa-cli describe
+kensa-cli describe --format json | jq '.commands[].name'
 ```
 
 #### `index`
 Rebuild `.tms/INDEX.md` and per-suite `_index.md` files.
 ```sh
-kensa index
+kensa-cli index
 ```
 
 ### Write / bulk
@@ -203,53 +203,53 @@ kensa index
 #### `update <id> [--set FIELD=VALUE]... [--add-tag TAG]... [--remove-tag TAG]... [--dry-run]`
 Update a single case. `--set` accepts `title=`, `priority=`, `status=`, or any custom schema field. Repeatable. `--dry-run` prints the planned changes without writing.
 ```sh
-kensa update AUTH-001 --set priority=high --set status=active
-kensa update AUTH-001 --add-tag regression --remove-tag smoke
-kensa update AUTH-001 --set title="New title" --dry-run
+kensa-cli update AUTH-001 --set priority=high --set status=active
+kensa-cli update AUTH-001 --add-tag regression --remove-tag smoke
+kensa-cli update AUTH-001 --set title="New title" --dry-run
 ```
 
 #### `bulk update --filter <expr> --set FIELD=VALUE [--dry-run] [--yes]`
 Set fields on all cases matching a filter.
 ```sh
-kensa bulk update --filter "tag=wip" --set status=draft --yes
+kensa-cli bulk update --filter "tag=wip" --set status=draft --yes
 ```
 
 #### `bulk add-tag <tag> --filter <expr> [--dry-run] [--yes]`
 Add a tag to all matching cases.
 ```sh
-kensa bulk add-tag regression --filter "suite=auth" --yes
+kensa-cli bulk add-tag regression --filter "suite=auth" --yes
 ```
 
 #### `bulk remove-tag <tag> --filter <expr> [--dry-run] [--yes]`
 Remove a tag from all matching cases.
 ```sh
-kensa bulk remove-tag deprecated --filter "status=active" --yes
+kensa-cli bulk remove-tag deprecated --filter "status=active" --yes
 ```
 
 #### `bulk move --filter <expr> --to <suite> [--dry-run] [--yes]`
 Move all matching cases to another suite (POSIX path relative to `suites/`).
 ```sh
-kensa bulk move --filter "tag=auth" --to auth/flows --yes
+kensa-cli bulk move --filter "tag=auth" --to auth/flows --yes
 ```
 
 #### `bulk delete --filter <expr> --to-trash [--dry-run] [--yes]`
 Move all matching cases to `.tms/trash/`. `--to-trash` is required (hard delete is not supported). 
 ```sh
-kensa bulk delete --filter "status=deprecated" --to-trash --yes
+kensa-cli bulk delete --filter "status=deprecated" --to-trash --yes
 ```
 
 #### `rename-tag <old> <new> [--dry-run] [--yes]`
 Rename a tag across the whole project.
 ```sh
-kensa rename-tag smoke regression --dry-run
-kensa rename-tag smoke regression --yes
+kensa-cli rename-tag smoke regression --dry-run
+kensa-cli rename-tag smoke regression --yes
 ```
 
 #### `bulk-apply <script> [--dry-run] [--yes]`
 Apply a declarative YAML batch script over filtered cases. Default is dry-run.
 ```sh
-kensa bulk-apply ops/set-priorities.yaml --dry-run
-kensa bulk-apply ops/set-priorities.yaml --yes
+kensa-cli bulk-apply ops/set-priorities.yaml --dry-run
+kensa-cli bulk-apply ops/set-priorities.yaml --yes
 ```
 
 ### Quality / maintenance
@@ -257,42 +257,61 @@ kensa bulk-apply ops/set-priorities.yaml --yes
 #### `lint`
 Lint cases against built-in quality rules (missing title, empty steps, etc.).
 ```sh
-kensa lint
-kensa lint --format json
+kensa-cli lint
+kensa-cli lint --format json
 ```
 
 #### `duplicates [--threshold <0.0-1.0>] [--mark] [--dry-run] [--yes]`
 Find cases with near-duplicate titles using Jaro-Winkler similarity. Default threshold 0.85. `--mark` adds a `dup-candidate` tag (requires `--yes` to apply).
 ```sh
-kensa duplicates
-kensa duplicates --threshold 0.90
-kensa duplicates --mark --yes
+kensa-cli duplicates
+kensa-cli duplicates --threshold 0.90
+kensa-cli duplicates --mark --yes
 ```
 
 #### `coverage --by-tag | --by-source | --by-suite`
 Count cases grouped by tag, source_id, or suite. Exactly one grouping flag required.
 ```sh
-kensa coverage --by-tag
-kensa coverage --by-suite --format json
+kensa-cli coverage --by-tag
+kensa-cli coverage --by-suite --format json
 ```
 
 #### `gaps [--against shared-steps]`
 Find unreferenced shared steps. Only `--against shared-steps` is supported.
 ```sh
-kensa gaps --against shared-steps
+kensa-cli gaps --against shared-steps
 ```
 
 #### `doctor`
 Integrity report: duplicate ids, malformed files, stray files outside suites.
 ```sh
-kensa doctor
-kensa doctor --format json
+kensa-cli doctor
+kensa-cli doctor --format json
 ```
+
+#### `sync`
+Recompute the project's id counters in `.tms/config.yaml` from what's on disk and rewrite the
+file (byte-for-byte identical to how the Kensa IDE writes it). Fixes counter desync: the IDE
+bumps `project.next_id` (plus `next_shared_step_id` / `next_plan_id`) when *it* creates a case,
+but when an agent writes a `suites/**/<id>.md` case file directly the counter goes stale until the
+IDE's next allocation. `sync` always recounts `next_id`; it recounts `next_shared_step_id` /
+`next_plan_id` only when that key already exists in `config.yaml` or its artifact dir
+(`.tms/shared-steps/` / `.tms/plans/`) is non-empty. **Idempotent and cheap** — when already in
+sync it writes nothing and exits 0. Errors (exit non-zero) only if the dir isn't a Kensa project
+(no `.tms/config.yaml`).
+```sh
+kensa-cli sync                  # recompute and rewrite config.yaml
+kensa-cli sync --check          # report drift WITHOUT writing; exit 3 if out of sync, 0 if in sync
+kensa-cli sync --quiet          # suppress progress on stderr (used by hooks)
+```
+> The kensa-qa plugin runs `kensa-cli sync` for you automatically via a `PostToolUse` hook after an
+> agent writes/edits files under `.tms/` or `suites/`, so counters stay correct without opening the
+> IDE. Requires `kensa-cli` on the system PATH (see the plugin README); if absent, the hook no-ops.
 
 #### `schema migrate`
 Migrate the project schema to the current version.
 ```sh
-kensa schema migrate
+kensa-cli schema migrate
 ```
 
 ### Git-temporal
@@ -300,27 +319,27 @@ kensa schema migrate
 #### `changed --since <git-ref>`
 List cases changed since a git ref (e.g. `HEAD`, branch name, commit sha).
 ```sh
-kensa changed --since main
-kensa changed --since HEAD~5 --format ids
+kensa-cli changed --since main
+kensa-cli changed --since HEAD~5 --format ids
 ```
 
 #### `stale [--days <N>]`
 List cases not modified in the last N days (git mtime, filesystem fallback). Default 90 days.
 ```sh
-kensa stale
-kensa stale --days 180
+kensa-cli stale
+kensa-cli stale --days 180
 ```
 
 #### `blame <id>`
 Show `git blame` output for a case's file.
 ```sh
-kensa blame AUTH-001
+kensa-cli blame AUTH-001
 ```
 
 #### `log <id>`
 Show `git log` output for a case's file.
 ```sh
-kensa log AUTH-001
+kensa-cli log AUTH-001
 ```
 
 ### Trash
@@ -328,22 +347,22 @@ kensa log AUTH-001
 #### `trash list`
 List the cases currently in `.tms/trash/`.
 ```sh
-kensa trash list
-kensa trash list --format json
+kensa-cli trash list
+kensa-cli trash list --format json
 ```
 
 #### `trash restore <id>`
 Restore a trashed case back to `suites/` root by its case id (frontmatter id) or trash filename stem.
 ```sh
-kensa trash restore AUTH-001
+kensa-cli trash restore AUTH-001
 ```
 
 #### `trash purge [--older-than <DURATION>] [--dry-run] [--yes]`
 Permanently delete trashed cases. `--older-than` limits to files older than a duration (e.g. `30d`, `12w`). This is the only hard-delete operation.
 ```sh
-kensa trash purge --dry-run
-kensa trash purge --older-than 30d --yes
-kensa trash purge --yes      # purge all trashed cases
+kensa-cli trash purge --dry-run
+kensa-cli trash purge --older-than 30d --yes
+kensa-cli trash purge --yes      # purge all trashed cases
 ```
 
 ### Agent integration
@@ -351,40 +370,40 @@ kensa trash purge --yes      # purge all trashed cases
 #### `context show <id>`
 Show editing context for a single case: frontmatter, step count, related cases (by shared tags/suite/source_id), and a snippet from `.tms/memory/conventions.md` if present.
 ```sh
-kensa context show AUTH-001
-kensa context show AUTH-001 --format json
+kensa-cli context show AUTH-001
+kensa-cli context show AUTH-001 --format json
 ```
 
 #### `context bundle --filter <expr> [--max-tokens <N>]`
 Pack matching cases under a token budget (default 8000 tokens, chars/4 heuristic). High-priority and step-heavy cases get full body; the rest are frontmatter-only. All matched cases always appear.
 ```sh
-kensa context bundle --filter "tag=auth" --format json
-kensa context bundle --filter "suite=payments" --max-tokens 4000
+kensa-cli context bundle --filter "tag=auth" --format json
+kensa-cli context bundle --filter "suite=payments" --max-tokens 4000
 ```
 
 #### `explain <id>`
 Human/agent-readable explanation of a case: structured prose summary of steps and intent.
 ```sh
-kensa explain AUTH-001
+kensa-cli explain AUTH-001
 ```
 
 #### `shared-step list`
 List shared-step files with their usage count.
 ```sh
-kensa shared-step list
-kensa shared-step list --format json
+kensa-cli shared-step list
+kensa-cli shared-step list --format json
 ```
 
 #### `shared-step usage <name>`
 List cases that reference a specific shared step by its id (stem of the `.md` file).
 ```sh
-kensa shared-step usage LOGIN
+kensa-cli shared-step usage LOGIN
 ```
 
 #### `shared-step orphan`
 List shared steps with zero references.
 ```sh
-kensa shared-step orphan
+kensa-cli shared-step orphan
 ```
 
 ### Util / shell
@@ -392,14 +411,14 @@ kensa shared-step orphan
 #### `completions <shell>`
 Generate a shell completion script. Shells: `bash`, `zsh`, `fish`, `powershell`.
 ```sh
-kensa completions bash > ~/.bash_completion.d/kensa
-kensa completions powershell | Out-File $PROFILE -Append
+kensa-cli completions bash > ~/.bash_completion.d/kensa-cli
+kensa-cli completions powershell | Out-File $PROFILE -Append
 ```
 
 #### `man`
 Emit a roff man page for `kensa-cli` to stdout.
 ```sh
-kensa man > /usr/local/share/man/man1/kensa.1
+kensa-cli man > /usr/local/share/man/man1/kensa-cli.1
 ```
 
 ---
@@ -409,54 +428,54 @@ kensa man > /usr/local/share/man/man1/kensa.1
 ### Discover the project surface before editing
 
 ```sh
-kensa describe --format json           # machine-readable CLI manifest
-kensa list --tree                      # suite hierarchy + case counts
-kensa stats --format json              # priority / status distribution
+kensa-cli describe --format json           # machine-readable CLI manifest
+kensa-cli list --tree                      # suite hierarchy + case counts
+kensa-cli stats --format json              # priority / status distribution
 ```
 
 ### Scope changes to the right cases
 
 ```sh
 # Get ids matching a condition, then update them
-kensa filter "tag=auth and status=draft" --format ids \
-  | xargs -I{} kensa update {} --set status=active
+kensa-cli filter "tag=auth and status=draft" --format ids \
+  | xargs -I{} kensa-cli update {} --set status=active
 
 # Or use bulk (single write pass — preferred for large sets):
-kensa bulk update --filter "tag=auth and status=draft" --set status=active --yes
+kensa-cli bulk update --filter "tag=auth and status=draft" --set status=active --yes
 ```
 
 ### Prepare context before writing case bodies
 
 ```sh
 # Full context for one case
-kensa context show AUTH-001 --format json
+kensa-cli context show AUTH-001 --format json
 
 # Pack a filtered set under a token budget for agent context window
-kensa context bundle --filter "suite=auth" --format json
+kensa-cli context bundle --filter "suite=auth" --format json
 ```
 
 ### Validate after bulk changes
 
 ```sh
-kensa validate && echo "all good"
-kensa lint --format json | jq '.[] | select(.severity=="error")'
+kensa-cli validate && echo "all good"
+kensa-cli lint --format json | jq '.[] | select(.severity=="error")'
 ```
 
 ### Find scope for cleanup
 
 ```sh
-kensa duplicates --threshold 0.85 --format json
-kensa stale --days 90 --format ids
-kensa lint --format json
-kensa doctor
+kensa-cli duplicates --threshold 0.85 --format json
+kensa-cli stale --days 90 --format ids
+kensa-cli lint --format json
+kensa-cli doctor
 ```
 
 ### Safe bulk rename workflow
 
 ```sh
-kensa bulk update --filter "tag=smoke" --set priority=medium --dry-run  # preview
-kensa bulk update --filter "tag=smoke" --set priority=medium --yes      # apply
-kensa validate                                                           # confirm
+kensa-cli bulk update --filter "tag=smoke" --set priority=medium --dry-run  # preview
+kensa-cli bulk update --filter "tag=smoke" --set priority=medium --yes      # apply
+kensa-cli validate                                                           # confirm
 ```
 
 ### Audit workflow (used by `/audit`)
@@ -466,28 +485,28 @@ single report. Order matters — cheap checks first, sample-based checks last.
 
 ```sh
 # 1. Scope & preflight
-kensa --version
-kensa stats --format json
+kensa-cli --version
+kensa-cli stats --format json
 
 # 2. Mechanical checks — collect JSON, do not abort on exit code 3 from validate
-kensa validate --format json
-kensa lint --format json
-kensa doctor --format json
-kensa duplicates --threshold 0.85 --format json
-kensa stale --days 90 --format json
-kensa shared-step orphan --format json
-kensa gaps --against shared-steps --format json
-kensa coverage --by-source --format json
-kensa coverage --by-tag --format json
+kensa-cli validate --format json
+kensa-cli lint --format json
+kensa-cli doctor --format json
+kensa-cli duplicates --threshold 0.85 --format json
+kensa-cli stale --days 90 --format json
+kensa-cli shared-step orphan --format json
+kensa-cli gaps --against shared-steps --format json
+kensa-cli coverage --by-source --format json
+kensa-cli coverage --by-tag --format json
 
 # 3. Cross-reference (combine with .tms/memory/sot.yaml and learned/tags.md)
-kensa filter 'source_id != ""' --format json          # all cases with a source
-kensa filter 'tag:<X> and not tag:<Y>' --format ids   # required_with violations
-kensa filter 'status = draft and tag:tbd and mtime > 30d' --format ids
+kensa-cli filter 'source_id != ""' --format json          # all cases with a source
+kensa-cli filter 'tag:<X> and not tag:<Y>' --format ids   # required_with violations
+kensa-cli filter 'status = draft and tag:tbd and mtime > 30d' --format ids
 
 # 4. Qualitative sample
-kensa list --format ids                                # pick a stratified sample
-kensa show <ID>                                        # for each sampled case
+kensa-cli list --format ids                                # pick a stratified sample
+kensa-cli show <ID>                                        # for each sampled case
 ```
 
 See `commands/audit.md` for the full Test Lead workflow including how to bucket

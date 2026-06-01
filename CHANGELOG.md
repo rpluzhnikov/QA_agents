@@ -3,6 +3,32 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.10.0 -- 2026-06-01
+
+### Added — auto-sync of `.tms/` id counters
+
+- **PostToolUse hook (`kensa-sync`).** After an agent writes/edits a case file under
+  `suites/` or `.tms/`, the plugin runs `kensa-cli sync --quiet` to recompute the id
+  counters in `.tms/config.yaml` (`project.next_id`, `next_shared_step_id`,
+  `next_plan_id`) from disk, then a non-fatal `kensa-cli doctor --quiet` advisory
+  check. Idempotent and near-instant. Ships as `shared/hooks/kensa-sync.{ps1,sh}`,
+  registered for both engines (`engines/claude/.claude-plugin/plugin.json` +
+  `shared/hooks/hooks.json`) with the `Write|Edit|MultiEdit` matcher.
+- Requires `kensa-cli` on PATH (the hook runs in the agent host process, not Kensa's
+  embedded terminal). If absent, the hook no-ops; it also does nothing outside a Kensa
+  project (no `.tms/config.yaml`). Documented in `INSTALL.md`.
+
+### Changed
+
+- **CLI renamed to `kensa-cli` in all docs.** Every CLI invocation in the skills,
+  commands, and README now uses the real binary name `kensa-cli` (was `kensa`).
+  Product/plugin/skill names are unchanged.
+- Documented the new `kensa-cli sync` subcommand in the `kensa-cli` skill.
+
+### Bumped
+
+- All manifests (`engines.json`, both `plugin.json`, `marketplace.json`) to `0.10.0`.
+
 ## 0.9.0 -- 2026-06-01
 
 ### Changed — two clean engines, one monorepo
