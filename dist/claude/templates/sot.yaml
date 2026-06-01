@@ -1,0 +1,59 @@
+# Sources of truth — configuration for the plugin
+
+# What MCP servers are connected and which spaces/projects/teams within
+# each one is relevant to this project.
+#
+# The plugin reads this to know where to look for tickets, specs, etc.
+# It does NOT configure MCP servers — that's done in Claude Code
+# settings by the user.
+
+sources:
+
+  # Issue trackers — usually one primary
+  linear:
+    enabled: false  # set to true when MCP is connected and you want to use it
+    workspace_id: ""
+    team_ids: []  # leave empty for "all teams"; specify to scope
+    default_project: ""
+
+  jira:
+    enabled: false
+    base_url: ""
+    project_keys: []
+    default_board: ""
+
+  # Spec / wiki sources
+  confluence:
+    enabled: false
+    base_url: ""
+    space_keys: []
+    # Authoritative spec pages within the spaces above. Populated by /setup
+    # via CQL discovery (or by hand). Without this, the Lead can land on a
+    # space overview page and never find the actual specs underneath.
+    # Format: [{id: "655361", title: "Discount Engine"}, ...]
+    notable_pages: []
+
+  notion:
+    enabled: false
+    workspace_id: ""
+    relevant_database_ids: []
+
+  # Design source
+  figma:
+    enabled: false
+    team_id: ""
+    project_ids: []
+
+  # Catch-all for anything else
+  custom:
+    enabled: false
+    notes: |
+      e.g., "We keep specs in a git repo at <url>. The plugin can read
+      them via file paths if the user pastes them."
+
+# Default source the Lead should check first when given a bare ticket
+# reference (e.g., "XXX-1234" — is that Linear or Jira?)
+primary_tracker: ""  # one of: linear, jira, custom
+
+# What to do when the Lead can't resolve a reference
+on_unresolved_ref: ask  # ask | assume_text | fail

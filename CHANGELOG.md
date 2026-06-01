@@ -3,6 +3,46 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.9.0 -- 2026-06-01
+
+### Changed — two clean engines, one monorepo
+
+The plugin is now two focused, self-contained builds (Claude + Codex) assembled
+from a single source tree. Distribution is by IDE drop-into-project — there is no
+installer and no marketplace step.
+
+- **Repo restructure.** Skills, hooks, and `.tms` templates moved to `shared/`
+  (one source of truth, copied into both engines). Engine-specific files moved to
+  `engines/claude/` (`.claude-plugin/`, `agents/`, `commands/`) and
+  `engines/codex/` (`.codex-plugin/`, `.codex/agents/*.toml`, `.codex/prompts/`,
+  `AGENTS.md`).
+- **Build step.** `scripts/build.ps1` and `scripts/build.sh` assemble self-contained
+  `dist/claude/` and `dist/codex/` (skills materialized inside each), generate a
+  per-engine drop README, and validate skill counts + manifests. `dist/` is the
+  IDE's download target.
+
+### Removed
+
+- **Hybrid Claude→Codex delegation** — `hooks/codex-detect.{ps1,sh}`,
+  `codex/prompts/codex-{worker-package,reviewer,consult}.md`, `templates/codex.yaml`,
+  the `codex_role`/`codex_review` logic in the Test Lead, `/new-feature`,
+  `/update-feature`, `/setup` (Phase 3.5), and `task-assignment`. `CODEX_INTEGRATION.md`
+  deleted.
+- **Interactive installer** — `install.ps1`, `install.sh`.
+
+### Distribution
+
+- **Claude marketplace kept** — `.claude-plugin/marketplace.json` now points at
+  `./dist/claude`, so the one-liner `/plugin marketplace add rpluzhnikov/QA_agents`
+  + `/plugin install` still works (complete: Claude bundles agents+commands+skills+hooks+MCP).
+- **Codex install is a file copy** of `dist/codex` into the project (the Codex
+  plugin format can't bundle subagents). New concise `INSTALL.md` documents both;
+  `engines.json` is the machine-readable contract for IDE drop-in.
+
+### Bumped
+
+- Both `plugin.json` manifests to `0.9.0`.
+
 ## 0.8.0 -- 2026-05-31
 
 ### Added — multi-engine support + an interactive installer

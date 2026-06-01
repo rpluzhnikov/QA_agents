@@ -87,81 +87,78 @@ The Test Lead loads the management & static skills on demand. Every QA Engineer 
 
 ## Install
 
-kensa-qa runs in three modes. Pick one — the interactive installer wires it up.
+kensa-qa ships **two clean engine builds from one monorepo** — one for Claude Code,
+one for OpenAI Codex. No installer script. The built, ready-to-use folders live
+under [`dist/claude/`](dist/claude) and [`dist/codex/`](dist/codex) — each fully
+self-contained (agents, skills, hooks, manifest all inside).
 
-| Mode | What runs the team | Best for |
+| Engine | What runs the team | Installed into |
 |---|---|---|
-| **A · Claude Code** | Claude | the original experience |
-| **B · Native Codex** | Codex | running entirely on the OpenAI Codex CLI |
-| **C · Hybrid** | Claude orchestrates, delegates QA packages to Codex | spreading load — Codex drafts cases, Claude reviews |
+| **Claude Code** | Claude | `<project>/.claude/plugins/kensa-qa/` |
+| **Codex** | OpenAI Codex CLI | `<project>/` — `.codex/agents/*.toml`, `.codex/prompts/`, `AGENTS.md`, `skills/`, `hooks/` |
 
-### Option 1 — classic marketplace (Claude Code)
+**By hand (no IDE) — see [INSTALL.md](INSTALL.md):**
 
 ```
+# Claude Code (complete, one-liner)
 /plugin marketplace add rpluzhnikov/QA_agents
 /plugin install kensa-qa@rpluzhnikov
+
+# Codex (copy the build into your project root)
+git clone https://github.com/rpluzhnikov/QA_agents.git
+cp -R QA_agents/dist/codex/. /path/to/your-project/
 ```
 
-**Then fully restart Claude Code** (not a new tab). Update later: `/plugin marketplace update rpluzhnikov`.
+**Via an IDE:** the IDE reads [`engines.json`](engines.json), offers the engine
+picker, and copies the chosen build into the project.
 
-### Option 2 — the installer (Claude, Codex, or both)
+After install, run `/setup` (Claude) or `/kensa-setup` (Codex) to bootstrap
+`.tms/memory/` and wire your source-of-truth MCP servers.
 
-Clone the repo and run the installer for your OS. It detects what you have (Claude
-Code / Codex), asks which mode and whether to copy or symlink, and wires it up.
+### Building from source
+
+Sources are split so the **31 skills have a single home** and never drift between engines:
+
+```
+shared/skills · shared/hooks · shared/templates   # one source, copied into both engines
+engines/claude · engines/codex                     # engine-specific manifest + agents/prompts
+scripts/build.ps1 · scripts/build.sh               # assemble + validate dist/<engine>
+```
+
+Edit a skill once under `shared/skills/`, then rebuild both engines:
 
 ```powershell
-# Windows (PowerShell)
-git clone https://github.com/rpluzhnikov/QA_agents.git; cd QA_agents
-.\install.ps1                 # interactive
-.\install.ps1 -Both           # or -Claude / -Codex / -Hybrid / -Marketplace
+.\scripts\build.ps1     # Windows
 ```
-
 ```bash
-# macOS / Linux
-git clone https://github.com/rpluzhnikov/QA_agents.git && cd QA_agents
-./install.sh                  # interactive
-./install.sh --both           # or --claude / --codex / --hybrid / --marketplace
+sh scripts/build.sh     # macOS / Linux
 ```
 
-For **Codex**, the installer stages a native Codex plugin and runs `codex plugin
-add` (skills + Stop hooks), then places the three subagents in `~/.codex/agents/`
-and the `/kensa-*` prompts in `~/.codex/prompts/`. Restart Claude Code after a
-Claude install; review/trust the plugin's hooks in Codex via `/plugins`.
+The build copies `shared/*` into each engine, generates the per-engine drop README,
+and validates that both engines carry all 31 skills and a valid manifest.
 
 <details>
-<summary><b>Prerequisites & details</b></summary>
+<summary><b>Prerequisites</b></summary>
 
-**Required**
-- [Claude Code](https://docs.claude.com/claude-code/install) (modes A/C) and/or the [OpenAI Codex CLI](https://developers.openai.com/codex) (modes B/C), installed and signed in.
-- Node.js with `npx` on PATH (for the optional `sequential-thinking` MCP).
-- Hooks (auto-checkpoint + debug log) run on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`) — the bash port shipped in v0.8.
+- [Claude Code](https://docs.claude.com/claude-code/install) and/or the [OpenAI Codex CLI](https://developers.openai.com/codex), installed and signed in.
+- Node.js with `npx` on PATH (for the bundled `sequential-thinking` MCP).
+- Hooks (auto-checkpoint + debug log) run on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`); on Codex one `hooks/hooks.json` dispatches the right one per OS.
 - No API keys: Linear / Atlassian / Notion / Figma all use browser OAuth on first connect.
-
-**Codex model gotcha:** the hybrid/native paths call `codex exec` with the model
-from `~/.codex/config.toml`. ChatGPT-account logins must set `model = "gpt-5.5"`
-(not `gpt-5`) or every call returns HTTP 400. See [CODEX_INTEGRATION.md](CODEX_INTEGRATION.md).
-
-**Symlink (dev) instead of copy:** `install.ps1 -Symlink` / `install.sh --symlink`
-links the live checkout into the plugin dir (Windows needs Developer Mode or admin;
-the installer falls back to copy automatically). Or direct clone:
-`git clone … ~/.claude/plugins/kensa-qa`.
-
-See [INSTALL.md](INSTALL.md) for diagnostics and the full hybrid walkthrough.
 </details>
 
 ---
 
 ## Verify
 
-After restart, in any project:
+After the drop, in the project:
 
 | Check | Expected |
 |---|---|
 | `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability` |
-| Type `@` | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
+| Type `@` (Claude) | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
 | `/hooks` | Two **Stop** hooks: writing debug log + checking memory checkpoint |
 
-Anything missing → restart Claude Code fully. Persistent issues → [INSTALL.md §2](INSTALL.md).
+Anything missing → restart the host fully so it reloads the dropped files.
 
 ---
 
@@ -308,7 +305,7 @@ Yes, as of v0.8. The auto-checkpoint and debug-log Stop hooks now ship as POSIX
 <details>
 <summary><b>I ran <code>/setup</code> but Linear / Jira / Notion isn't reading anything.</b></summary>
 
-You skipped the restart after `/setup`. MCP servers connect at session start — fully quit Claude Code and reopen. On first connect, a browser tab opens for OAuth. Still failing → run `/hooks` and `/help` to confirm the plugin loaded, then check [INSTALL.md](INSTALL.md).
+You skipped the restart after `/setup`. MCP servers connect at session start — fully quit Claude Code and reopen. On first connect, a browser tab opens for OAuth. Still failing → run `/hooks` and `/help` to confirm the plugin loaded.
 </details>
 
 <details>
@@ -346,7 +343,7 @@ The 10 non-ISTQB skills (the `kensa-cli`, `kensa-test-authoring`, `sot-*` family
 <details>
 <summary><b>The session won't end — something about a memory checkpoint.</b></summary>
 
-The Windows-only auto-checkpoint hook requires `/save-memory` after `/new-feature` or `/update-feature` before the session can stop. Wait for the Lead to finish, or — if it's stuck — type the sentinel line `memory-checkpoint: done` to unblock. Details: [INSTALL.md §5](INSTALL.md).
+The auto-checkpoint hook requires `/save-memory` after `/new-feature` or `/update-feature` before the session can stop. Wait for the Lead to finish, or — if it's stuck — type the sentinel line `memory-checkpoint: done` to unblock.
 </details>
 
 ---
@@ -407,8 +404,9 @@ A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every ses
 | v0.5 | `/audit`, `/brainstorm`, `strategist` agent, OAuth clarity, Confluence multi-page discovery, pre-seeded tag taxonomy, parallel-worker ID-range allocation, stuck-session detection |
 | v0.6 | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
 | v0.7 | **SDLC coverage** — 6 read-only analysis commands: `/pull-context`, `/review-spec`, `/risk-assess`, `/test-plan` (shift-left) and `/analyze-cases`, `/traceability` (test-base intelligence). `qa-engineer-agent` gains an `analyze` mode for fan-out review. No new agents or skills. |
-| **v0.8 (current)** | **Multi-engine + installer.** Three install modes (Claude / native Codex / hybrid Claude→Codex worker) via an interactive `install.ps1` (Windows) / `install.sh` (macOS/Linux). Native Codex plugin (`.codex-plugin/`, TOML subagents, `/kensa-*` prompts, `AGENTS.md`). Hybrid delegation: `/setup` detects Codex and asks worker/reviewer/off; the Test Lead offloads packages to `codex exec`, fail-closed. **Bash port of the hooks** (macOS/Linux) — the long-promised cross-platform hooks. |
-| v0.9 (planned) | Remote Codex marketplace; fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
+| v0.8 | **Multi-engine + installer** (superseded by v0.9). Three install modes (Claude / native Codex / hybrid Claude→Codex worker) via an interactive `install.ps1` / `install.sh`; bash port of the hooks. |
+| **v0.9 (current)** | **Two clean engines, one monorepo.** Removed the hybrid delegation and the interactive installer. Skills now have a single home under `shared/`; `scripts/build.{ps1,sh}` assemble self-contained `dist/claude/` and `dist/codex/` builds an IDE drops straight into a project. Claude = standard plugin; Codex = project-scoped `.codex/agents/*.toml` + `AGENTS.md` + skills. |
+| v1.0 (planned) | Fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
 
 ---
 
@@ -418,7 +416,7 @@ MIT — see [LICENSE](LICENSE).
 
 ## Links
 
-- [INSTALL.md](INSTALL.md) — install, smoke-test, diagnostics
+- [INSTALL.md](INSTALL.md) — install by hand (no IDE): Claude marketplace, Codex copy
 - [CHANGELOG.md](CHANGELOG.md) — version history
 - [Kensa](https://kensa.dev) — the TMS format this plugin targets
 - [Claude Code](https://docs.claude.com/claude-code) — the host environment

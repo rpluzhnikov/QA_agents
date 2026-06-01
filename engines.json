@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "plugin": "kensa-qa",
+  "version": "0.9.0",
+  "description": "Integration manifest for IDEs. Lists the installable engine builds, where to copy each into a project, and the post-install steps. The IDE reads this, offers the engines to the user, then copies the chosen build's contents into the project.",
+  "engines": [
+    {
+      "id": "claude",
+      "displayName": "Claude Code",
+      "summary": "Manual QA team for Claude Code — test-lead + qa-engineer + strategist agents, 12 slash commands, 31 ISTQB-grounded skills, Stop hooks, bundled sequential-thinking MCP.",
+      "source": "dist/claude",
+      "target": ".claude/plugins/kensa-qa",
+      "copy": "contents",
+      "postInstall": [
+        "Enable the plugin for the project (or fully restart Claude Code so it discovers the dropped folder).",
+        "Run /setup to bootstrap .tms/memory/ and wire source-of-truth MCP servers."
+      ],
+      "verify": [
+        "/help lists: setup, new-feature, update-feature, audit, brainstorm, pull-context, review-spec, risk-assess, test-plan, analyze-cases, traceability, save-memory",
+        "@ shows agents: test-lead-agent, qa-engineer-agent, strategist",
+        "/hooks shows two Stop hooks (debug log + memory checkpoint)"
+      ]
+    },
+    {
+      "id": "codex",
+      "displayName": "OpenAI Codex",
+      "summary": "Manual QA team for Codex — project-scoped subagents (.codex/agents/*.toml), 12 custom prompts (.codex/prompts/), AGENTS.md operating manual, 31 skills, Stop hooks.",
+      "source": "dist/codex",
+      "target": ".",
+      "copy": "contents",
+      "postInstall": [
+        "Codex auto-loads .codex/agents/*.toml as project-scoped subagents and concatenates AGENTS.md into its instructions.",
+        "Run /kensa-setup to bootstrap .tms/memory/."
+      ],
+      "verify": [
+        ".codex/agents/ contains test-lead-agent.toml, qa-engineer-agent.toml, strategist.toml",
+        ".codex/prompts/ contains the 12 kensa-*.md prompts",
+        "AGENTS.md, skills/, hooks/hooks.json are present at the project root"
+      ]
+    }
+  ],
+  "notes": {
+    "source": "Paths are relative to the repository root. dist/<engine> is a committed, self-contained build produced by scripts/build.{ps1,sh} from shared/ + engines/<engine>/.",
+    "copy": "'contents' means copy everything inside `source` into `target` (do not nest the source folder itself). For the codex engine target '.', that means merging the build into the project root.",
+    "empty": "An 'empty project' choice is a no-op for this manifest — copy nothing."
+  }
+}
