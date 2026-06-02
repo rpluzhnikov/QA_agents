@@ -172,14 +172,16 @@ ID format is set per-project in `config.yaml` → `project.id_format`:
 - **`prefixed`** — `<prefix>-<padded>` using `project.id_prefix`:
   with prefix `AUTH`: `1 → AUTH-001`, `7 → AUTH-007`.
 
-When creating a case, take the next id from `config.yaml` → `project.next_id`,
-format it per the rule above, write `suites/<suite>/<id>.md`, then **increment
-`next_id`** in `config.yaml`. (The GUI/CLI also reconcile the counter against the
-highest id on disk to survive merge collisions — if hand-creating, set `next_id`
-past the highest existing numeric id to be safe.)
+**Don't hand-allocate ids.** Create cases with `kensa-cli new --suite <path> --title "<t>"`
+— it atomically allocates the next id (reconciles the counter against what's on disk, formats it
+per the rule above), writes the case shell, and returns `{id, path}`. Concurrent `new` calls never
+collide, so parallel authoring needs no id-range coordination. You then edit the returned file to
+add the body (see the authoring workflow below).
 
-> Easiest path: let `kensa-cli` or the GUI allocate the id. Only hand-allocate when
-> editing files outside the app.
+> Hand-allocate (read `project.next_id`, format it, write `suites/<suite>/<id>.md`, then increment
+> `next_id`) **only** when editing a tree entirely outside the CLI. In that case run
+> `kensa-cli sync` afterward to reconcile the counter, and set `next_id` past the highest existing
+> id to survive merge collisions.
 
 ---
 
@@ -403,15 +405,17 @@ person — or an AI agent — can execute without guessing.
 
 ```
 1. Orient    → kensa-cli list --tree ; kensa-cli stats        (what suites/cases exist)
-2. Pick id   → read .tms/config.yaml project.next_id  (or let kensa-cli/GUI allocate)
-3. Write     → suites/<suite>/<id>.md  (match canonical format above)
-4. Bump      → increment next_id in .tms/config.yaml  (if you hand-allocated)
-5. Validate  → kensa-cli validate  (schema)  ; kensa-cli lint  (quality)  ; kensa-cli doctor (integrity)
+2. Create    → kensa-cli new --suite <suite> --title "<t>" [--priority …] [--tag …] [--source-id …] --format json
+               (atomic id allocation; returns {id, path} — no manual next_id handling)
+3. Author    → edit the returned path: add ## Steps (+ preconditions, custom, ## Notes)  (match canonical format above)
+4. Validate  → kensa-cli validate  (schema)  ; kensa-cli lint  (quality)  ; kensa-cli doctor (integrity)
 ```
 
+- **Create cases via `kensa-cli new`** — it allocates the id and writes a valid shell; you only
+  author the body. Don't hand-pick ids or touch `next_id`.
 - **Reads & bulk edits**: use the **`kensa-cli`** skill (`filter`, `bulk update`,
   `context bundle`, etc.) — it's faster and safer than hand-editing many files.
-- **Single-artifact authoring**: hand-edit the file using the formats here.
+- **Body authoring**: edit the case file using the formats here.
 - **After any hand-edit batch**: run `kensa-cli validate && kensa-cli lint && kensa-cli doctor`
   to catch schema violations, empty steps, and id/filename drift.
 - **Never** invent top-level frontmatter keys (use `custom:`), break the

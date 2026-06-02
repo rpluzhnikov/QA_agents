@@ -16,7 +16,9 @@ This command is **read-only** and writes NO test cases. It does NOT emit
 1. `.tms/memory/` exists? If not → "Run `/setup` first" and stop.
 2. Read `.tms/memory/project.md`, `sot.yaml` (the registered sources).
 3. `kensa-cli --version` on PATH? If not → tell the user and stop.
-4. Parse mode: `--deep` enables the AC-level pass (Phase 3). Default is light.
+4. `kensa-cli sync --quiet` — periodic safety: reconcile id counters in case the tree was
+   hand-edited outside the CLI. Cheap and idempotent; non-fatal if it errors.
+5. Parse mode: `--deep` enables the AC-level pass (Phase 3). Default is light.
    Optional scope arg restricts to a suite/source/tag.
 
 ## Phase 2 — Light mode (always run)
@@ -35,8 +37,10 @@ The mechanical backbone — same data as `/audit` Phase 3, focused into a matrix
    - **Orphan source → case**: a registered `notable_page` / `relevant_database_id`
      (or known active ticket) has **zero** cases pointing at it. This is a
      **coverage gap** — the spec was never turned into cases (or was superseded).
-4. `kensa-cli filter 'source_id = ""' --format ids` → cases with no traceability at
-   all (can't be mapped to any requirement).
+4. `kensa-cli gaps --against source --format json` → **untraced cases** (absent/empty
+   `source_id`) that can't be mapped to any requirement. Each record is
+   `{id, title, suite, path, status:"untraced"}` — use it directly instead of assembling a
+   `filter 'source_id = ""'` by hand.
 
 ## Phase 3 — Deep mode (only with `--deep`)
 

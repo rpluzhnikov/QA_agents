@@ -37,9 +37,9 @@ If `.tms/memory/` is missing, run the `kensa-setup` flow first.
    cases, produce a scope plan (in/out, decomposition, estimate). Skills:
    `scope-analysis`, `test-planning`, `risk-based-testing`.
 2. **Delegate** — hand each package to a `qa-engineer-agent` with a precise brief
-   (scope, references, style examples, skills to load, output target). For ≥2
-   engineers, give each a non-overlapping case-id range to avoid filename
-   collisions.
+   (scope, references, style examples, skills to load, output target). Engineers create
+   cases with `kensa-cli new`, which allocates ids atomically — no case-id ranges to hand out,
+   even for ≥2 parallel engineers.
 3. **Review in two passes** — checklist first, then cases, using `review-rubrics`.
    Cap revisions at 2 rounds.
 4. **Report** — files created, case count, assumptions, open questions.

@@ -3,6 +3,44 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.11.0 -- 2026-06-02
+
+Migrated the plugin to the new `kensa-cli` (v0.15.0 workspace) commands.
+
+### Added — `kensa new` atomic case creation
+
+- **QA Engineers now create cases with `kensa-cli new`** (`--suite … --title … --priority …
+  --tag … --source-id … --format json`) instead of hand-writing `.md` files and hand-allocating
+  ids. `new` atomically allocates the next id (reconciles the counter like `sync`, formats per
+  `id_format`) and returns `{id, path, suite, status}`; the engineer then edits the returned file
+  to author the `## Steps` body. Documented in the `kensa-cli` and `kensa-test-authoring` skills.
+- Because allocation is atomic, **id-range carving is gone**: `/new-feature` Step 4.5, the
+  `id_range` brief field (`task-assignment` skill), and the "Test Lead writes back `next_id`"
+  bookkeeping were removed. Parallel engineers can no longer collide. The Claude
+  `qa-engineer-agent` gained the `Bash` tool so it can invoke `kensa-cli` directly.
+
+### Added — new traceability / coverage axes
+
+- `/traceability` and `/audit` now list **untraced cases** via `kensa-cli gaps --against source`
+  (absent/empty `source_id`) instead of a hand-rolled `filter 'source_id = ""'`.
+- `/audit` now flags **empty suites** via `kensa-cli coverage --by-suite --uncovered`.
+- Documented that `kensa-cli find` now searches **step/notes/section bodies** (not just
+  title/tags) and returns a `match_field`, and that `bulk update --set` is **repeatable**.
+
+### Removed — the PostToolUse `kensa-sync` hook
+
+- The auto-sync hook existed only to repair the id counter after agent-authored case files.
+  With atomic `kensa new`, that is unnecessary — the hook was removed from
+  `engines/claude/.claude-plugin/plugin.json` and `shared/hooks/hooks.json`, and
+  `shared/hooks/kensa-sync.{ps1,sh}` were deleted. `kensa-cli sync` is now a **periodic
+  safety/repair** step, run as a preflight by `/audit` and `/traceability` (and by hand after
+  editing a tree outside the CLI). The two `Stop` hooks (memory checkpoint, debug log) are unchanged.
+
+### Bumped
+
+- All manifests (`engines.json`, both `plugin.json`, `marketplace.json`) to `0.11.0`; the
+  `generated_by` case stamp to `kensa-qa@0.11.0`.
+
 ## 0.10.0 -- 2026-06-01
 
 ### Added — auto-sync of `.tms/` id counters

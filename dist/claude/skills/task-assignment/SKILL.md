@@ -95,26 +95,24 @@ acknowledge — informational only>
 ## Output target
 - Suite path: <.tms/suites/auth/2fa/>
 - Naming pattern: <e.g., `setup-001.md`, `setup-002.md`, ...>
-- `id_range`: <NNN-MMM, e.g. `020-038`> — REQUIRED when the Test Lead is spawning ≥2
-  QA Engineers in the same turn. The QA Engineer uses NNN as its first id and increments
-  locally; it does not read `config.yaml`. See `/new-feature` Step 4.5 for how
-  the Test Lead carves these ranges. For a single-QA Engineer spawn, omit this field —
-  the QA engineer reads `.tms/config.yaml` `project.next_id` directly.
-- Frontmatter requirements:
-  - `id`: <first one comes from `id_range` above, then increment>
+- Case creation: the QA Engineer runs `kensa-cli new --suite <path> --title "<t>" …` per case,
+  which allocates the id atomically. No `id_range` is needed even for ≥2 parallel engineers —
+  the CLI hands out unique, collision-free ids and reconciles the counter itself.
+- Frontmatter (pass as `kensa new` flags; the engineer adds `generated_by` when editing the body):
+  - `id`: <allocated by `kensa new` — do not hand-pick>
   - `priority`: <use checklist tier — must-have → high/critical;
-    should-have → medium; nice-to-have → low>
-  - `status: draft`
-  - `tags`: <list of tags QA Engineer should apply>
-  - `source_id`: <SOT ref>
-  - `generated_by: kensa-qa@0.5.0`
+    should-have → medium; nice-to-have → low>  (`--priority`)
+  - `status: draft` (set by `new`)
+  - `tags`: <list of tags QA Engineer should apply>  (`--tag` per tag)
+  - `source_id`: <SOT ref>  (`--source-id`)
+  - `generated_by: kensa-qa@0.11.0`
 
 ## Project conventions to enforce
 <distilled from .tms/memory/conventions.md — the 3-5 things most
 relevant to this batch>
 
 ## Constraints
-- Write cases as files directly into the suite path
+- Create cases with `kensa-cli new` into the suite path, then author the body by editing the returned file
 - Use shared steps listed above; do NOT inline duplicate them
 - Mark any assumptions you make with `ASSUMPTION:` in case body
 - Report list of created files when done

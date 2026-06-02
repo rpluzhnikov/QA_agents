@@ -62,33 +62,13 @@ artifact already exists for this feature (user may point at it explicitly), read
 it as additional context here and pass the decided approach to workers in
 their briefs.
 
-## Step 4.5 — Allocate ID ranges (only if spawning ≥2 workers)
-
-When the plan calls for one QA engineer, skip this step — the engineer just reads
-`.tms/config.yaml` `project.next_id` and increments from there.
-
-When the plan calls for two or more QA engineers spawned in the same turn, you MUST
-hand each engineer a non-overlapping ID range, otherwise two engineers will both
-claim id 1 and produce filename collisions.
-
-1. Read `.tms/config.yaml` and note `project.next_id` (call it `START`).
-2. For each engineer package, use its estimated case count from Step 4 as the size
-   (round up — better to over-allocate than collide). Carve contiguous ranges,
-   leaving no gaps and no overlap.
-3. Embed the assigned range in the brief as `id_range: NNN-MMM` (zero-padded to
-   3 digits to match the filename convention). The engineer uses NNN as its first
-   case ID and increments locally; if it produces fewer cases than the range, the
-   tail of the range is wasted and that's fine.
-
-Example: `next_id: 1`, three engineers estimated at 19 / 19 / 17 cases
-→ engineer A: `id_range: 001-019`, engineer B: `id_range: 020-038`, engineer C: `id_range: 039-055`.
-
-After the engineers report back, the actual highest ID used across all engineers is
-what gets written back to `config.yaml.next_id` (the Test Lead does this, not the
-QA engineers — they don't touch config).
-
-
 ## Step 5 — Spawn QA engineers
+
+> **No ID pre-allocation needed.** Engineers create cases with `kensa-cli new`, which allocates
+> ids atomically — even when several engineers run in parallel, the CLI hands out unique,
+> collision-free ids and reconciles the counter itself. You never carve id ranges or write back
+> `config.yaml.next_id`.
+
 
 For each package, use the Task tool to spawn a qa-engineer-agent with:
 

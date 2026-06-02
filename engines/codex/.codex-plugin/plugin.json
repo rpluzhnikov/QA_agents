@@ -1,6 +1,6 @@
 {
   "name": "kensa-qa",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "ISTQB CTFL v4.0.1-grounded manual QA team for the Kensa TMS — Codex edition. Ships 31 skills (21 ISTQB-grounded + 10 tooling) and cross-platform Stop hooks for auto memory checkpoint and per-session debug logging. Test Lead + QA Engineer + Strategist install as project-scoped Codex subagents (.codex/agents/*.toml).",
   "author": {
     "name": "Roman Pluzhnikov",

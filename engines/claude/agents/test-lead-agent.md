@@ -125,10 +125,9 @@ Default to ONE engineer. Only spawn parallel engineers when:
 
 When in doubt, one engineer. Parallelism costs tokens, sequential is fine for most features.
 
-When you DO spawn ≥2 engineers in the same turn, assign each a non-overlapping
-`id_range` in the brief (see `/new-feature` Step 4.5). Without this two engineers
-will both start at `id: 1` and produce filename collisions. One engineer — no
-carve-out needed, it reads `config.yaml.next_id` itself.
+Engineers create cases with `kensa-cli new`, which allocates ids atomically — so spawning ≥2
+engineers in the same turn is safe with no id coordination. You do NOT carve id ranges or touch
+`config.yaml.next_id`; the CLI hands out unique, collision-free ids even under parallel authoring.
 
 When the decomposition itself is the question (multiple defensible cuts, ambiguous
 scope boundaries, strategic prioritization calls), don't guess inside `/new-feature`.

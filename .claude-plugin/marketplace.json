@@ -8,7 +8,7 @@
     {
       "name": "kensa-qa",
       "source": "./dist/claude",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent + strategist for test case authoring, 12 slash commands, 31 skills, Stop hooks, bundled sequential-thinking MCP. Points at the built Claude engine under dist/claude."
     }
   ]

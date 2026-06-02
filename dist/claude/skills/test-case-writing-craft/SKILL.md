@@ -36,7 +36,7 @@ preconditions: |
   - User account exists: test+std@example.com / Valid-Pass-1
   - User has confirmed their email
   - User is on /login
-generated_by: kensa-qa@0.5.0
+generated_by: kensa-qa@0.11.0
 ---
 
 ## Steps
