@@ -3,11 +3,54 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.12.0 -- 2026-06-04
+
+Browser-driven QA + routines, a full `kensa-cli` rename pass, and a quieter hook setup.
+
+### Added — browser QA & routines
+
+- **New `kensa-browser` skill** (skill #32): the `kensa-cli browser` verb set
+  (navigate / interact / capture / inspect / eval / wait / diagnostics), the
+  connect→act→disconnect CDP model, loopback-only + throw-away-profile guardrails,
+  exit-code branching (`1` retry/report, `2` fix/launch), and the loop that writes
+  browser findings back into `.tms/` cases.
+- **New `/run-routine` command** (Claude `commands/run-routine.md` + Codex
+  `kensa-run-routine.md`): resolves an `RT-*` routine from `.tms/routines/`,
+  preflights the browser, executes the scenario, and reports evidence / files
+  defect cases.
+- **Starter routine templates** under `templates/routines/` (`RT-001` smoke tour,
+  `RT-002` form submission, `RT-003` visual baseline). `/setup` can seed them into
+  `.tms/routines/` for web projects.
+- Wired the skill into both agents (Claude `.md` + Codex `.toml`) and the Codex
+  `AGENTS.md`: the Test Lead assigns browser QA / runs `/run-routine`; the QA
+  Engineer drives the browser and writes findings back.
+
+### Changed — `kensa-cli` is the one canonical CLI name
+
+- Every bare `kensa <verb>` CLI invocation across docs, skills, agents, and the new
+  browser content now reads `kensa-cli`. `BROWSER_AND_ROUTINES.md` §1 was rewritten:
+  the agents always call `kensa-cli` (the in-app `kensa` PATH alias is noted but not
+  relied on, since agents run in the host process).
+
+### Removed — the `debug-log` Stop hook
+
+- Dropped the per-session `debug-log` hook (entry + `debug-log.{ps1,sh}`) that wrote
+  `.tms/debug/` digests and transcript snapshots. The lone remaining Stop hook is the
+  memory checkpoint; its block message was trimmed from ~20 lines to a 3-line
+  reminder so it no longer dumps a wall of text on stop. Removed from both
+  `engines/claude/.claude-plugin/plugin.json` and `shared/hooks/hooks.json`.
+
+### Bumped
+
+- All manifests (`engines.json`, both `plugin.json`, `marketplace.json`) to `0.12.0`;
+  the `generated_by` case stamp to `kensa-qa@0.12.0`. Skill count 31 → 32, slash
+  commands 12 → 13.
+
 ## 0.11.0 -- 2026-06-02
 
 Migrated the plugin to the new `kensa-cli` (v0.15.0 workspace) commands.
 
-### Added — `kensa new` atomic case creation
+### Added — `kensa-cli new` atomic case creation
 
 - **QA Engineers now create cases with `kensa-cli new`** (`--suite … --title … --priority …
   --tag … --source-id … --format json`) instead of hand-writing `.md` files and hand-allocating
@@ -30,7 +73,7 @@ Migrated the plugin to the new `kensa-cli` (v0.15.0 workspace) commands.
 ### Removed — the PostToolUse `kensa-sync` hook
 
 - The auto-sync hook existed only to repair the id counter after agent-authored case files.
-  With atomic `kensa new`, that is unnecessary — the hook was removed from
+  With atomic `kensa-cli new`, that is unnecessary — the hook was removed from
   `engines/claude/.claude-plugin/plugin.json` and `shared/hooks/hooks.json`, and
   `shared/hooks/kensa-sync.{ps1,sh}` were deleted. `kensa-cli sync` is now a **periodic
   safety/repair** step, run as a preflight by `/audit` and `/traceability` (and by hand after

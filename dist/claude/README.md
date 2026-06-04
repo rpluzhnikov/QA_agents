@@ -14,7 +14,7 @@ dist/claude/
   agents/        # test-lead-agent, qa-engineer-agent, strategist
   commands/      # 12 slash commands (/new-feature, /audit, ...)
   skills/        # 31 ISTQB-grounded + tooling skills
-  hooks/         # Stop hooks: memory checkpoint + debug log
+  hooks/         # Stop hook: memory checkpoint
   templates/     # .tms/memory scaffolding used by /setup
 ```
 

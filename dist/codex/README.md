@@ -15,7 +15,7 @@ mirrors where Codex expects each piece:
   .codex-plugin/plugin.json  # skills + hooks manifest (for `codex plugin` install)
   AGENTS.md                  # Codex operating manual (merge into project AGENTS.md)
   skills/                    # 31 ISTQB-grounded + tooling skills
-  hooks/                     # Stop hooks: memory checkpoint + debug log
+  hooks/                     # Stop hook: memory checkpoint
   templates/                 # .tms/memory scaffolding used by /kensa-setup
 ```
 

@@ -71,27 +71,9 @@ if ($lastSentinel -ge $lastCmd) { Allow-Stop }  # sentinel covers the latest com
 
 # 6. Block. The reason is fed back to Claude as a system reminder and the turn continues.
 $reason = @'
-Auto-checkpoint required before stop.
-
-A /new-feature or /update-feature ran in this session and no memory checkpoint
-has been written for it. Run the save-memory protocol per commands/save-memory.md:
-
-  1. Identify candidate learnings (conventions, glossary, patterns, shared steps,
-     tags) from this session.
-  2. If .tms/memory/project.md sets `auto_save_learnings: true`, apply silently
-     and report what was saved. Otherwise present all candidates to the user in
-     a single message (yes/no/edit per item) and apply confirmed ones.
-  3. After applying -- or after deciding there is nothing to save -- emit the
-     sentinel on its own line, verbatim:
-
-         memory-checkpoint: done
-
-     (If nothing was saved, append a short note, e.g.
-     `memory-checkpoint: done (nothing to save)` -- the Stop hook only keys on
-     the prefix.)
-
-The Stop hook keys on that exact prefix; without it the next Stop will block
-again.
+Memory checkpoint owed: run the save-memory protocol (commands/save-memory.md) for the /new-feature or /update-feature in this session, then emit on its own line:
+    memory-checkpoint: done
+(If nothing to save, append a note, e.g. `memory-checkpoint: done (nothing to save)` -- the hook keys only on the prefix.)
 '@
 
 $out = [pscustomobject]@{

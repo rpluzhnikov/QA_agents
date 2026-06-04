@@ -98,14 +98,14 @@ acknowledge — informational only>
 - Case creation: the QA Engineer runs `kensa-cli new --suite <path> --title "<t>" …` per case,
   which allocates the id atomically. No `id_range` is needed even for ≥2 parallel engineers —
   the CLI hands out unique, collision-free ids and reconciles the counter itself.
-- Frontmatter (pass as `kensa new` flags; the engineer adds `generated_by` when editing the body):
-  - `id`: <allocated by `kensa new` — do not hand-pick>
+- Frontmatter (pass as `kensa-cli new` flags; the engineer adds `generated_by` when editing the body):
+  - `id`: <allocated by `kensa-cli new` — do not hand-pick>
   - `priority`: <use checklist tier — must-have → high/critical;
     should-have → medium; nice-to-have → low>  (`--priority`)
   - `status: draft` (set by `new`)
   - `tags`: <list of tags QA Engineer should apply>  (`--tag` per tag)
   - `source_id`: <SOT ref>  (`--source-id`)
-  - `generated_by: kensa-qa@0.11.0`
+  - `generated_by: kensa-qa@0.12.0`
 
 ## Project conventions to enforce
 <distilled from .tms/memory/conventions.md — the 3-5 things most

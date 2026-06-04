@@ -19,7 +19,9 @@ confirms at the end.
    confirm with the user.
 5. **Glossary** — extract frequent domain terms, build `glossary.md`.
 6. **Commit** — show the tree, get confirmation, write `.tms/memory/*` from the
-   templates, and add `.tms/debug/` to `.gitignore`.
+   templates. For a web project, optionally seed starter browser routines from the
+   plugin `templates/routines/` into `.tms/routines/` (RT-001..003: smoke / form /
+   visual baseline) — committable Markdown the user runs with `/kensa-run-routine`.
 
 Use the bundled skills `scope-analysis`, `clarification-protocol`, and the `sot-*`
 guides. Fill sensible defaults where the user has no answer, and mark them as

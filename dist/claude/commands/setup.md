@@ -169,15 +169,14 @@ profile.
      Notion a browser tab will open on first connect — sign in there. The Figma Dev
      Mode MCP needs the Figma desktop app running with Dev Mode MCP enabled — no
      browser step. No API tokens to configure for any of these four."
-5. **Update `.gitignore`** at repo root to keep `.tms/debug/` out of git
-   (the Stop hook in `plugin.json` writes per-session digests and transcript
-   snapshots there; not safe to commit -- transcripts may contain ticket text,
-   internal URLs, or secrets the user pasted into prompts):
-   - If `.gitignore` exists and already has a `.tms/debug/` line: skip.
-   - If `.gitignore` exists without it: append a comment + the rule.
-   - If `.gitignore` doesn't exist: create it with the rule.
-   - Show the user the diff before writing and confirm.
-6. Tell the user how to use it: "Run `/new-feature <ref>` and I'll take it from here. Edit any file in `.tms/memory/` directly when conventions change — I re-read on every session. Per-session debug logs land in `.tms/debug/` if you ever need to share what happened."
+5. **Offer to seed starter browser routines** (optional). If the project is a web
+   app and the user wants ready-to-run browser scenarios, copy the starter
+   routines from the plugin `templates/routines/` into `.tms/routines/`
+   (`RT-001`..`RT-003`: smoke tour, form submission, visual baseline). They are
+   plain Markdown and committable; the user edits the target URL/selectors and runs
+   them with `/run-routine RT-001`. See the `kensa-browser` skill for the verb set.
+   Skip silently for non-web projects or if the user declines.
+6. Tell the user how to use it: "Run `/new-feature <ref>` and I'll take it from here. Edit any file in `.tms/memory/` directly when conventions change — I re-read on every session. If I seeded routines, run `/run-routine <id>` to drive the browser."
 
 ## Notes for the agent running this command
 

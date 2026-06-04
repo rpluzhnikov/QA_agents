@@ -66,7 +66,7 @@ For strategic decisions ("how do we split this feature?", "negative-first or bou
 
 ## The skill library
 
-Every reasoning step is backed by an explicit skill — and **21 of the 31 skills cite ISTQB CTFL v4.0.1** chapters and learning objectives. The remaining 10 are plugin tooling (CLI, on-disk format, SOT extractors, agent communication) that complements ISTQB without being derived from it.
+Every reasoning step is backed by an explicit skill — and **21 of the 32 skills cite ISTQB CTFL v4.0.1** chapters and learning objectives. The remaining 11 are plugin tooling (CLI, browser-driven QA, on-disk format, SOT extractors, agent communication) that complements ISTQB without being derived from it.
 
 <p align="center">
   <img src="docs/images/skills-library.png" alt="Skill library: 31 skills organized into Foundation, Test Design, Test Management, Static & Lifecycle, Platform, and Tooling sectors — colour-coded by ISTQB CTFL v4.0.1 chapter" />
@@ -117,7 +117,7 @@ After install, run `/setup` (Claude) or `/kensa-setup` (Codex) to bootstrap
 
 ### Building from source
 
-Sources are split so the **31 skills have a single home** and never drift between engines:
+Sources are split so the **32 skills have a single home** and never drift between engines:
 
 ```
 shared/skills · shared/hooks · shared/templates   # one source, copied into both engines
@@ -135,14 +135,14 @@ sh scripts/build.sh     # macOS / Linux
 ```
 
 The build copies `shared/*` into each engine, generates the per-engine drop README,
-and validates that both engines carry all 31 skills and a valid manifest.
+and validates that both engines carry all 32 skills and a valid manifest.
 
 <details>
 <summary><b>Prerequisites</b></summary>
 
 - [Claude Code](https://docs.claude.com/claude-code/install) and/or the [OpenAI Codex CLI](https://developers.openai.com/codex), installed and signed in.
 - Node.js with `npx` on PATH (for the bundled `sequential-thinking` MCP).
-- Hooks (auto-checkpoint + debug log) run on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`); on Codex one `hooks/hooks.json` dispatches the right one per OS.
+- The auto-checkpoint hook runs on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`); on Codex one `hooks/hooks.json` dispatches the right one per OS.
 - No API keys: Linear / Atlassian / Notion / Figma all use browser OAuth on first connect.
 </details>
 
@@ -154,9 +154,9 @@ After the drop, in the project:
 
 | Check | Expected |
 |---|---|
-| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability` |
+| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine` |
 | Type `@` (Claude) | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
-| `/hooks` | Two **Stop** hooks: writing debug log + checking memory checkpoint |
+| `/hooks` | One **Stop** hook: checking memory checkpoint |
 
 Anything missing → restart the host fully so it reloads the dropped files.
 
@@ -281,7 +281,7 @@ Everything the plugin learns lives in plain markdown / YAML. Read, edit, commit.
 ├── shared-steps/          ← reusable step sequences
 ├── reports/               ← /audit + analysis commands output (commit)
 ├── brainstorms/           ← /brainstorm output (commit)
-└── debug/                 ← per-session logs (gitignored)
+└── routines/              ← browser routines RT-*.md (commit)
 ```
 
 `project.md`, `conventions.md`, `glossary.md` are human-written, plugin reads only. `sot.yaml` is `/setup`-written, hand-edited later. `learned/*` is plugin-written; you review during memory checkpoint.
@@ -295,9 +295,9 @@ Byte-exact case file format: see `skills/kensa-test-authoring/`.
 <details>
 <summary><b>macOS / Linux — do the hooks work?</b></summary>
 
-Yes, as of v0.8. The auto-checkpoint and debug-log Stop hooks now ship as POSIX
-`*.sh` alongside the Windows `*.ps1` (`hooks/save-memory-stop.sh`,
-`hooks/debug-log.sh`), with the identical stdin/stdout contract. On Codex, one
+Yes, as of v0.8. The auto-checkpoint Stop hook ships as a POSIX
+`*.sh` alongside the Windows `*.ps1` (`hooks/save-memory-stop.sh`),
+with the identical stdin/stdout contract. On Codex, one
 `hooks/hooks.json` dispatches the `.sh` by default and the `.ps1` via
 `commandWindows`.
 </details>
@@ -358,20 +358,11 @@ After every `/new-feature` and `/update-feature`, a `Stop` hook (`hooks/save-mem
 
 If nothing to save, sentinel is still emitted with `(nothing to save this round)` appended.
 
-### Per-session debug log
-A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every session inside a Kensa project (detected by `.tms/memory/`):
-```
-.tms/debug/
-├── session-<id>.md     ← readable digest (commands, files, worker spawns, stuck warnings)
-└── session-<id>.jsonl  ← full transcript snapshot
-```
-`/setup` auto-adds `.tms/debug/` to `.gitignore` — transcripts may contain pasted ticket text or secrets. 3+ `/new-feature` invocations with 0 files written → "STUCK SESSION" banner at the top. Hook never blocks; on failure it exits silently.
-
 ### Bundled MCP
 `sequential-thinking` ships with the plugin (declared in `plugin.json`, started automatically — no credentials). Powers the reasoning skill Lead and Workers use for hard scope and edge-case decisions.
 
 ### Skills
-31 skills under `skills/`, auto-loaded via the plugin manifest. See the skill library section above for the full taxonomy. Highlights:
+32 skills under `skills/`, auto-loaded via the plugin manifest. See the skill library section above for the full taxonomy. Highlights:
 
 **ISTQB CTFL v4.0.1-grounded (21):**
 - **Foundation:** `testing-fundamentals` (Ch 1)
@@ -405,7 +396,9 @@ A second `Stop` hook (`hooks/debug-log.ps1`) writes a debug digest for every ses
 | v0.6 | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
 | v0.7 | **SDLC coverage** — 6 read-only analysis commands: `/pull-context`, `/review-spec`, `/risk-assess`, `/test-plan` (shift-left) and `/analyze-cases`, `/traceability` (test-base intelligence). `qa-engineer-agent` gains an `analyze` mode for fan-out review. No new agents or skills. |
 | v0.8 | **Multi-engine + installer** (superseded by v0.9). Three install modes (Claude / native Codex / hybrid Claude→Codex worker) via an interactive `install.ps1` / `install.sh`; bash port of the hooks. |
-| **v0.9 (current)** | **Two clean engines, one monorepo.** Removed the hybrid delegation and the interactive installer. Skills now have a single home under `shared/`; `scripts/build.{ps1,sh}` assemble self-contained `dist/claude/` and `dist/codex/` builds an IDE drops straight into a project. Claude = standard plugin; Codex = project-scoped `.codex/agents/*.toml` + `AGENTS.md` + skills. |
+| v0.9 | **Two clean engines, one monorepo.** Removed the hybrid delegation and the interactive installer. Skills now have a single home under `shared/`; `scripts/build.{ps1,sh}` assemble self-contained `dist/claude/` and `dist/codex/` builds an IDE drops straight into a project. Claude = standard plugin; Codex = project-scoped `.codex/agents/*.toml` + `AGENTS.md` + skills. |
+| v0.11 | Migrated to **`kensa-cli` v0.15** commands; QA Engineers create cases with atomic `kensa-cli new` (id-range carving gone); removed the PostToolUse `kensa-sync` hook. |
+| **v0.12 (current)** | **Browser QA & routines.** New `kensa-browser` skill + `/run-routine` command + starter routine templates (smoke / form / visual baseline) driving the Kensa-launched Chrome via `kensa-cli browser`. Full `kensa-cli` rename pass; removed the `debug-log` Stop hook and trimmed the memory-checkpoint message. |
 | v1.0 (planned) | Fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
 
 ---
