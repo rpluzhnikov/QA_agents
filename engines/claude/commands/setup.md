@@ -176,7 +176,16 @@ profile.
    plain Markdown and committable; the user edits the target URL/selectors and runs
    them with `/run-routine RT-001`. See the `kensa-browser` skill for the verb set.
    Skip silently for non-web projects or if the user declines.
-6. Tell the user how to use it: "Run `/new-feature <ref>` and I'll take it from here. Edit any file in `.tms/memory/` directly when conventions change — I re-read on every session. If I seeded routines, run `/run-routine <id>` to drive the browser."
+6. **Offer always-on kensa context** (optional). The plugin ships a `CLAUDE.md`
+   operating manual at its root (`.claude/plugins/kensa-qa/CLAUDE.md`), but a
+   plugin-folder `CLAUDE.md` is **not** auto-loaded — only a `CLAUDE.md` at the
+   project root is. Offer to copy/merge it into `<project>/CLAUDE.md` so the QA team
+   context is always in scope:
+   - If the project has no root `CLAUDE.md`: offer to copy the plugin's verbatim.
+   - If one exists: offer to append a fenced `<!-- kensa-qa -->` section (never
+     clobber the user's content), or skip.
+   - Show the diff and confirm before writing.
+7. Tell the user how to use it: "Run `/new-feature <ref>` and I'll take it from here. Edit any file in `.tms/memory/` directly when conventions change — I re-read on every session. If I seeded routines, run `/run-routine <id>` to drive the browser."
 
 ## Notes for the agent running this command
 
