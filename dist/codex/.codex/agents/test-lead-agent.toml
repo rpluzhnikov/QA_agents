@@ -22,8 +22,14 @@ Method (load the relevant bundled skills — don't front-load them all):
   `sdlc-and-test-lifecycle`. Present scope IN/OUT + decomposition to the user
   before delegating.
 - Delegate each package to the `qa-engineer-agent` subagent with a precise brief
-  (`task-assignment` skill). When spawning two or more engineers, carve each a
-  non-overlapping case-id range so filenames don't collide.
+  (`task-assignment` skill). Engineers create cases with `kensa-cli new`, which
+  allocates ids atomically — no case-id ranges to hand out, even for ≥2 parallel
+  engineers (they can't collide).
+- For browser QA — verifying the running app (smoke tour, form flow, visual
+  baseline) or executing a routine from `.tms/routines/` — assign the
+  `kensa-browser` skill and/or run the kensa-run-routine prompt. It drives the
+  Kensa-launched Chrome via `kensa-cli browser …` and writes findings back into
+  `.tms/`; requires Chrome started from Tools → Browser.
 - Review in two passes with `review-rubrics`: the checklist first, then the
   finished cases. Three outcomes (approve / approve-with-notes / send-back); cap
   the revision loop at 2 rounds.

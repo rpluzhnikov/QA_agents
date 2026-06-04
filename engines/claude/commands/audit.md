@@ -25,6 +25,11 @@ checkpoints for `/new-feature` and `/update-feature`.
    `kensa-cli` must be installed and stop. (Without the CLI, none of the
    mechanical checks below are possible.)
 
+3.5. `kensa-cli sync --quiet` — periodic safety/repair: reconcile the id counters in
+   `.tms/config.yaml` against what's on disk, in case the tree was hand-edited outside the CLI.
+   Idempotent and cheap; non-fatal if it errors. (Cases created with `kensa-cli new` are already
+   in sync — this just covers externally-edited trees.)
+
 4. Quick scope read: `kensa-cli stats --format json` to know the repo size. If
    total cases < 5 → tell the user "the repo is too small for a meaningful
    audit (only N cases). Come back when you have ~20+ cases." and stop.
@@ -48,12 +53,14 @@ the audit on. Keep going through the full list.
 | 7 | Broken shared-step refs | `kensa-cli gaps --against shared-steps --format json` | Referenced but undefined |
 | 8 | Coverage by source | `kensa-cli coverage --by-source --format json` | Distribution across source_id values |
 | 9 | Coverage by tag | `kensa-cli coverage --by-tag --format json` | Tag distribution + counts |
+| 10 | Untraced cases | `kensa-cli gaps --against source --format json` | Cases with absent/empty `source_id` (no requirement link) |
+| 11 | Empty suites | `kensa-cli coverage --by-suite --uncovered --format json` | Suites with zero direct cases |
 
 Bucket findings by severity for the report:
 - **Critical** — `validate` violations (block next `/new-feature` until fixed)
 - **High** — `doctor` duplicate ids, missing required frontmatter, broken shared-step refs
-- **Medium** — semantic duplicates, orphan shared-steps, large stale set (>10% of repo)
-- **Low** — tag/status distribution skew, minor lint hints
+- **Medium** — semantic duplicates, orphan shared-steps, large stale set (>10% of repo), untraced cases (no `source_id`)
+- **Low** — tag/status distribution skew, minor lint hints, empty suites
 
 ## Phase 3 — Cross-reference checks (memory vs. cases)
 

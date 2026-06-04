@@ -50,7 +50,7 @@ done < "$transcript"
 [ "$last_sentinel" -ge "$last_cmd" ] && exit 0  # sentinel covers the latest command
 
 # Block. \n stays literal in the %s arg -> valid JSON escaped newlines.
-reason='Auto-checkpoint required before stop.\n\nA /new-feature or /update-feature ran in this session and no memory checkpoint has been written for it. Run the save-memory protocol per commands/save-memory.md:\n\n  1. Identify candidate learnings (conventions, glossary, patterns, shared steps, tags) from this session.\n  2. If .tms/memory/project.md sets `auto_save_learnings: true`, apply silently and report what was saved. Otherwise present all candidates to the user (yes/no/edit per item) and apply confirmed ones.\n  3. After applying -- or after deciding there is nothing to save -- emit the sentinel on its own line, verbatim:\n\n         memory-checkpoint: done\n\n     (If nothing was saved, append a short note, e.g. `memory-checkpoint: done (nothing to save)` -- the hook keys only on the prefix.)'
+reason='Memory checkpoint owed: run the save-memory protocol (commands/save-memory.md) for the /new-feature or /update-feature in this session, then emit on its own line:\n    memory-checkpoint: done\n(If nothing to save, append a note, e.g. `memory-checkpoint: done (nothing to save)` -- the hook keys only on the prefix.)'
 
 printf '{"decision":"block","reason":"%s"}\n' "$reason"
 exit 0

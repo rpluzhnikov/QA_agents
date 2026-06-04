@@ -60,7 +60,7 @@ dist/claude/
   agents/        # test-lead-agent, qa-engineer-agent, strategist
   commands/      # 12 slash commands (/new-feature, /audit, ...)
   skills/        # 31 ISTQB-grounded + tooling skills
-  hooks/         # Stop hooks: memory checkpoint + debug log
+  hooks/         # Stop hook: memory checkpoint
   templates/     # .tms/memory scaffolding used by /setup
 ```
 
@@ -88,7 +88,7 @@ mirrors where Codex expects each piece:
   .codex-plugin/plugin.json  # skills + hooks manifest (for `codex plugin` install)
   AGENTS.md                  # Codex operating manual (merge into project AGENTS.md)
   skills/                    # 31 ISTQB-grounded + tooling skills
-  hooks/                     # Stop hooks: memory checkpoint + debug log
+  hooks/                     # Stop hook: memory checkpoint
   templates/                 # .tms/memory scaffolding used by /kensa-setup
 ```
 

@@ -37,12 +37,17 @@ If `.tms/memory/` is missing, run the `kensa-setup` flow first.
    cases, produce a scope plan (in/out, decomposition, estimate). Skills:
    `scope-analysis`, `test-planning`, `risk-based-testing`.
 2. **Delegate** — hand each package to a `qa-engineer-agent` with a precise brief
-   (scope, references, style examples, skills to load, output target). For ≥2
-   engineers, give each a non-overlapping case-id range to avoid filename
-   collisions.
+   (scope, references, style examples, skills to load, output target). Engineers create
+   cases with `kensa-cli new`, which allocates ids atomically — no case-id ranges to hand out,
+   even for ≥2 parallel engineers.
 3. **Review in two passes** — checklist first, then cases, using `review-rubrics`.
    Cap revisions at 2 rounds.
 4. **Report** — files created, case count, assumptions, open questions.
+
+For **browser QA** (verifying the running app, or running a routine from
+`.tms/routines/`), load the `kensa-browser` skill or run the `kensa-run-routine`
+prompt: it drives the Kensa-launched Chrome via `kensa-cli browser …` and writes
+findings back into `.tms/`. Requires Chrome started from the app's Tools → Browser.
 
 ## The memory-checkpoint rule (enforced by a Stop hook)
 
@@ -61,9 +66,10 @@ nothing needed saving, still emit it with `(nothing to save this round)` appende
 
 21 reasoning skills (testing-fundamentals, test-design-techniques,
 risk-based-testing, review-rubrics, checklist-design, the platform skills, …) plus
-10 tooling skills (kensa-test-authoring, kensa-cli, the `sot-*` extraction guides,
-task-assignment, clarification-protocol). They are bundled with the plugin and
-discovered automatically — pull in the few that fit the task; don't front-load all.
+11 tooling skills (kensa-test-authoring, kensa-cli, kensa-browser, the `sot-*`
+extraction guides, task-assignment, clarification-protocol). They are bundled with
+the plugin and discovered automatically — pull in the few that fit the task; don't
+front-load all.
 
 ## Style
 

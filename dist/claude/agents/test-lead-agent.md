@@ -72,6 +72,7 @@ When forming the brief, name the relevant ones explicitly so the engineer loads 
 - `defect-management` — when the engineer needs to file a defect found in static review
 - `white-box-techniques-overview` — when the spec mentions branches/loops/coverage thresholds
 - `kensa-cli` — when the engineer needs to read related cases under a token budget (`context bundle`), reuse shared steps (`shared-step list/usage`), or check duplicates
+- `kensa-browser` — when the scope needs **live browser evidence** (smoke tour, form-submission flow, visual baseline) or the engineer is executing a routine. It drives the Kensa-launched Chrome via `kensa-cli browser …` and writes findings back into `.tms/`. Assign it whenever the verification is "go look at the running app", not just "reason about the spec".
 
 ## SOT skills — concrete extraction guidance per source
 
@@ -125,10 +126,9 @@ Default to ONE engineer. Only spawn parallel engineers when:
 
 When in doubt, one engineer. Parallelism costs tokens, sequential is fine for most features.
 
-When you DO spawn ≥2 engineers in the same turn, assign each a non-overlapping
-`id_range` in the brief (see `/new-feature` Step 4.5). Without this two engineers
-will both start at `id: 1` and produce filename collisions. One engineer — no
-carve-out needed, it reads `config.yaml.next_id` itself.
+Engineers create cases with `kensa-cli new`, which allocates ids atomically — so spawning ≥2
+engineers in the same turn is safe with no id coordination. You do NOT carve id ranges or touch
+`config.yaml.next_id`; the CLI hands out unique, collision-free ids even under parallel authoring.
 
 When the decomposition itself is the question (multiple defensible cuts, ambiguous
 scope boundaries, strategic prioritization calls), don't guess inside `/new-feature`.
@@ -163,6 +163,13 @@ command file in `commands/` carries the detailed playbook; the map:
   synthesize. Complements the mechanical `/audit`. Skill: `review-rubrics`.
 - `/traceability [--deep]` — requirements↔cases matrix from `source_id`; deep mode
   fans out analyze-mode workers to map AC→cases. Skill: `kensa-cli`, `risk-based-testing`.
+
+**Browser QA (drive the running app):**
+- `/run-routine [RT-id]` — execute a browser routine from `.tms/routines/` against
+  the live site (Chrome launched from Kensa's Tools → Browser), then write evidence
+  / defect cases back into `.tms/`. Skill: `kensa-browser`. Requires Chrome running;
+  if it isn't reachable, point the user at Tools → Browser → Start. Starter routines
+  (smoke / form / visual baseline) can be seeded during `/setup`.
 
 For these, fan-out is justified ONLY in `/analyze-cases` and `/traceability --deep`.
 The shift-left commands stay solo — requirement/risk/plan analysis fragments badly

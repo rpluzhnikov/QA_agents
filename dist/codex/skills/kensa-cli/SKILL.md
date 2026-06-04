@@ -13,6 +13,7 @@ Use `kensa-cli` from the embedded terminal (or any shell) when you need to read,
 
 Use `kensa-cli` when you want to:
 - Discover what cases exist and their current state (`list`, `filter`, `find`, `stats`)
+- Create a new case with an atomically-allocated id (`new`) — the preferred way to author cases
 - Read a single case's fields or raw content (`show`)
 - Apply field changes to one or many cases (`update`, `bulk update`)
 - Tag cases, rename tags, add/remove tags in bulk (`update`, `bulk add-tag`, `bulk remove-tag`, `rename-tag`)
@@ -165,9 +166,14 @@ kensa-cli filter "priority=critical" --format json
 ```
 
 #### `find <query> [--limit <N>]`
-Fuzzy-find cases by title or tags. `--limit` caps results (default 20).
+Fuzzy-find cases across **title, tags, and body** — step text, expected results, notes, and
+section headings — not just title/tags. Each result carries a `match_field` value
+(`title|tag|step|expected|notes|section`) telling you where the query hit, so "the test about
+rate limiting" now matches a step body even when the title says nothing about it. `--limit` caps
+results (default 20).
 ```sh
 kensa-cli find "login flow"
+kensa-cli find "rate limiting" --format json   # match_field shows title|tag|step|expected|notes|section
 kensa-cli find "payment" --limit 5
 ```
 
@@ -198,7 +204,29 @@ Rebuild `.tms/INDEX.md` and per-suite `_index.md` files.
 kensa-cli index
 ```
 
-### Write / bulk
+### Write / create
+
+#### `new --suite <PATH> [--title <T>] [--priority <P>] [--status <S>] [--tag <T>]... [--source-id <SID>] [--dry-run]`
+**The preferred way to create a case.** Atomically allocates the next id (reconciles the counter
+on disk exactly like `sync`, then formats it per the project's `id_format` — numeric `001` or
+prefixed `AUTH-007`) and writes a valid draft case: frontmatter `{id, title, status: "draft"}`
+plus any flags you pass. Because allocation is atomic, **concurrent `new` calls never collide** —
+no manual id picking, no `next_id` bump, no id-range carving when multiple agents author in
+parallel. Returns the record `{id, path, suite, status}` (use `--format json` and read `path`).
+
+- `--suite ""` targets the `suites/` root; nested suites like `--suite auth/checkout` are fine.
+  `..`, absolute paths, and backslash suites are rejected.
+- `--tag` is repeatable. `--priority` / `--status` / `--source-id` set those frontmatter fields.
+- `--dry-run` prints the would-be `{id, path}` and writes nothing.
+
+`new` creates the case shell; author the `## Steps` body (and `preconditions`, `custom`, `## Notes`)
+by editing the returned `path` per the `kensa-test-authoring` skill.
+```sh
+kensa-cli new --suite auth/login --title "Log in with valid credentials" \
+  --priority high --tag auth --tag smoke --source-id LIN-89 --format json
+# → {"id":"AUTH-001","path":"suites/auth/login/AUTH-001.md","suite":"auth/login","status":"draft"}
+kensa-cli new --suite "" --title "Smoke: homepage loads" --dry-run   # preview id+path, write nothing
+```
 
 #### `update <id> [--set FIELD=VALUE]... [--add-tag TAG]... [--remove-tag TAG]... [--dry-run]`
 Update a single case. `--set` accepts `title=`, `priority=`, `status=`, or any custom schema field. Repeatable. `--dry-run` prints the planned changes without writing.
@@ -208,10 +236,12 @@ kensa-cli update AUTH-001 --add-tag regression --remove-tag smoke
 kensa-cli update AUTH-001 --set title="New title" --dry-run
 ```
 
-#### `bulk update --filter <expr> --set FIELD=VALUE [--dry-run] [--yes]`
-Set fields on all cases matching a filter.
+#### `bulk update --filter <expr> --set FIELD=VALUE [--set FIELD=VALUE]... [--dry-run] [--yes]`
+Set one or more fields on all cases matching a filter. `--set` is **repeatable** — pass it
+multiple times to change several fields in one pass (same as single-case `update`).
 ```sh
 kensa-cli bulk update --filter "tag=wip" --set status=draft --yes
+kensa-cli bulk update --filter "suite=auth" --set status=active --set priority=high --yes
 ```
 
 #### `bulk add-tag <tag> --filter <expr> [--dry-run] [--yes]`
@@ -269,17 +299,28 @@ kensa-cli duplicates --threshold 0.90
 kensa-cli duplicates --mark --yes
 ```
 
-#### `coverage --by-tag | --by-source | --by-suite`
+#### `coverage --by-tag | --by-source | --by-suite [--uncovered]`
 Count cases grouped by tag, source_id, or suite. Exactly one grouping flag required.
+
+`--by-suite --uncovered` lists **empty suites** — those with zero direct cases — which is the way
+to answer "which suites have no cases". `--uncovered` combined with `--by-tag` or `--by-source`
+exits 2 with a redirect to `gaps --against source` (those axes derive their keys from cases, so
+"uncovered" is vacuous there — there is no case to derive an empty tag/source from).
 ```sh
 kensa-cli coverage --by-tag
 kensa-cli coverage --by-suite --format json
+kensa-cli coverage --by-suite --uncovered --format json   # empty suites (zero direct cases)
 ```
 
-#### `gaps [--against shared-steps]`
-Find unreferenced shared steps. Only `--against shared-steps` is supported.
+#### `gaps --against shared-steps | --against source`
+Find gaps in the test base.
+- `--against shared-steps` — shared steps referenced by a case but never defined (broken `@shared:` refs).
+- `--against source` — **untraced cases**: cases whose `source_id` is absent or empty (not linked
+  to any requirement). Each result record is `{id, title, suite, path, status: "untraced"}`. This
+  is the direct way to list untraced cases — prefer it over assembling `coverage --by-source` by hand.
 ```sh
 kensa-cli gaps --against shared-steps
+kensa-cli gaps --against source --format json   # untraced cases (absent/empty source_id)
 ```
 
 #### `doctor`
@@ -291,22 +332,20 @@ kensa-cli doctor --format json
 
 #### `sync`
 Recompute the project's id counters in `.tms/config.yaml` from what's on disk and rewrite the
-file (byte-for-byte identical to how the Kensa IDE writes it). Fixes counter desync: the IDE
-bumps `project.next_id` (plus `next_shared_step_id` / `next_plan_id`) when *it* creates a case,
-but when an agent writes a `suites/**/<id>.md` case file directly the counter goes stale until the
-IDE's next allocation. `sync` always recounts `next_id`; it recounts `next_shared_step_id` /
-`next_plan_id` only when that key already exists in `config.yaml` or its artifact dir
-(`.tms/shared-steps/` / `.tms/plans/`) is non-empty. **Idempotent and cheap** — when already in
-sync it writes nothing and exits 0. Errors (exit non-zero) only if the dir isn't a Kensa project
-(no `.tms/config.yaml`).
+file (byte-for-byte identical to how the Kensa IDE writes it). `sync` always recounts `next_id`;
+it recounts `next_shared_step_id` / `next_plan_id` only when that key already exists in
+`config.yaml` or its artifact dir (`.tms/shared-steps/` / `.tms/plans/`) is non-empty.
+**Idempotent and cheap** — when already in sync it writes nothing and exits 0. Errors (exit
+non-zero) only if the dir isn't a Kensa project (no `.tms/config.yaml`).
 ```sh
 kensa-cli sync                  # recompute and rewrite config.yaml
 kensa-cli sync --check          # report drift WITHOUT writing; exit 3 if out of sync, 0 if in sync
-kensa-cli sync --quiet          # suppress progress on stderr (used by hooks)
+kensa-cli sync --quiet          # suppress progress on stderr
 ```
-> The kensa-qa plugin runs `kensa-cli sync` for you automatically via a `PostToolUse` hook after an
-> agent writes/edits files under `.tms/` or `suites/`, so counters stay correct without opening the
-> IDE. Requires `kensa-cli` on the system PATH (see the plugin README); if absent, the hook no-ops.
+> When you create cases with `kensa-cli new`, the id counter is allocated atomically and never
+> goes stale — you do **not** need `sync` for the create path. `sync` is a **periodic safety/repair**
+> step for trees edited outside the CLI (hand-written case files, imports, merge collisions). The
+> `/audit` command runs it as a preflight; run it yourself after bulk hand-edits, then `kensa-cli doctor`.
 
 #### `schema migrate`
 Migrate the project schema to the current version.

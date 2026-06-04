@@ -1,6 +1,6 @@
 {
   "name": "kensa-qa",
-  "version": "0.10.0",
+  "version": "0.12.0",
   "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent for test case authoring, plus read-only SDLC analysis commands (spec review, risk, test plan, traceability) for Kensa TMS",
   "author": {
     "name": "Roman Pluzhnikov",
@@ -15,38 +15,9 @@
     }
   },
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy", "Bypass",
-              "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/kensa-sync.ps1"
-            ],
-            "timeout": 30,
-            "statusMessage": "kensa-qa: syncing case counters"
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "powershell",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy", "Bypass",
-              "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/debug-log.ps1"
-            ],
-            "timeout": 10,
-            "statusMessage": "kensa-qa: writing debug log"
-          },
           {
             "type": "command",
             "command": "powershell",

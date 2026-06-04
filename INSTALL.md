@@ -5,7 +5,7 @@ installer script; you either install the Claude build from the marketplace or co
 the Codex build into your project.
 
 The shipped builds live under [`dist/claude/`](dist/claude) and
-[`dist/codex/`](dist/codex) (self-contained: agents, prompts, 31 skills, hooks,
+[`dist/codex/`](dist/codex) (self-contained: agents, prompts, 32 skills, hooks,
 manifest all inside).
 
 ---
@@ -24,9 +24,9 @@ marketplace install is complete:
 `/plugin marketplace update rpluzhnikov`.
 
 Verify:
-- `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `save-memory`
+- `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `save-memory`
 - `@` shows `test-lead-agent`, `qa-engineer-agent`, `strategist`
-- `/hooks` shows one **PostToolUse** hook (case-counter sync) and two **Stop** hooks (debug log + memory checkpoint)
+- `/hooks` shows one **Stop** hook (memory checkpoint) — there is no PostToolUse hook (ids are allocated atomically by `kensa-cli new`)
 
 Then run `/setup` in your project.
 
@@ -77,22 +77,20 @@ into `~/.codex/prompts/`, and merge `AGENTS.md` into `~/.codex/AGENTS.md`.
 
 ---
 
-## `kensa-cli` on PATH (for the auto-sync hook)
+## `kensa-cli` on PATH
 
-Both builds ship a **PostToolUse** hook that runs `kensa-cli sync` after an agent
-writes or edits a case file, keeping the id counters in `.tms/config.yaml`
-(`project.next_id`, …) in step with what's on disk — without opening the Kensa IDE.
-It then runs a non-fatal `kensa-cli doctor` advisory check.
+The agents drive the `kensa-cli` command-line tool directly: QA engineers **create cases** with
+`kensa-cli new` (which allocates ids atomically — no counter-repair hook needed), and the
+`/audit` and `/traceability` commands run `kensa-cli sync` / `doctor` / `coverage` / `gaps`.
 
-This hook needs **`kensa-cli` on the system PATH** of the process that runs Claude
-Code / Codex. The hook runs in the agent host process, **not** Kensa's embedded
-terminal, so Kensa's terminal PATH injection does **not** apply here — make sure
-`kensa-cli` resolves in a plain shell (`kensa-cli --version`). If `kensa-cli` is not
-found, the hook silently no-ops and never blocks the edit; you just won't get
-automatic counter sync until the IDE next allocates.
+So **`kensa-cli` must be on the system PATH** of the process that runs Claude Code / Codex. The
+agents run in the host process, **not** Kensa's embedded terminal, so Kensa's terminal PATH
+injection does **not** apply here — make sure `kensa-cli` resolves in a plain shell
+(`kensa-cli --version`). If it's absent, case creation and the mechanical audit/traceability
+checks won't work until you install it.
 
-The hook is also safe outside Kensa projects: it does nothing unless the working
-directory contains `.tms/config.yaml`.
+`kensa-cli sync` is now a **periodic safety/repair** step (run by `/audit`, or by hand after
+editing a tree outside the CLI) — there is no longer an automatic PostToolUse sync hook.
 
 ---
 
