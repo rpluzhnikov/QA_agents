@@ -12,9 +12,9 @@ convention.
 dist/claude/
   .claude-plugin/plugin.json   # hooks + bundled sequential-thinking MCP
   CLAUDE.md      # Claude-edition operating manual (analogue of Codex AGENTS.md)
-  agents/        # test-lead-agent, qa-engineer-agent, strategist
-  commands/      # 13 slash commands (/new-feature, /audit, /run-routine, ...)
-  skills/        # 32 ISTQB-grounded + tooling skills
+  agents/        # test-lead-agent, qa-engineer-agent, schema-bootstrap-agent, strategist
+  commands/      # 15 slash commands (/new-feature, /audit, /run-routine, /adapt-schema, /blueprint, ...)
+  skills/        # 33 ISTQB-grounded + tooling skills
   hooks/         # Stop hook: memory checkpoint
   templates/     # .tms/memory scaffolding + starter routines, used by /setup
 ```

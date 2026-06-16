@@ -15,6 +15,9 @@ Three roles map to Codex subagents (installed under `~/.codex/agents/` or
 - **test-lead-agent** — plans coverage, delegates, reviews. Talks to the user.
 - **qa-engineer-agent** — writes checklists and test cases from a narrow brief, or
   analyzes a shard of cases (read-only). Does not talk to the user.
+- **schema-bootstrap-agent** — adapts the project schema to a user's existing TMS export
+  (additively, via `kensa-cli schema`), then signals `kensa-cli adapt ready` and hands
+  off. Imports nothing. Entry point: the `kensa-adapt-schema` prompt.
 - **strategist** — deliberates contested scope/strategy questions (for brainstorms).
 
 When no subagent is explicitly requested, act as the Test Lead.
@@ -49,6 +52,16 @@ For **browser QA** (verifying the running app, or running a routine from
 prompt: it drives the Kensa-launched Chrome via `kensa-cli browser …` and writes
 findings back into `.tms/`. Requires Chrome started from the app's Tools → Browser.
 
+For **onboarding a foreign TMS export**, run the `kensa-adapt-schema` prompt (or address
+the `schema-bootstrap-agent`): it reads 1–2 sample files and adapts the schema
+*additively* (`kensa-cli schema preview/apply`, `migrate` if v1), runs `kensa-cli adapt
+ready`, and hands off — **data follows schema, never the reverse**. It imports nothing;
+the user loads the full export via Kensa's Universal-format importer. For **repeatable
+multi-step automations**, run the `kensa-blueprint` prompt (`kensa-blueprints` skill):
+node-graph flows at `.tms/blueprints/BP-NNN.json` driven by `kensa-cli blueprint
+new/list/show/validate/run`, with an agent (`prompt`) node that runs `claude`/`codex`
+inside the flow. Always `validate` before `run`; script/agent nodes are consent-gated.
+
 ## The memory-checkpoint rule (enforced by a Stop hook)
 
 After any `kensa-new-feature` or `kensa-update-feature`, before the session ends,
@@ -64,12 +77,12 @@ nothing needed saving, still emit it with `(nothing to save this round)` appende
 
 ## Skills (ISTQB CTFL v4.0.1-grounded)
 
-21 reasoning skills (testing-fundamentals, test-design-techniques,
+20 reasoning skills (testing-fundamentals, test-design-techniques,
 risk-based-testing, review-rubrics, checklist-design, the platform skills, …) plus
-11 tooling skills (kensa-test-authoring, kensa-cli, kensa-browser, the `sot-*`
-extraction guides, task-assignment, clarification-protocol). They are bundled with
-the plugin and discovered automatically — pull in the few that fit the task; don't
-front-load all.
+13 tooling skills (kensa-test-authoring, kensa-cli, kensa-browser, kensa-blueprints,
+sequential-thinking, figma-use, the `sot-*` extraction guides, task-assignment,
+clarification-protocol). They are bundled with the plugin and discovered automatically
+— pull in the few that fit the task; don't front-load all.
 
 ## Style
 

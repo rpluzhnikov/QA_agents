@@ -17,6 +17,10 @@ route to the right one:
 - **`qa-engineer-agent`** — writes checklists and test cases from a narrow brief, or
   inspects a shard of cases in read-only **analyze** mode. Never talks to the user;
   its output goes to the Lead.
+- **`schema-bootstrap-agent`** — adapts the project **schema** to a user's existing
+  TMS export (additively, via `kensa-cli schema`), then signals `kensa-cli adapt ready`
+  and hands off. Never imports cases — the user does that via Universal format. Entry
+  point: `/adapt-schema`.
 - **`strategist`** — deliberates contested scope/strategy questions; spawned in
   parallel (×3) by `/brainstorm`.
 
@@ -59,7 +63,7 @@ verbs are `kensa-cli browser …`. Inside the Kensa app the same binary is also 
 embedded terminal's PATH as `kensa`, but the agents always call `kensa-cli` so
 commands work in the host process too. See the `kensa-cli` and `kensa-browser` skills.
 
-## Commands (13)
+## Commands (15)
 
 Routed through the Test Lead. **Authoring** (emit a memory checkpoint):
 `/setup` · `/new-feature <ref>` · `/update-feature <ref>`.
@@ -69,9 +73,12 @@ Routed through the Test Lead. **Authoring** (emit a memory checkpoint):
 `/traceability [--deep]`.
 **Deliberation:** `/brainstorm <topic>` (spawns 3 strategists).
 **Browser QA:** `/run-routine [RT-id]` — execute a routine against the live app.
+**Schema & automation:** `/adapt-schema [samples]` — fit the schema to a user's export
+(spawns the schema-bootstrap-agent) · `/blueprint [list|show|new|validate|run]` —
+design/validate/run a Blueprint node-graph automation.
 **Bookkeeping:** `/save-memory` — checkpoint learnings to `.tms/memory/learned/*`.
 
-## Skills (32) — load on demand, don't front-load
+## Skills (33) — load on demand, don't front-load
 
 Every reasoning skill cites the ISTQB CTFL v4.0.1 chapter + learning objective it
 operationalises; tooling skills complement ISTQB without being derived from it.
@@ -106,9 +113,10 @@ operationalises; tooling skills complement ISTQB without being derived from it.
 - `test-case-writing-craft` — §1.4: case anatomy, expected results, step quality.
 - `kensa-test-authoring` — the byte-exact `.tms/` file format (frontmatter order, steps, shared-step refs, trailing newline). The engineer writes files, so it must follow this exactly.
 
-**Tooling (CLI + browser):**
-- `kensa-cli` — query/edit/maintain cases from the terminal: `list`, `find`, `stats`, `new`, `update`, `bulk *`, `validate`, `lint`, `duplicates`, `coverage`, `gaps`, `context bundle`.
+**Tooling (CLI + browser + automation):**
+- `kensa-cli` — query/edit/maintain cases from the terminal: `list`, `find`, `stats`, `new`, `update`, `bulk *`, `validate`, `lint`, `duplicates`, `coverage`, `gaps`, `context bundle`; plus schema adaptation (`schema show/preview/apply/migrate`, `adapt ready`).
 - `kensa-browser` — drive the Kensa-launched Chrome via `kensa-cli browser …` (CDP) for live browser QA, then write findings back into `.tms/` cases.
+- `kensa-blueprints` — design/validate/run node-graph automations (`kensa-cli blueprint …`); an agent (`prompt`) node can run `claude`/`codex` inside a flow.
 
 **Source-of-truth extractors (load the one matching the reference):**
 - `sot-linear` · `sot-jira` · `sot-confluence` · `sot-notion` · `sot-figma` — where AC live in each source + which MCP tools fetch them.
@@ -136,6 +144,26 @@ baseline) or executing a saved routine:
    seeded during `/setup`. Use test/staging — never real production credentials/data.
 
 See the `kensa-browser` skill for the full verb set and guardrails.
+
+## Schema adaptation & Blueprints
+
+Two onboarding/automation capabilities, each with its own command and skill:
+
+- **Schema adaptation** (`/adapt-schema`, `schema-bootstrap-agent`, `kensa-cli` skill).
+  When a team arrives with an export from some other TMS, **data follows schema, never
+  the reverse**: the agent reads 1–2 sample files and adapts the project schema
+  *additively* (`kensa-cli schema preview/apply`, `migrate` if v1), then runs
+  `kensa-cli adapt ready` and **hands off**. It imports nothing — the user loads the
+  full export deterministically via Kensa's **Universal format** importer (which maps
+  known fields by synonym and drops the rest into `custom.<key>`, never mutating the
+  schema). Additive only; never delete/rewrite existing fields unless asked.
+- **Blueprints** (`/blueprint`, `kensa-blueprints` skill). Node-graph automations at
+  `.tms/blueprints/BP-NNN.json` run by a Rust engine: exec pins (control flow) + data
+  pins (typed values), Start → … → Finish. Driven by `kensa-cli blueprint
+  new/list/show/validate/run`. A first-class agent (`prompt`) node runs `claude`/`codex`
+  non-interactively inside a flow. **Always `validate` before `run`**; script/agent
+  nodes are consent-gated (`--allow-scripts`); secrets are `{ ref }` handles, never
+  literals. See the skill for the node catalog, `${...}` references, and validation codes.
 
 ## Memory checkpoint (enforced by a Stop hook)
 

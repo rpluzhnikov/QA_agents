@@ -19,6 +19,7 @@ Use `kensa-cli` when you want to:
 - Tag cases, rename tags, add/remove tags in bulk (`update`, `bulk add-tag`, `bulk remove-tag`, `rename-tag`)
 - Move, delete, or duplicate cases via CLI (`bulk move`, `bulk delete`, `trash`)
 - Validate cases against the project schema (`validate`)
+- Inspect and **adapt the project schema** to a user's existing TMS export, then hand off (`schema show/preview/apply/migrate`, `adapt ready`)
 - Run quality checks (`lint`, `duplicates`, `coverage`, `gaps`, `doctor`)
 - Prepare agent editing context (`context show`, `context bundle`)
 - Inspect git history per case (`blame`, `log`, `changed`, `stale`)
@@ -347,11 +348,63 @@ kensa-cli sync --quiet          # suppress progress on stderr
 > step for trees edited outside the CLI (hand-written case files, imports, merge collisions). The
 > `/audit` command runs it as a preflight; run it yourself after bulk hand-edits, then `kensa-cli doctor`.
 
+### Schema & adaptation
+
+> **Data follows schema, never the reverse.** The agent shapes the project's
+> *structure* (the schema) once, then **hands off** — the user imports their real
+> export through the deterministic **Universal format** importer in the Kensa GUI.
+> The two concerns are orthogonal: the agent never imports cases, and the import
+> never mutates the schema. See `commands/adapt-schema.md` and the
+> `schema-bootstrap-agent` for the full flow.
+
+#### `schema show`
+Print the project's current schema (system + custom fields). The starting point for
+any adaptation — see what fields already exist before proposing changes.
+```sh
+kensa-cli schema show
+kensa-cli schema show --format json
+```
+
+#### `schema preview <field-spec>`
+Dry-run a schema change: show the diff, write nothing. Always preview before
+`apply` so the user (and you) can see exactly what fields are added/renamed.
+```sh
+kensa-cli schema preview --add-field "anticipated_outcome:text"
+kensa-cli schema preview --rename-field "expected=anticipated_outcome"
+```
+
+#### `schema apply <field-spec>`
+Apply the schema change to `.tms/schema.yaml` (byte-parity preserved, exactly how the
+Kensa GUI writes it). **Additive by default** — add fields, rename system fields; do
+**not** delete or rewrite existing fields unless the user explicitly asked.
+```sh
+kensa-cli schema apply --add-field "anticipated_outcome:text"
+kensa-cli schema apply --add-field "pre_reqs:text" --add-field "tc_ref:string"
+```
+
 #### `schema migrate`
-Migrate the project schema to the current version.
+Upgrade a v1 schema to v2 so custom fields can be defined. Run this first if
+`schema show` reports a v1 schema and `apply` rejects custom-field specs.
 ```sh
 kensa-cli schema migrate
 ```
+
+#### `adapt ready`
+Signal **"schema is adapted"** — writes `.tms/.cache/adapt-ready.json` (a gitignored
+sentinel the Kensa GUI watches via `fs://changed`). The GUI refreshes the schema and
+tells the user: *"Schema adapted — now load your full export in Universal format."*
+Run this **once, last**, after the schema fits the user's sample files. It is the
+agent's hand-off; it imports nothing.
+```sh
+kensa-cli adapt ready
+```
+
+> **Contract for the agent.** Adapt the schema *additively* and then run `adapt
+> ready`. Do **not** import cases, and do **not** delete/rewrite existing fields
+> unless asked. The import step is the user's, deterministic, and reversible — the
+> Universal importer parses any CSV / JSON / YAML / XML into the current schema
+> (synonym-mapping known fields, dropping the rest into `frontmatter.custom.<key>`),
+> and **never mutates the schema**. Export mirrors it (Export → "Current schema").
 
 ### Git-temporal
 
@@ -515,6 +568,21 @@ kensa-cli doctor
 kensa-cli bulk update --filter "tag=smoke" --set priority=medium --dry-run  # preview
 kensa-cli bulk update --filter "tag=smoke" --set priority=medium --yes      # apply
 kensa-cli validate                                                           # confirm
+```
+
+### Adapt the schema to a user's export (used by `/adapt-schema`)
+
+Shape the project structure to match the user's existing TMS columns, then hand off.
+**Never import the cases yourself** — the user does that via Universal format.
+
+```sh
+kensa-cli schema show --format json                       # 1. what fields exist now
+# (read 1-2 of the user's sample case files to learn their columns)
+kensa-cli schema migrate                                  # 2. only if schema is v1
+kensa-cli schema preview --add-field "anticipated_outcome:text"   # 3. dry-run the fit
+kensa-cli schema apply   --add-field "anticipated_outcome:text"   # 4. apply additively
+kensa-cli schema show                                     # 5. confirm the new shape
+kensa-cli adapt ready                                     # 6. hand off — import is the user's
 ```
 
 ### Audit workflow (used by `/audit`)

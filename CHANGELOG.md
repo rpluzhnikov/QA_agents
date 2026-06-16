@@ -3,6 +3,50 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.13.0 -- 2026-06-15
+
+Schema adaptation for onboarding foreign TMS exports, and **Blueprints** — node-graph
+automations with a first-class agent node. Integrates `SCHEMA-ADAPTATION-AND-BLUEPRINTS.md`.
+
+### Added — schema adaptation (Part A)
+
+- **New `schema-bootstrap-agent`** (Claude `agents/schema-bootstrap-agent.md` + Codex
+  `.codex/agents/schema-bootstrap-agent.toml`): reads 1–2 of the user's real case files
+  from a foreign TMS export and adapts the project schema *additively* to fit them, then
+  hands off. Principle: **data follows schema, never the reverse** — it imports no cases
+  and never deletes/rewrites existing fields unless asked.
+- **New `/adapt-schema` command** (Claude `commands/adapt-schema.md` + Codex
+  `kensa-adapt-schema.md`): resolves sample files, delegates to the bootstrap agent,
+  reviews the proposed mapping, and points the user at Kensa's **Universal format**
+  importer for the actual (deterministic, schema-preserving) import.
+- **Extended the `kensa-cli` skill** with the schema surface: `schema show`,
+  `schema preview`, `schema apply`, `schema migrate`, and `adapt ready`, plus the
+  adapt-with-AI flow, the agent contract, and an `/adapt-schema` recipe.
+
+### Added — Blueprints (Part B)
+
+- **New `kensa-blueprints` skill** (skill #33): node-graph automations at
+  `.tms/blueprints/BP-NNN.json` run by the Rust engine — exec/data pins, the node-family
+  catalog, `${...}` context references, the agent (`prompt`) node two-file handshake, the
+  `kensa-cli blueprint new/list/show/validate/run` CLI, the frozen validation codes, and
+  the security model (engine/shell allow-lists, project-root confinement, secret handles).
+- **New `/blueprint` command** (Claude `commands/blueprint.md` + Codex
+  `kensa-blueprint.md`): `list | show | new | validate | run` over project blueprints,
+  always validating before a run and respecting the consent gate on script/agent nodes.
+
+### Changed — wiring
+
+- Wired both new capabilities into the operating manuals (Claude `CLAUDE.md` + Codex
+  `AGENTS.md`) and the `test-lead-agent` (Claude `.md` + Codex `.toml`): the Lead routes
+  `/adapt-schema` to the bootstrap agent and drives `/blueprint`.
+- All new CLI commands documented as `kensa-cli <verb>` (the canonical name), not bare `kensa`.
+
+### Bumped
+
+- All manifests (`engines.json`, both `plugin.json`, `marketplace.json`) to `0.13.0`;
+  `generated_by` stamp to `kensa-qa@0.13.0`. Counts updated: **15** commands/prompts,
+  **33** skills, **4** agents (added `schema-bootstrap-agent`).
+
 ## 0.12.0 -- 2026-06-04
 
 Browser-driven QA + routines, a full `kensa-cli` rename pass, and a quieter hook setup.

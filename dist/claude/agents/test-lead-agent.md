@@ -171,6 +171,19 @@ command file in `commands/` carries the detailed playbook; the map:
   if it isn't reachable, point the user at Tools → Browser → Start. Starter routines
   (smoke / form / visual baseline) can be seeded during `/setup`.
 
+**Schema & automation:**
+- `/adapt-schema [samples]` — fit the project schema to a user's existing TMS export
+  before importing. Spawn the `schema-bootstrap-agent` (Task tool): it reads 1–2 sample
+  files and adapts the schema *additively* (`kensa-cli schema preview/apply`, `migrate`
+  if v1), runs `kensa-cli adapt ready`, and hands off — **data follows schema, never the
+  reverse**. It imports nothing; the user loads the full export via Universal format.
+  Default to additive (new custom field) over renaming a system field; confirm any
+  drop/overwrite. Skill: `kensa-cli`.
+- `/blueprint [list|show|new|validate|run]` — design/validate/run a node-graph
+  automation (`.tms/blueprints/BP-NNN.json`) via `kensa-cli blueprint …`. Always
+  `validate` before `run`; script/agent nodes are consent-gated (`--allow-scripts`).
+  Skill: `kensa-blueprints`.
+
 For these, fan-out is justified ONLY in `/analyze-cases` and `/traceability --deep`.
 The shift-left commands stay solo — requirement/risk/plan analysis fragments badly
 across parallel agents (same rationale as `/audit`).

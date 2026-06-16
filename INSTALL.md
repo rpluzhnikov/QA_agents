@@ -5,7 +5,7 @@ installer script; you either install the Claude build from the marketplace or co
 the Codex build into your project.
 
 The shipped builds live under [`dist/claude/`](dist/claude) and
-[`dist/codex/`](dist/codex) (self-contained: agents, prompts, 32 skills, hooks,
+[`dist/codex/`](dist/codex) (self-contained: agents, prompts, 33 skills, hooks,
 manifest all inside).
 
 ---
@@ -24,8 +24,8 @@ marketplace install is complete:
 `/plugin marketplace update rpluzhnikov`.
 
 Verify:
-- `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `save-memory`
-- `@` shows `test-lead-agent`, `qa-engineer-agent`, `strategist`
+- `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `adapt-schema`, `blueprint`, `save-memory`
+- `@` shows `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`, `strategist`
 - `/hooks` shows one **Stop** hook (memory checkpoint) — there is no PostToolUse hook (ids are allocated atomically by `kensa-cli new`)
 
 Then run `/setup` in your project.
