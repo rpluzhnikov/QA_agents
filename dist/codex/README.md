@@ -10,11 +10,11 @@ mirrors where Codex expects each piece:
 ```
 <project>/
   .codex/
-    agents/*.toml            # test-lead-agent, qa-engineer-agent, strategist (project-scoped subagents)
-    prompts/*.md             # 12 custom prompts (/kensa-new-feature, ...)
+    agents/*.toml            # test-lead-agent, qa-engineer-agent, schema-bootstrap-agent, strategist (project-scoped subagents)
+    prompts/*.md             # 15 custom prompts (/kensa-new-feature, /kensa-adapt-schema, /kensa-blueprint, ...)
   .codex-plugin/plugin.json  # skills + hooks manifest (for `codex plugin` install)
   AGENTS.md                  # Codex operating manual (merge into project AGENTS.md)
-  skills/                    # 31 ISTQB-grounded + tooling skills
+  skills/                    # 33 ISTQB-grounded + tooling skills
   hooks/                     # Stop hook: memory checkpoint
   templates/                 # .tms/memory scaffolding used by /kensa-setup
 ```

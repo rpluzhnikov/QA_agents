@@ -11,11 +11,12 @@ convention.
 ```
 dist/claude/
   .claude-plugin/plugin.json   # hooks + bundled sequential-thinking MCP
-  agents/        # test-lead-agent, qa-engineer-agent, strategist
-  commands/      # 12 slash commands (/new-feature, /audit, ...)
-  skills/        # 31 ISTQB-grounded + tooling skills
+  CLAUDE.md      # Claude-edition operating manual (analogue of Codex AGENTS.md)
+  agents/        # test-lead-agent, qa-engineer-agent, schema-bootstrap-agent, strategist
+  commands/      # 15 slash commands (/new-feature, /audit, /run-routine, /adapt-schema, /blueprint, ...)
+  skills/        # 33 ISTQB-grounded + tooling skills
   hooks/         # Stop hook: memory checkpoint
-  templates/     # .tms/memory scaffolding used by /setup
+  templates/     # .tms/memory scaffolding + starter routines, used by /setup
 ```
 
 ## How the IDE installs this

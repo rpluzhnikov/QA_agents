@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "plugin": "kensa-qa",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Integration manifest for IDEs. Lists the installable engine builds, where to copy each into a project, and the post-install steps. The IDE reads this, offers the engines to the user, then copies the chosen build's contents into the project.",
   "engines": [
     {
       "id": "claude",
       "displayName": "Claude Code",
-      "summary": "Manual QA team for Claude Code — test-lead + qa-engineer + strategist agents, 13 slash commands, 32 skills (incl. browser-driven QA), Stop hook, bundled sequential-thinking MCP.",
+      "summary": "Manual QA team for Claude Code — test-lead + qa-engineer + schema-bootstrap + strategist agents, 15 slash commands, 33 skills (incl. browser-driven QA + Blueprints automation), Stop hook, bundled sequential-thinking MCP.",
       "source": "dist/claude",
       "target": ".claude/plugins/kensa-qa",
       "copy": "contents",
@@ -16,15 +16,15 @@
         "Run /setup to bootstrap .tms/memory/ and wire source-of-truth MCP servers."
       ],
       "verify": [
-        "/help lists: setup, new-feature, update-feature, audit, brainstorm, pull-context, review-spec, risk-assess, test-plan, analyze-cases, traceability, run-routine, save-memory",
-        "@ shows agents: test-lead-agent, qa-engineer-agent, strategist",
+        "/help lists: setup, new-feature, update-feature, audit, brainstorm, pull-context, review-spec, risk-assess, test-plan, analyze-cases, traceability, run-routine, adapt-schema, blueprint, save-memory",
+        "@ shows agents: test-lead-agent, qa-engineer-agent, schema-bootstrap-agent, strategist",
         "/hooks shows one Stop hook (memory checkpoint) and no PostToolUse hook (id counters are now allocated atomically by `kensa-cli new`)"
       ]
     },
     {
       "id": "codex",
       "displayName": "OpenAI Codex",
-      "summary": "Manual QA team for Codex — project-scoped subagents (.codex/agents/*.toml), 13 custom prompts (.codex/prompts/), AGENTS.md operating manual, 32 skills, Stop hook.",
+      "summary": "Manual QA team for Codex — project-scoped subagents (.codex/agents/*.toml), 15 custom prompts (.codex/prompts/), AGENTS.md operating manual, 33 skills (incl. browser-driven QA + Blueprints automation), Stop hook.",
       "source": "dist/codex",
       "target": ".",
       "copy": "contents",
@@ -33,8 +33,8 @@
         "Run /kensa-setup to bootstrap .tms/memory/."
       ],
       "verify": [
-        ".codex/agents/ contains test-lead-agent.toml, qa-engineer-agent.toml, strategist.toml",
-        ".codex/prompts/ contains the 13 kensa-*.md prompts",
+        ".codex/agents/ contains test-lead-agent.toml, qa-engineer-agent.toml, schema-bootstrap-agent.toml, strategist.toml",
+        ".codex/prompts/ contains the 15 kensa-*.md prompts",
         "AGENTS.md, skills/, hooks/hooks.json are present at the project root"
       ]
     }

@@ -71,7 +71,7 @@ After the Test Lead approves the checklist (you'll be re-invoked with `stage: ca
      and the Kensa GUI doesn't churn the file on re-save.
    - `test-case-writing-craft` — case anatomy, expected results, step quality
    - Project `conventions.md` — naming, frontmatter, granularity
-   Also add `generated_by: kensa-qa@0.12.0` to the frontmatter. (`new` already set `id`, `title`,
+   Also add `generated_by: kensa-qa@0.13.0` to the frontmatter. (`new` already set `id`, `title`,
    `status: draft`, `priority`, `tags`, and `source_id` from the flags you passed — verify they're
    present; the SOT ref the Test Lead gave you goes in `--source-id`.)
 3. Use existing shared steps (referenced from `.tms/shared-steps/`) where applicable. Do NOT inline duplicated steps. Use `kensa-cli` (`shared-step list`, `shared-step usage <id>`) to find reusable ones, and `context bundle` to load related cases under a token budget instead of reading whole suites.

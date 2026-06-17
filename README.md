@@ -62,11 +62,13 @@ Beyond authoring, it now spans the test side of the SDLC with **read-only analys
 
 For strategic decisions ("how do we split this feature?", "negative-first or boundary-first?"), `/brainstorm` spawns three **strategists** in parallel for a deliberation round instead of writing cases.
 
+Onboarding an export from another TMS? `/adapt-schema` reads a couple of your real case files and fits the project **schema** to them (via the `schema-bootstrap-agent`), then you import the full export through Kensa's Universal format — **data follows schema, never the reverse**. And `/blueprint` builds **node-graph automations** (`.tms/blueprints/`) with a first-class agent step that runs `claude`/`codex` inside the flow.
+
 ---
 
 ## The skill library
 
-Every reasoning step is backed by an explicit skill — and **21 of the 32 skills cite ISTQB CTFL v4.0.1** chapters and learning objectives. The remaining 11 are plugin tooling (CLI, browser-driven QA, on-disk format, SOT extractors, agent communication) that complements ISTQB without being derived from it.
+Every reasoning step is backed by an explicit skill — and **20 of the 33 skills cite ISTQB CTFL v4.0.1** chapters and learning objectives. The remaining 13 are plugin tooling (CLI, browser-driven QA, schema adaptation, Blueprints automation, on-disk format, SOT extractors, agent communication) that complements ISTQB without being derived from it.
 
 <p align="center">
   <img src="docs/images/skills-library.png" alt="Skill library: 31 skills organized into Foundation, Test Design, Test Management, Static & Lifecycle, Platform, and Tooling sectors — colour-coded by ISTQB CTFL v4.0.1 chapter" />
@@ -117,7 +119,7 @@ After install, run `/setup` (Claude) or `/kensa-setup` (Codex) to bootstrap
 
 ### Building from source
 
-Sources are split so the **32 skills have a single home** and never drift between engines:
+Sources are split so the **33 skills have a single home** and never drift between engines:
 
 ```
 shared/skills · shared/hooks · shared/templates   # one source, copied into both engines
@@ -135,7 +137,7 @@ sh scripts/build.sh     # macOS / Linux
 ```
 
 The build copies `shared/*` into each engine, generates the per-engine drop README,
-and validates that both engines carry all 32 skills and a valid manifest.
+and validates that both engines carry all 33 skills and a valid manifest.
 
 <details>
 <summary><b>Prerequisites</b></summary>
@@ -154,8 +156,8 @@ After the drop, in the project:
 
 | Check | Expected |
 |---|---|
-| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine` |
-| Type `@` (Claude) | `test-lead-agent`, `qa-engineer-agent`, `strategist` appear as agents |
+| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `adapt-schema`, `blueprint` |
+| Type `@` (Claude) | `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`, `strategist` appear as agents |
 | `/hooks` | One **Stop** hook: checking memory checkpoint |
 
 Anything missing → restart the host fully so it reloads the dropped files.
@@ -362,18 +364,20 @@ If nothing to save, sentinel is still emitted with `(nothing to save this round)
 `sequential-thinking` ships with the plugin (declared in `plugin.json`, started automatically — no credentials). Powers the reasoning skill Lead and Workers use for hard scope and edge-case decisions.
 
 ### Skills
-32 skills under `skills/`, auto-loaded via the plugin manifest. See the skill library section above for the full taxonomy. Highlights:
+33 skills under `skills/`, auto-loaded via the plugin manifest. See the skill library section above for the full taxonomy. Highlights:
 
-**ISTQB CTFL v4.0.1-grounded (21):**
+**ISTQB CTFL v4.0.1-grounded (20):**
 - **Foundation:** `testing-fundamentals` (Ch 1)
 - **Test design (Ch 4):** `test-design-techniques`, `white-box-techniques-overview`, `collaboration-based-approaches`, `negative-and-edge-cases`, `test-case-writing-craft`, `checklist-design`
 - **Test management (Ch 5 + §3.2):** `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management`
 - **Static & lifecycle (Ch 2 + 3):** `sdlc-and-test-lifecycle`, `static-testing-reviews`
 - **Platform / non-functional (§2.2.2 + Ch 6):** `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview`
 
-**Non-ISTQB tooling (10):**
+**Non-ISTQB tooling (13):**
 - `kensa-test-authoring` — byte-exact `.tms/` on-disk format
-- `kensa-cli` — drive the `kensa-cli` CLI (queries, bulk edits, context bundling, audit)
+- `kensa-cli` — drive the `kensa-cli` CLI (queries, bulk edits, context bundling, audit, schema adaptation)
+- `kensa-browser` — drive the Kensa-launched Chrome via `kensa-cli browser …` for live browser QA
+- `kensa-blueprints` — design/validate/run node-graph automations (`kensa-cli blueprint …`) with an agent step
 - `sequential-thinking` — structured reasoning
 - `figma-use` — programmatic Figma access for deep node inspection
 - `sot-linear` / `sot-jira` / `sot-confluence` / `sot-notion` / `sot-figma` — extraction guides per source
@@ -398,7 +402,8 @@ If nothing to save, sentinel is still emitted with `(nothing to save this round)
 | v0.8 | **Multi-engine + installer** (superseded by v0.9). Three install modes (Claude / native Codex / hybrid Claude→Codex worker) via an interactive `install.ps1` / `install.sh`; bash port of the hooks. |
 | v0.9 | **Two clean engines, one monorepo.** Removed the hybrid delegation and the interactive installer. Skills now have a single home under `shared/`; `scripts/build.{ps1,sh}` assemble self-contained `dist/claude/` and `dist/codex/` builds an IDE drops straight into a project. Claude = standard plugin; Codex = project-scoped `.codex/agents/*.toml` + `AGENTS.md` + skills. |
 | v0.11 | Migrated to **`kensa-cli` v0.15** commands; QA Engineers create cases with atomic `kensa-cli new` (id-range carving gone); removed the PostToolUse `kensa-sync` hook. |
-| **v0.12 (current)** | **Browser QA & routines.** New `kensa-browser` skill + `/run-routine` command + starter routine templates (smoke / form / visual baseline) driving the Kensa-launched Chrome via `kensa-cli browser`. Full `kensa-cli` rename pass; removed the `debug-log` Stop hook and trimmed the memory-checkpoint message. |
+| v0.12 | **Browser QA & routines.** New `kensa-browser` skill + `/run-routine` command + starter routine templates (smoke / form / visual baseline) driving the Kensa-launched Chrome via `kensa-cli browser`. Full `kensa-cli` rename pass; removed the `debug-log` Stop hook and trimmed the memory-checkpoint message. |
+| **v0.13 (current)** | **Schema adaptation & Blueprints.** New `schema-bootstrap-agent` + `/adapt-schema` fit the project schema to a user's existing TMS export (additive; data follows schema, never the reverse), handing off to Kensa's Universal-format importer. New `kensa-blueprints` skill + `/blueprint` command for node-graph automations (`.tms/blueprints/`) with a first-class agent (`prompt`) node that runs `claude`/`codex` inside the flow. |
 | v1.0 (planned) | Fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
 
 ---
