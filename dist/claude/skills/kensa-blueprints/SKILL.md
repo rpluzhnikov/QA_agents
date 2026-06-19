@@ -1,12 +1,12 @@
 ---
 name: kensa-blueprints
-description: Design, validate, and run Kensa Blueprints — node-graph automations (an Unreal-style canvas) executed by a Rust engine, driven from the terminal via `kensa-cli blueprint …`. A first-class agent (`prompt`) node can run `claude`/`codex` non-interactively inside a flow. Use when a user wants to automate a QA workflow as a wired graph (API calls, scripts, branching, agent steps) rather than a one-off command. Loaded by the Test Lead from `/blueprint`, or by the QA Engineer when a brief names blueprint authoring.
+description: Design, validate, and run Kensa Blueprints — node-graph automations (an Unreal-style canvas) executed by a Rust engine, driven from the terminal via `kensa blueprint …`. A first-class agent (`prompt`) node can run `claude`/`codex` non-interactively inside a flow. Use when a user wants to automate a QA workflow as a wired graph (API calls, scripts, branching, agent steps) rather than a one-off command. Loaded by the Test Lead from `/blueprint`, or by the QA Engineer when a brief names blueprint authoring.
 ---
 
 > **Non-ISTQB tooling skill**
 > Covers project infrastructure: the **Blueprints** node-graph automation system and
-> its `kensa-cli blueprint` CLI. Complementary to ISTQB CTFL v4.0.1 — pairs with
-> `kensa-cli` (read/write cases) and `kensa-browser` (live browser QA), and is a way
+> its `kensa blueprint` CLI. Complementary to ISTQB CTFL v4.0.1 — pairs with
+> `kensa` (read/write cases) and `kensa-browser` (live browser QA), and is a way
 > to operationalise test execution and tooling (§6) as repeatable, wired flows. No
 > specific learning objective grounds the content.
 
@@ -81,22 +81,22 @@ exposed on a single `output` (json) pin.
 - `foreach` iterates a json array; `item` / `index` are per-iteration pins.
 - Script / agent nodes are **consent-gated** on first run (a security prompt).
 
-## The CLI surface (`kensa-cli blueprint …`)
+## The CLI surface (`kensa blueprint …`)
 
 | Command | Purpose |
 |---|---|
-| `kensa-cli blueprint new <name>` | Scaffold a `BP-NNN.json`. |
-| `kensa-cli blueprint list` | List blueprints in the project. |
-| `kensa-cli blueprint show <id>` | Print a blueprint. |
-| `kensa-cli blueprint validate <id>` | Static graph validation (frozen error codes). |
-| `kensa-cli blueprint run <id> [--input k=v] [--allow-scripts]` | Headless run → writes a `kind:"blueprint"` run record under `.tms/runs/`. |
+| `kensa blueprint new <name>` | Scaffold a `BP-NNN.json`. |
+| `kensa blueprint list` | List blueprints in the project. |
+| `kensa blueprint show <id>` | Print a blueprint. |
+| `kensa blueprint validate <id>` | Static graph validation (frozen error codes). |
+| `kensa blueprint run <id> [--input k=v] [--allow-scripts]` | Headless run → writes a `kind:"blueprint"` run record under `.tms/runs/`. |
 
 ```sh
-kensa-cli blueprint new "smoke-and-triage"        # scaffold BP-NNN.json
-kensa-cli blueprint list --format json
-kensa-cli blueprint validate BP-001               # fix every code before running
-kensa-cli blueprint run BP-001 --input url=https://staging.example.com
-kensa-cli blueprint run BP-001 --allow-scripts    # consent to script/agent nodes
+kensa blueprint new "smoke-and-triage"        # scaffold BP-NNN.json
+kensa blueprint list --format json
+kensa blueprint validate BP-001               # fix every code before running
+kensa blueprint run BP-001 --input url=https://staging.example.com
+kensa blueprint run BP-001 --allow-scripts    # consent to script/agent nodes
 ```
 
 > Authoring loop: `new` → wire the graph (in the Kensa canvas or by editing the JSON) →
@@ -133,4 +133,4 @@ offending node/pin.
 Reach for a Blueprint when a QA workflow is **repeatable and multi-step** — e.g. "hit
 the staging API, branch on the response, run an agent to triage failures, write a
 defect case", or "for each case in a suite, re-run a browser check and collect
-results". For a single ad-hoc action, just use `kensa-cli` / `kensa-browser` directly.
+results". For a single ad-hoc action, just use `kensa` / `kensa-browser` directly.

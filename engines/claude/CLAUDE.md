@@ -18,7 +18,7 @@ route to the right one:
   inspects a shard of cases in read-only **analyze** mode. Never talks to the user;
   its output goes to the Lead.
 - **`schema-bootstrap-agent`** — adapts the project **schema** to a user's existing
-  TMS export (additively, via `kensa-cli schema`), then signals `kensa-cli adapt ready`
+  TMS export (additively, via `kensa schema`), then signals `kensa adapt ready`
   and hands off. Never imports cases — the user does that via Universal format. Entry
   point: `/adapt-schema`.
 - **`strategist`** — deliberates contested scope/strategy questions; spawned in
@@ -45,7 +45,7 @@ If `.tms/memory/` is missing, run `/setup` first.
    cases, produce a scope plan (in/out, decomposition, estimate).
 2. **Delegate** — hand each package to a `qa-engineer-agent` with a precise brief
    (scope, references, style examples, skills to load, output target). Engineers
-   create cases with `kensa-cli new`, which allocates ids atomically — no id ranges
+   create cases with `kensa new`, which allocates ids atomically — no id ranges
    to carve, even for ≥2 parallel engineers.
 3. **Review in two passes** — checklist first, then cases, via `review-rubrics`. Cap
    revisions at 2 rounds.
@@ -54,14 +54,14 @@ If `.tms/memory/` is missing, run `/setup` first.
 For **browser QA** (verifying the running app, or running a routine), load the
 `kensa-browser` skill or run `/run-routine` — see below.
 
-## The CLI: `kensa-cli`
+## The CLI: `kensa`
 
-The agents drive the **`kensa-cli`** command-line tool directly (it must be on the
-host PATH — `kensa-cli --version`). Cases are created with `kensa-cli new`; `/audit`
-and `/traceability` run `kensa-cli sync`/`doctor`/`coverage`/`gaps`. The browser
-verbs are `kensa-cli browser …`. Inside the Kensa app the same binary is also on the
-embedded terminal's PATH as `kensa`, but the agents always call `kensa-cli` so
-commands work in the host process too. See the `kensa-cli` and `kensa-browser` skills.
+The agents drive the **`kensa`** command-line tool directly (it must be on the
+host PATH — `kensa --version`). Cases are created with `kensa new`; `/audit`
+and `/traceability` run `kensa sync`/`doctor`/`coverage`/`gaps`. The browser
+verbs are `kensa browser …`. Inside the Kensa app the same binary is also on the
+embedded terminal's PATH as `kensa`, but the agents always call `kensa` so
+commands work in the host process too. See the `kensa` and `kensa-browser` skills.
 
 ## Commands (15)
 
@@ -114,9 +114,9 @@ operationalises; tooling skills complement ISTQB without being derived from it.
 - `kensa-test-authoring` — the byte-exact `.tms/` file format (frontmatter order, steps, shared-step refs, trailing newline). The engineer writes files, so it must follow this exactly.
 
 **Tooling (CLI + browser + automation):**
-- `kensa-cli` — query/edit/maintain cases from the terminal: `list`, `find`, `stats`, `new`, `update`, `bulk *`, `validate`, `lint`, `duplicates`, `coverage`, `gaps`, `context bundle`; plus schema adaptation (`schema show/preview/apply/migrate`, `adapt ready`).
-- `kensa-browser` — drive the Kensa-launched Chrome via `kensa-cli browser …` (CDP) for live browser QA, then write findings back into `.tms/` cases.
-- `kensa-blueprints` — design/validate/run node-graph automations (`kensa-cli blueprint …`); an agent (`prompt`) node can run `claude`/`codex` inside a flow.
+- `kensa` — query/edit/maintain cases from the terminal: `list`, `find`, `stats`, `new`, `update`, `bulk *`, `validate`, `lint`, `duplicates`, `coverage`, `gaps`, `context bundle`; plus schema adaptation (`schema show/preview/apply/migrate`, `adapt ready`).
+- `kensa-browser` — drive the Kensa-launched Chrome via `kensa browser …` (CDP) for live browser QA, then write findings back into `.tms/` cases.
+- `kensa-blueprints` — design/validate/run node-graph automations (`kensa blueprint …`); an agent (`prompt`) node can run `claude`/`codex` inside a flow.
 
 **Source-of-truth extractors (load the one matching the reference):**
 - `sot-linear` · `sot-jira` · `sot-confluence` · `sot-notion` · `sot-figma` — where AC live in each source + which MCP tools fetch them.
@@ -132,12 +132,12 @@ baseline) or executing a saved routine:
 
 1. The user starts Chrome from Kensa's **Tools → Browser → Start** (loopback CDP,
    throw-away profile). Agents do **not** launch their own browser.
-2. Drive it with `kensa-cli browser …` (`--format json`). The page persists between
+2. Drive it with `kensa browser …` (`--format json`). The page persists between
    calls; in-page `eval` state does not. Branch on exit codes: `1` ⇒ retry a
    different selector or report page state; `2` ⇒ fix the invocation / ask the user
    to launch Chrome.
 3. **Write findings back** into `.tms/` — annotate the case under test, or file a
-   defect with `kensa-cli new` (reproduction steps = the exact browser commands,
+   defect with `kensa new` (reproduction steps = the exact browser commands,
    observed vs. expected, screenshot path under `.tms/attachments/`).
 4. **Routines** are reusable prompts in `.tms/routines/RT-*.md`. Run one with
    `/run-routine RT-001`. Starter routines (smoke / form / visual baseline) can be
@@ -149,17 +149,17 @@ See the `kensa-browser` skill for the full verb set and guardrails.
 
 Two onboarding/automation capabilities, each with its own command and skill:
 
-- **Schema adaptation** (`/adapt-schema`, `schema-bootstrap-agent`, `kensa-cli` skill).
+- **Schema adaptation** (`/adapt-schema`, `schema-bootstrap-agent`, `kensa` skill).
   When a team arrives with an export from some other TMS, **data follows schema, never
   the reverse**: the agent reads 1–2 sample files and adapts the project schema
-  *additively* (`kensa-cli schema preview/apply`, `migrate` if v1), then runs
-  `kensa-cli adapt ready` and **hands off**. It imports nothing — the user loads the
+  *additively* (`kensa schema preview/apply`, `migrate` if v1), then runs
+  `kensa adapt ready` and **hands off**. It imports nothing — the user loads the
   full export deterministically via Kensa's **Universal format** importer (which maps
   known fields by synonym and drops the rest into `custom.<key>`, never mutating the
   schema). Additive only; never delete/rewrite existing fields unless asked.
 - **Blueprints** (`/blueprint`, `kensa-blueprints` skill). Node-graph automations at
   `.tms/blueprints/BP-NNN.json` run by a Rust engine: exec pins (control flow) + data
-  pins (typed values), Start → … → Finish. Driven by `kensa-cli blueprint
+  pins (typed values), Start → … → Finish. Driven by `kensa blueprint
   new/list/show/validate/run`. A first-class agent (`prompt`) node runs `claude`/`codex`
   non-interactively inside a flow. **Always `validate` before `run`**; script/agent
   nodes are consent-gated (`--allow-scripts`); secrets are `{ ref }` handles, never

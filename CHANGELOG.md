@@ -3,6 +3,33 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.14.0 -- 2026-06-19
+
+CLI renamed back to **`kensa`** — the `-cli` suffix is dropped everywhere, reverting the
+v0.12 rename to `kensa-cli`.
+
+### Changed
+
+- **`kensa-cli` → `kensa` everywhere.** Every CLI invocation across all skills, slash
+  commands, agents, Codex prompts, routine templates, and docs now reads `kensa` (e.g.
+  `kensa new`, `kensa filter`, `kensa browser`). No behavior change — pure rename.
+- **The `kensa-cli` skill is now the `kensa` skill** (`shared/skills/kensa-cli/` →
+  `shared/skills/kensa/`, `name: kensa`). All "the `kensa-cli` skill" cross-references in
+  other skills, agents, and docs updated to "the `kensa` skill".
+- Bumped version to `0.14.0` in `engines.json`, both engine `plugin.json` manifests, and
+  the marketplace manifest; `generated_by` stamps now read `kensa-qa@0.14.0`.
+
+### Fixed
+
+- **Claude Stop hook double-firing / `No such file` error.** The Claude build shipped
+  both the inline `plugin.json` Stop hook (correct, `${CLAUDE_PLUGIN_ROOT}`) **and** the
+  shared `hooks/hooks.json` (Codex-only, `$PLUGIN_ROOT`). Claude Code auto-discovered the
+  latter and ran the hook twice — the second with an unset `$PLUGIN_ROOT`, failing with
+  `sh: /hooks/save-memory-stop.sh: No such file or directory`. The build (`build.sh` +
+  `build.ps1`) now drops `hooks/hooks.json` from the Claude artifact (Claude registers the
+  hook inline; only the scripts ship), and validation guards against the stray file
+  reappearing. Codex is unchanged — it still registers via `hooks/hooks.json`.
+
 ## 0.13.0 -- 2026-06-15
 
 Schema adaptation for onboarding foreign TMS exports, and **Blueprints** — node-graph

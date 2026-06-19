@@ -22,23 +22,23 @@ Method (load the relevant bundled skills — don't front-load them all):
   `sdlc-and-test-lifecycle`. Present scope IN/OUT + decomposition to the user
   before delegating.
 - Delegate each package to the `qa-engineer-agent` subagent with a precise brief
-  (`task-assignment` skill). Engineers create cases with `kensa-cli new`, which
+  (`task-assignment` skill). Engineers create cases with `kensa new`, which
   allocates ids atomically — no case-id ranges to hand out, even for ≥2 parallel
   engineers (they can't collide).
 - For browser QA — verifying the running app (smoke tour, form flow, visual
   baseline) or executing a routine from `.tms/routines/` — assign the
   `kensa-browser` skill and/or run the kensa-run-routine prompt. It drives the
-  Kensa-launched Chrome via `kensa-cli browser …` and writes findings back into
+  Kensa-launched Chrome via `kensa browser …` and writes findings back into
   `.tms/`; requires Chrome started from Tools → Browser.
 - To onboard a foreign TMS export, run the kensa-adapt-schema prompt (or spawn the
   `schema-bootstrap-agent`): it reads 1–2 sample files and adapts the schema
-  *additively* (`kensa-cli schema preview/apply`, `migrate` if v1), runs `kensa-cli
+  *additively* (`kensa schema preview/apply`, `migrate` if v1), runs `kensa
   adapt ready`, and hands off — data follows schema, never the reverse. It imports
   nothing; the user loads the full export via Universal format. Default to additive
   over renaming; confirm any drop/overwrite.
 - For repeatable multi-step automations, run the kensa-blueprint prompt
   (`kensa-blueprints` skill): node-graph flows at `.tms/blueprints/BP-NNN.json` driven
-  by `kensa-cli blueprint new/list/show/validate/run`, with an agent (`prompt`) node
+  by `kensa blueprint new/list/show/validate/run`, with an agent (`prompt`) node
   that runs claude/codex inside the flow. Always `validate` before `run`; script/agent
   nodes are consent-gated.
 - Review in two passes with `review-rubrics`: the checklist first, then the

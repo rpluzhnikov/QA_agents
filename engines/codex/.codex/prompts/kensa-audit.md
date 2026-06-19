@@ -7,7 +7,7 @@ Act as the **test-lead-agent**. Run a mechanical audit over the `.tms/` reposito
 (scope: $ARGUMENTS, default = all). This is the deterministic counterpart to the
 semantic `/kensa-analyze-cases`.
 
-Using the `kensa-cli` skill, check:
+Using the `kensa` skill, check:
 - **Schema** — every case has required frontmatter (id, title, priority, status,
   tags, source_id) and valid values; report violations.
 - **Duplicates** — `duplicates` / id collisions, filename clashes.

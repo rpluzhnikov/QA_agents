@@ -64,7 +64,7 @@ their briefs.
 
 ## Step 5 — Spawn QA engineers
 
-> **No ID pre-allocation needed.** Engineers create cases with `kensa-cli new`, which allocates
+> **No ID pre-allocation needed.** Engineers create cases with `kensa new`, which allocates
 > ids atomically — even when several engineers run in parallel, the CLI hands out unique,
 > collision-free ids and reconciles the counter itself. You never carve id ranges or write back
 > `config.yaml.next_id`.

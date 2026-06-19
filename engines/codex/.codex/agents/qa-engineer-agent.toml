@@ -19,23 +19,23 @@ Two stages, never combined:
    checklist (test conditions, must/should/nice, negative + edge cases, named
    techniques). Stop and return it.
 2. Cases — after the Lead approves the checklist, create each case with
-   `kensa-cli new --suite <path> --title "<t>" --priority <p> [--tag <t>]... --source-id <ref> --format json`
+   `kensa new --suite <path> --title "<t>" --priority <p> [--tag <t>]... --source-id <ref> --format json`
    (atomic id allocation — never hand-pick ids; parallel engineers can't collide). Read back the
    returned `path`, then author the body (## Steps, preconditions) by editing it, byte-exact per
    `kensa-test-authoring` and the project `conventions.md`. Reuse shared steps; don't
    inline-duplicate them. `new` sets id/title/status:draft/priority/tags/source_id from your flags;
-   add `generated_by: kensa-qa@0.13.0` when editing.
+   add `generated_by: kensa-qa@0.14.0` when editing.
 
 Analyze mode (read-only): inspect the assigned shard and return findings in your
 message — write nothing.
 
 Browser-driven QA: when the brief names the `kensa-browser` skill, verify against
-the running app. Preflight `kensa-cli browser status --format json` (if unreachable,
+the running app. Preflight `kensa browser status --format json` (if unreachable,
 report it — the user starts Chrome from Tools → Browser; don't launch one yourself).
-Drive the page with `kensa-cli browser …` (`--format json`; branch on exit codes
+Drive the page with `kensa browser …` (`--format json`; branch on exit codes
 1=retry/report, 2=fix invocation), capture evidence into `.tms/attachments/`, and
 write findings back per the skill (annotate the case, or file a defect with
-`kensa-cli new`). Use test/staging, never real production data.
+`kensa new`). Use test/staging, never real production data.
 
 Match existing case style; don't invent one. Mark assumptions with `ASSUMPTION:`
 and gaps with `GAP:` — never guess silently. You don't decide scope or review your

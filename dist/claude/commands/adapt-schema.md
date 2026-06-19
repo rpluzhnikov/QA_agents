@@ -1,5 +1,5 @@
 ---
-description: Adapt the Kensa project schema to a user's existing TMS export (CSV / JSON / YAML / XML) — additively add/rename fields to fit their case structure via kensa-cli schema, then signal `adapt ready` and hand off. Imports nothing; the user loads the full export via Universal format afterwards.
+description: Adapt the Kensa project schema to a user's existing TMS export (CSV / JSON / YAML / XML) — additively add/rename fields to fit their case structure via kensa schema, then signal `adapt ready` and hand off. Imports nothing; the user loads the full export via Universal format afterwards.
 argument-hint: [path(s) to 1-2 sample case files] (optional)
 ---
 
@@ -18,7 +18,7 @@ command **adapts the schema and hands off — it imports no cases.**
    project (CSV / JSON / YAML / XML) and ask the user to confirm 1–2 representative ones.
    - If none can be found, ask the user to point at 1–2 files. Do **not** guess a schema
      from nothing.
-2. Read the current schema: `kensa-cli schema show --format json`. Note system fields
+2. Read the current schema: `kensa schema show --format json`. Note system fields
    and any existing custom fields so nothing gets clobbered.
 
 ## Phase 2 — Delegate to the schema-bootstrap-agent
@@ -31,8 +31,8 @@ Spawn the `schema-bootstrap-agent` (via the Task tool) with a brief containing:
   nothing**, don't delete/rewrite existing fields unless the user asked.
 
 The agent reads the samples, infers field names + types, runs
-`kensa-cli schema preview` / `apply` (and `schema migrate` if the schema is v1), then
-`kensa-cli adapt ready`, and returns a mapping report.
+`kensa schema preview` / `apply` (and `schema migrate` if the schema is v1), then
+`kensa adapt ready`, and returns a mapping report.
 
 ## Phase 3 — Review & confirm
 

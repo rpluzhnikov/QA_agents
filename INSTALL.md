@@ -26,7 +26,7 @@ marketplace install is complete:
 Verify:
 - `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `adapt-schema`, `blueprint`, `save-memory`
 - `@` shows `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`, `strategist`
-- `/hooks` shows one **Stop** hook (memory checkpoint) — there is no PostToolUse hook (ids are allocated atomically by `kensa-cli new`)
+- `/hooks` shows one **Stop** hook (memory checkpoint) — there is no PostToolUse hook (ids are allocated atomically by `kensa new`)
 
 Then run `/setup` in your project.
 
@@ -77,19 +77,19 @@ into `~/.codex/prompts/`, and merge `AGENTS.md` into `~/.codex/AGENTS.md`.
 
 ---
 
-## `kensa-cli` on PATH
+## `kensa` on PATH
 
-The agents drive the `kensa-cli` command-line tool directly: QA engineers **create cases** with
-`kensa-cli new` (which allocates ids atomically — no counter-repair hook needed), and the
-`/audit` and `/traceability` commands run `kensa-cli sync` / `doctor` / `coverage` / `gaps`.
+The agents drive the `kensa` command-line tool directly: QA engineers **create cases** with
+`kensa new` (which allocates ids atomically — no counter-repair hook needed), and the
+`/audit` and `/traceability` commands run `kensa sync` / `doctor` / `coverage` / `gaps`.
 
-So **`kensa-cli` must be on the system PATH** of the process that runs Claude Code / Codex. The
+So **`kensa` must be on the system PATH** of the process that runs Claude Code / Codex. The
 agents run in the host process, **not** Kensa's embedded terminal, so Kensa's terminal PATH
-injection does **not** apply here — make sure `kensa-cli` resolves in a plain shell
-(`kensa-cli --version`). If it's absent, case creation and the mechanical audit/traceability
+injection does **not** apply here — make sure `kensa` resolves in a plain shell
+(`kensa --version`). If it's absent, case creation and the mechanical audit/traceability
 checks won't work until you install it.
 
-`kensa-cli sync` is now a **periodic safety/repair** step (run by `/audit`, or by hand after
+`kensa sync` is now a **periodic safety/repair** step (run by `/audit`, or by hand after
 editing a tree outside the CLI) — there is no longer an automatic PostToolUse sync hook.
 
 ---

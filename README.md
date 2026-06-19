@@ -81,7 +81,7 @@ Every reasoning step is backed by an explicit skill — and **20 of the 33 skill
 | 🟩 **Test Management** | `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management` | Ch 5 + §3.2 |
 | 🟨 **Static & Lifecycle** | `sdlc-and-test-lifecycle`, `static-testing-reviews` | Ch 2 + 3 |
 | 🟪 **Platform** | `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview` | §2.2.2 / Ch 6 |
-| 🟥 **Tooling** | `kensa-cli`, `kensa-test-authoring`, 5 × `sot-*`, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol` | non-ISTQB |
+| 🟥 **Tooling** | `kensa`, `kensa-test-authoring`, 5 × `sot-*`, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol` | non-ISTQB |
 
 The Test Lead loads the management & static skills on demand. Every QA Engineer brief always loads `testing-fundamentals`, `test-design-techniques`, `negative-and-edge-cases`, `test-case-writing-craft`, and one platform skill — plus the matching SOT extractor for the ticket source.
 
@@ -227,7 +227,7 @@ The Test Lead finds cases referencing the changed source (via `source_id` in fro
 The Test Lead picks three angles (scope, decomposition strategy, test technique), three strategists each argue one angle in parallel, cross-review round, then a comparison view with 2–3 finalists. Saved to `.tms/brainstorms/`, referenceable from `/new-feature` later.
 
 #### `/audit`
-Walks `.tms/` via the `kensa-cli` CLI: schema validation, duplicates, stale drafts, orphan shared-steps, tag drift, qualitative sampling. Output to terminal + `.tms/reports/audit-YYYY-MM-DD.md`. Opt-in fixes per-batch with confirmation.
+Walks `.tms/` via the `kensa` CLI: schema validation, duplicates, stale drafts, orphan shared-steps, tag drift, qualitative sampling. Output to terminal + `.tms/reports/audit-YYYY-MM-DD.md`. Opt-in fixes per-batch with confirmation.
 
 #### `/save-memory`
 Auto-runs after `/new-feature` and `/update-feature` (enforced by the auto-checkpoint hook on Windows). Run manually mid-session to capture a new convention before more work happens.
@@ -339,7 +339,7 @@ Yes, that's the intended workflow. The plugin re-reads memory at session start s
 
 Every reasoning skill in the plugin cites the specific ISTQB CTFL chapter, section, and learning objective it operationalises. When the Test Lead or a QA Engineer applies a technique (boundary value analysis, decision tables, risk-based prioritization, defect reporting…), it can name the syllabus authority for that decision. This makes the reasoning auditable for teams that need to justify their QA practice to regulated stakeholders, and it lets newcomers learn ISTQB by example: every test case the plugin writes is a worked example of one or more CTFL learning objectives.
 
-The 10 non-ISTQB skills (the `kensa-cli`, `kensa-test-authoring`, `sot-*` family, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol`) are plugin infrastructure — they don't contradict ISTQB but aren't derived from it either; they carry a "non-ISTQB tooling" disclaimer at the top of their SKILL.md.
+The 10 non-ISTQB skills (the `kensa`, `kensa-test-authoring`, `sot-*` family, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol`) are plugin infrastructure — they don't contradict ISTQB but aren't derived from it either; they carry a "non-ISTQB tooling" disclaimer at the top of their SKILL.md.
 </details>
 
 <details>
@@ -375,9 +375,9 @@ If nothing to save, sentinel is still emitted with `(nothing to save this round)
 
 **Non-ISTQB tooling (13):**
 - `kensa-test-authoring` — byte-exact `.tms/` on-disk format
-- `kensa-cli` — drive the `kensa-cli` CLI (queries, bulk edits, context bundling, audit, schema adaptation)
-- `kensa-browser` — drive the Kensa-launched Chrome via `kensa-cli browser …` for live browser QA
-- `kensa-blueprints` — design/validate/run node-graph automations (`kensa-cli blueprint …`) with an agent step
+- `kensa` — drive the `kensa` CLI (queries, bulk edits, context bundling, audit, schema adaptation)
+- `kensa-browser` — drive the Kensa-launched Chrome via `kensa browser …` for live browser QA
+- `kensa-blueprints` — design/validate/run node-graph automations (`kensa blueprint …`) with an agent step
 - `sequential-thinking` — structured reasoning
 - `figma-use` — programmatic Figma access for deep node inspection
 - `sot-linear` / `sot-jira` / `sot-confluence` / `sot-notion` / `sot-figma` — extraction guides per source
@@ -394,7 +394,7 @@ If nothing to save, sentinel is still emitted with `(nothing to save this round)
 |---|---|
 | v0.1 | Lead + Worker, 4 commands, project memory templates |
 | v0.2 | Memory checkpoint protocol |
-| v0.3 | SOT extraction skills; `sequential-thinking`, `figma-use`, `kensa-cli`, `kensa-test-authoring` integrated; `.mcp.json` writer |
+| v0.3 | SOT extraction skills; `sequential-thinking`, `figma-use`, `kensa`, `kensa-test-authoring` integrated; `.mcp.json` writer |
 | v0.4 | Stop hooks (auto-checkpoint + debug log); marketplace manifest; `INSTALL.md` |
 | v0.5 | `/audit`, `/brainstorm`, `strategist` agent, OAuth clarity, Confluence multi-page discovery, pre-seeded tag taxonomy, parallel-worker ID-range allocation, stuck-session detection |
 | v0.6 | **BREAKING** — agents renamed to `test-lead-agent` and `qa-engineer-agent`. Full ISTQB CTFL v4.0.1 grounding: 10 new skills covering Chapters 1, 2, 3, §4.3, §4.5, §5.1, §5.2, §5.3, §5.5, Ch 6; existing 21 skills carry ISTQB citation blocks. Skill library wheel diagram. |
@@ -403,7 +403,8 @@ If nothing to save, sentinel is still emitted with `(nothing to save this round)
 | v0.9 | **Two clean engines, one monorepo.** Removed the hybrid delegation and the interactive installer. Skills now have a single home under `shared/`; `scripts/build.{ps1,sh}` assemble self-contained `dist/claude/` and `dist/codex/` builds an IDE drops straight into a project. Claude = standard plugin; Codex = project-scoped `.codex/agents/*.toml` + `AGENTS.md` + skills. |
 | v0.11 | Migrated to **`kensa-cli` v0.15** commands; QA Engineers create cases with atomic `kensa-cli new` (id-range carving gone); removed the PostToolUse `kensa-sync` hook. |
 | v0.12 | **Browser QA & routines.** New `kensa-browser` skill + `/run-routine` command + starter routine templates (smoke / form / visual baseline) driving the Kensa-launched Chrome via `kensa-cli browser`. Full `kensa-cli` rename pass; removed the `debug-log` Stop hook and trimmed the memory-checkpoint message. |
-| **v0.13 (current)** | **Schema adaptation & Blueprints.** New `schema-bootstrap-agent` + `/adapt-schema` fit the project schema to a user's existing TMS export (additive; data follows schema, never the reverse), handing off to Kensa's Universal-format importer. New `kensa-blueprints` skill + `/blueprint` command for node-graph automations (`.tms/blueprints/`) with a first-class agent (`prompt`) node that runs `claude`/`codex` inside the flow. |
+| v0.13 | **Schema adaptation & Blueprints.** New `schema-bootstrap-agent` + `/adapt-schema` fit the project schema to a user's existing TMS export (additive; data follows schema, never the reverse), handing off to Kensa's Universal-format importer. New `kensa-blueprints` skill + `/blueprint` command for node-graph automations (`.tms/blueprints/`) with a first-class agent (`prompt`) node that runs `claude`/`codex` inside the flow. |
+| **v0.14 (current)** | **CLI renamed `kensa-cli` → `kensa`.** Dropped the `-cli` suffix across every skill, command, agent, prompt, template, and doc; the `kensa-cli` skill is now the `kensa` skill. Reverts the v0.12 rename. |
 | v1.0 (planned) | Fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
 
 ---

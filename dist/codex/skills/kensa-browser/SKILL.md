@@ -1,13 +1,13 @@
 ---
 name: kensa-browser
-description: Drive a real Chrome browser from the terminal via `kensa-cli browser` (CDP) to perform browser-based QA — navigate, interact, capture screenshots, inspect the DOM — and write findings back into `.tms/` cases. Use when a test scope needs live browser evidence (smoke tours, form flows, visual baselines) or when running a routine (RT-*.md). Loaded by the QA Engineer when the brief names browser-driven QA, and by the Test Lead when running `/run-routine`.
+description: Drive a real Chrome browser from the terminal via `kensa browser` (CDP) to perform browser-based QA — navigate, interact, capture screenshots, inspect the DOM — and write findings back into `.tms/` cases. Use when a test scope needs live browser evidence (smoke tours, form flows, visual baselines) or when running a routine (RT-*.md). Loaded by the QA Engineer when the brief names browser-driven QA, and by the Test Lead when running `/run-routine`.
 ---
 
 > **Non-ISTQB tooling skill**
-> Covers project infrastructure: the `kensa-cli browser` subcommands that drive a
+> Covers project infrastructure: the `kensa browser` subcommands that drive a
 > Kensa-launched Chrome over the DevTools Protocol (CDP), plus the loop that writes
 > what the browser found back into `.tms/` cases. Complementary to ISTQB CTFL
-> v4.0.1 — pairs with `web-testing` (what to test in a browser) and `kensa-cli`
+> v4.0.1 — pairs with `web-testing` (what to test in a browser) and `kensa`
 > (how to read/write cases). Light cross-reference: supports dynamic/experience-based
 > testing (§4.4) and evidence capture for defect reports (§5.5).
 
@@ -16,7 +16,7 @@ description: Drive a real Chrome browser from the terminal via `kensa-cli browse
 ```
 Kensa GUI ──launch──▶ Chrome (127.0.0.1:<port>, CDP, throw-away profile)
    │                      ▲
-   │                      │ kensa-cli browser <sub>   (connect → act → disconnect)
+   │                      │ kensa browser <sub>   (connect → act → disconnect)
    ▼                      │
 Host shell ─▶ agent ──────┘
 ```
@@ -25,16 +25,16 @@ Host shell ─▶ agent ──────┘
   Start**. It binds a CDP debug port to loopback only, with a dedicated throw-away
   `--user-data-dir` (never the user's real profile). You do **not** launch your own
   browser.
-- **You drive it** by shelling out to `kensa-cli browser …`. Each command connects
+- **You drive it** by shelling out to `kensa browser …`. Each command connects
   over CDP, performs one action, and disconnects. The Chrome process persists
   between commands: **page, cookies, and DOM survive** across separate invocations;
   **in-page JS variables do NOT survive** across separate `eval` calls.
-- The binary is `kensa-cli`. If a command isn't found, Chrome probably isn't running
+- The binary is `kensa`. If a command isn't found, Chrome probably isn't running
   — start it from Tools → Browser (see exit code `2` below).
 
 ## Prerequisites & endpoint resolution
 
-Chrome must be running (Tools → Browser → **Start**). Every `kensa-cli browser`
+Chrome must be running (Tools → Browser → **Start**). Every `kensa browser`
 call resolves the CDP endpoint in this order:
 
 1. `--cdp-url <ws://127.0.0.1:PORT/...>` flag (manual override),
@@ -47,7 +47,7 @@ call resolves the CDP endpoint in this order:
 
 ## Command reference
 
-Global form: `kensa-cli browser [--cdp-url <WS-URL>] <subcommand> [args] [--format json]`
+Global form: `kensa browser [--cdp-url <WS-URL>] <subcommand> [args] [--format json]`
 
 `--format`: `table` (default on a TTY) · `json` · `jsonl` · `ids` · `paths`. **For
 scripting/agents, always prefer `--format json`** — booleans come back as real JSON
@@ -108,14 +108,14 @@ booleans (`{"clicked": true}`), not strings.
 ## A typical flow
 
 ```sh
-kensa-cli browser status --format json                 # reachable: true?
-kensa-cli browser open https://example.com
-kensa-cli browser title --format json
+kensa browser status --format json                 # reachable: true?
+kensa browser open https://example.com
+kensa browser title --format json
 # discover what's clickable before guessing selectors:
-kensa-cli browser eval "JSON.stringify([...document.querySelectorAll('a,button')].slice(0,30).map(e=>({t:e.tagName,txt:(e.innerText||'').trim().slice(0,40),href:e.getAttribute('href'),id:e.id})))"
-kensa-cli browser click "nav a[href='/pricing']"
-kensa-cli browser screenshot --out .tms/attachments/pricing.png
-kensa-cli browser open https://example.com/login --capture-console   # catch JS errors
+kensa browser eval "JSON.stringify([...document.querySelectorAll('a,button')].slice(0,30).map(e=>({t:e.tagName,txt:(e.innerText||'').trim().slice(0,40),href:e.getAttribute('href'),id:e.id})))"
+kensa browser click "nav a[href='/pricing']"
+kensa browser screenshot --out .tms/attachments/pricing.png
+kensa browser open https://example.com/login --capture-console   # catch JS errors
 ```
 
 Persistence: a `click` then a `text`/`screenshot` in the **next** invocation operate
@@ -125,30 +125,30 @@ each `eval` is a fresh evaluation; pass data via `--arg` or re-query the DOM.
 ## Report findings back into the case (the loop)
 
 A browser run is only useful if the evidence lands in `.tms/`. Pair every routine
-with `kensa-cli` writes (see the `kensa-cli` skill for the full verb set):
+with `kensa` writes (see the `kensa` skill for the full verb set):
 
 1. **Read the case under test** before driving the browser, so you know its
    preconditions and expected results:
    ```sh
-   kensa-cli show AUTH-014 --format json
+   kensa show AUTH-014 --format json
    ```
 2. **Drive the browser** through the scenario and **capture evidence** into the
    project tree (committable, relative paths):
    ```sh
-   kensa-cli browser screenshot --out .tms/attachments/auth-014-after-submit.png --full-page
+   kensa browser screenshot --out .tms/attachments/auth-014-after-submit.png --full-page
    ```
 3. **Write the result back:**
    - *Case passed / behaved as expected* — annotate it:
      ```sh
-     kensa-cli update AUTH-014 --set custom.browser_checked=yes --format json
+     kensa update AUTH-014 --set custom.browser_checked=yes --format json
      ```
    - *Found a defect* — file a new case rather than editing the spec, attaching the
      evidence path and the SOT ref:
      ```sh
-     kensa-cli new --suite bugs/auth --title "Login: email field accepts spaces, no validation error" \
+     kensa new --suite bugs/auth --title "Login: email field accepts spaces, no validation error" \
        --priority high --tag browser --tag regression --source-id AUTH-014 --format json
      ```
-     Then `Edit` the returned file to add `## Steps` (the exact `kensa-cli browser`
+     Then `Edit` the returned file to add `## Steps` (the exact `kensa browser`
      commands that reproduce it), the observed vs. expected result, and a
      `## Notes` line pointing at the screenshot. Follow `kensa-test-authoring` for
      the byte-exact format.
@@ -165,5 +165,5 @@ with `kensa-cli` writes (see the `kensa-cli` skill for the full verb set):
   and referenced from cases — not into temp.
 - **`screenshot` needs `--out`** — omitting it is an exit-`2` usage error.
 - **One page, reused** — a freshly launched browser may expose only a browser-level
-  target at first; `kensa-cli browser` waits briefly for a page (and creates one if
+  target at first; `kensa browser` waits briefly for a page (and creates one if
   none exists), then reuses it across calls.

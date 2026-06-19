@@ -20,7 +20,7 @@ $ARGUMENTS
    (`task-assignment` skill): scope, references, style examples, skills to load
    (`test-case-writing-craft`, `test-design-techniques`, `negative-and-edge-cases`,
    `checklist-design` + the platform skill), output suite path, stage: checklist.
-   Engineers create cases with `kensa-cli new` (atomic id allocation) — no id-range carving,
+   Engineers create cases with `kensa new` (atomic id allocation) — no id-range carving,
    even for ≥2 parallel engineers.
 6. **Review** with `review-rubrics`: checklists first → on approval, cases. Cap at
    2 rounds each.

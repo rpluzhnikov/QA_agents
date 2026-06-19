@@ -56,10 +56,10 @@ DO NOT write test cases yet. Just the checklist. Return to the Test Lead.
 
 After the Test Lead approves the checklist (you'll be re-invoked with `stage: cases` and the approved checklist):
 
-1. For each checklist item, **create the case with `kensa-cli new`** — never hand-write the file
+1. For each checklist item, **create the case with `kensa new`** — never hand-write the file
    or hand-pick an id. Run:
    ```sh
-   kensa-cli new --suite <path> --title "<title>" --priority <p> \
+   kensa new --suite <path> --title "<title>" --priority <p> \
      [--tag <t>]... --source-id <ref> --format json
    ```
    It atomically allocates the id (so parallel engineers never collide — no id-range needed) and
@@ -71,10 +71,10 @@ After the Test Lead approves the checklist (you'll be re-invoked with `stage: ca
      and the Kensa GUI doesn't churn the file on re-save.
    - `test-case-writing-craft` — case anatomy, expected results, step quality
    - Project `conventions.md` — naming, frontmatter, granularity
-   Also add `generated_by: kensa-qa@0.13.0` to the frontmatter. (`new` already set `id`, `title`,
+   Also add `generated_by: kensa-qa@0.14.0` to the frontmatter. (`new` already set `id`, `title`,
    `status: draft`, `priority`, `tags`, and `source_id` from the flags you passed — verify they're
    present; the SOT ref the Test Lead gave you goes in `--source-id`.)
-3. Use existing shared steps (referenced from `.tms/shared-steps/`) where applicable. Do NOT inline duplicated steps. Use `kensa-cli` (`shared-step list`, `shared-step usage <id>`) to find reusable ones, and `context bundle` to load related cases under a token budget instead of reading whole suites.
+3. Use existing shared steps (referenced from `.tms/shared-steps/`) where applicable. Do NOT inline duplicated steps. Use `kensa` (`shared-step list`, `shared-step usage <id>`) to find reusable ones, and `context bundle` to load related cases under a token budget instead of reading whole suites.
 4. Report back to the Test Lead with the list of created files (ids + paths from `new`) and any open questions.
 
 ### Mode: analyze (read-only)
@@ -84,7 +84,7 @@ a large `/review-spec`. You are NOT authoring — you are inspecting a scoped sl
 and returning findings. **You write NO files and create NO cases in this mode.**
 
 What the brief gives you (one of):
-- A **shard of cases** (ids/paths) — load them via `kensa-cli context bundle --filter
+- A **shard of cases** (ids/paths) — load them via `kensa context bundle --filter
   '<shard filter>'` under a token budget, plus `conventions.md` as the rubric.
 - A **spec section + lens** — the requirement text and one review lens
   (testability / completeness / consistency).
@@ -119,15 +119,15 @@ Some briefs ask you to verify against the **running app**, not just the spec —
 smoke tour, a form-submission flow, a visual baseline, or executing a routine. When
 the Test Lead names the `kensa-browser` skill, load it and:
 
-1. Preflight `kensa-cli browser status --format json`. If the browser isn't
+1. Preflight `kensa browser status --format json`. If the browser isn't
    reachable (exit code 2), report that back — the user must start Chrome from
    Kensa's Tools → Browser. Do not launch a browser yourself.
-2. Drive the page with `kensa-cli browser …` (`--format json`), branching on exit
+2. Drive the page with `kensa browser …` (`--format json`), branching on exit
    codes: `1` ⇒ retry a different selector or report the page state; `2` ⇒ fix the
    invocation. The page persists between calls; in-page `eval` state does not.
 3. Capture evidence into `.tms/attachments/…` and **write findings back** per the
    skill's report-back loop — annotate the case under test, or file a defect case
-   with `kensa-cli new` (reproduction `## Steps` = the exact browser commands,
+   with `kensa new` (reproduction `## Steps` = the exact browser commands,
    observed vs. expected, screenshot path). Use test/staging, never real production
    credentials or data.
 

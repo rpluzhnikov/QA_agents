@@ -46,7 +46,7 @@ front-load them all.
 - `clarification-protocol` — for deciding when and how to ask the user
 
 **Tooling and hard calls:**
-- `kensa-cli` — to orient in the existing project before planning: `list --tree`, `stats`, `coverage --by-source`, `find`, `duplicates`. Also the backbone of `/audit` — see `commands/audit.md`.
+- `kensa` — to orient in the existing project before planning: `list --tree`, `stats`, `coverage --by-source`, `find`, `duplicates`. Also the backbone of `/audit` — see `commands/audit.md`.
 - `sequential-thinking` — for hard coordination calls only: ambiguous scope, deciding whether to parallelize, weighing competing decomposition strategies. Skip for routine delegation.
 
 ## Skills the QA engineer uses (you don't load these, you assign them)
@@ -71,8 +71,8 @@ When forming the brief, name the relevant ones explicitly so the engineer loads 
 - The matching SOT skill for the source you're handing them (see below)
 - `defect-management` — when the engineer needs to file a defect found in static review
 - `white-box-techniques-overview` — when the spec mentions branches/loops/coverage thresholds
-- `kensa-cli` — when the engineer needs to read related cases under a token budget (`context bundle`), reuse shared steps (`shared-step list/usage`), or check duplicates
-- `kensa-browser` — when the scope needs **live browser evidence** (smoke tour, form-submission flow, visual baseline) or the engineer is executing a routine. It drives the Kensa-launched Chrome via `kensa-cli browser …` and writes findings back into `.tms/`. Assign it whenever the verification is "go look at the running app", not just "reason about the spec".
+- `kensa` — when the engineer needs to read related cases under a token budget (`context bundle`), reuse shared steps (`shared-step list/usage`), or check duplicates
+- `kensa-browser` — when the scope needs **live browser evidence** (smoke tour, form-submission flow, visual baseline) or the engineer is executing a routine. It drives the Kensa-launched Chrome via `kensa browser …` and writes findings back into `.tms/`. Assign it whenever the verification is "go look at the running app", not just "reason about the spec".
 
 ## SOT skills — concrete extraction guidance per source
 
@@ -126,7 +126,7 @@ Default to ONE engineer. Only spawn parallel engineers when:
 
 When in doubt, one engineer. Parallelism costs tokens, sequential is fine for most features.
 
-Engineers create cases with `kensa-cli new`, which allocates ids atomically — so spawning ≥2
+Engineers create cases with `kensa new`, which allocates ids atomically — so spawning ≥2
 engineers in the same turn is safe with no id coordination. You do NOT carve id ranges or touch
 `config.yaml.next_id`; the CLI hands out unique, collision-free ids even under parallel authoring.
 
@@ -162,7 +162,7 @@ command file in `commands/` carries the detailed playbook; the map:
   `qa-engineer` workers in **analyze** mode; you shard, they return findings, you
   synthesize. Complements the mechanical `/audit`. Skill: `review-rubrics`.
 - `/traceability [--deep]` — requirements↔cases matrix from `source_id`; deep mode
-  fans out analyze-mode workers to map AC→cases. Skill: `kensa-cli`, `risk-based-testing`.
+  fans out analyze-mode workers to map AC→cases. Skill: `kensa`, `risk-based-testing`.
 
 **Browser QA (drive the running app):**
 - `/run-routine [RT-id]` — execute a browser routine from `.tms/routines/` against
@@ -174,13 +174,13 @@ command file in `commands/` carries the detailed playbook; the map:
 **Schema & automation:**
 - `/adapt-schema [samples]` — fit the project schema to a user's existing TMS export
   before importing. Spawn the `schema-bootstrap-agent` (Task tool): it reads 1–2 sample
-  files and adapts the schema *additively* (`kensa-cli schema preview/apply`, `migrate`
-  if v1), runs `kensa-cli adapt ready`, and hands off — **data follows schema, never the
+  files and adapts the schema *additively* (`kensa schema preview/apply`, `migrate`
+  if v1), runs `kensa adapt ready`, and hands off — **data follows schema, never the
   reverse**. It imports nothing; the user loads the full export via Universal format.
   Default to additive (new custom field) over renaming a system field; confirm any
-  drop/overwrite. Skill: `kensa-cli`.
+  drop/overwrite. Skill: `kensa`.
 - `/blueprint [list|show|new|validate|run]` — design/validate/run a node-graph
-  automation (`.tms/blueprints/BP-NNN.json`) via `kensa-cli blueprint …`. Always
+  automation (`.tms/blueprints/BP-NNN.json`) via `kensa blueprint …`. Always
   `validate` before `run`; script/agent nodes are consent-gated (`--allow-scripts`).
   Skill: `kensa-blueprints`.
 

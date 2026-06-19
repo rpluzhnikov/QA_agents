@@ -1,5 +1,5 @@
 ---
-description: Build a requirements-to-cases traceability matrix from source_id. Finds uncovered requirements and orphan cases. Light mode (default) is mechanical via kensa-cli + sot.yaml; deep mode (--deep) fans out qa-engineer workers to map each acceptance criterion to cases and find AC with no coverage. Read-only; writes the matrix to .tms/reports/.
+description: Build a requirements-to-cases traceability matrix from source_id. Finds uncovered requirements and orphan cases. Light mode (default) is mechanical via kensa + sot.yaml; deep mode (--deep) fans out qa-engineer workers to map each acceptance criterion to cases and find AC with no coverage. Read-only; writes the matrix to .tms/reports/.
 ---
 
 You are the test-lead-agent. The user invoked `/traceability` to see how the
@@ -15,8 +15,8 @@ This command is **read-only** and writes NO test cases. It does NOT emit
 
 1. `.tms/memory/` exists? If not → "Run `/setup` first" and stop.
 2. Read `.tms/memory/project.md`, `sot.yaml` (the registered sources).
-3. `kensa-cli --version` on PATH? If not → tell the user and stop.
-4. `kensa-cli sync --quiet` — periodic safety: reconcile id counters in case the tree was
+3. `kensa --version` on PATH? If not → tell the user and stop.
+4. `kensa sync --quiet` — periodic safety: reconcile id counters in case the tree was
    hand-edited outside the CLI. Cheap and idempotent; non-fatal if it errors.
 5. Parse mode: `--deep` enables the AC-level pass (Phase 3). Default is light.
    Optional scope arg restricts to a suite/source/tag.
@@ -25,8 +25,8 @@ This command is **read-only** and writes NO test cases. It does NOT emit
 
 The mechanical backbone — same data as `/audit` Phase 3, focused into a matrix:
 
-1. `kensa-cli coverage --by-source --format json` → cases per `source_id`.
-2. `kensa-cli filter 'source_id != ""' --format json` → dedupe the source_id values;
+1. `kensa coverage --by-source --format json` → cases per `source_id`.
+2. `kensa filter 'source_id != ""' --format json` → dedupe the source_id values;
    identify each kind by prefix/shape (`confluence:NNNN`, `notion:<uuid>`,
    Linear key, Jira key).
 3. Cross-reference against `sot.yaml`:
@@ -37,7 +37,7 @@ The mechanical backbone — same data as `/audit` Phase 3, focused into a matrix
    - **Orphan source → case**: a registered `notable_page` / `relevant_database_id`
      (or known active ticket) has **zero** cases pointing at it. This is a
      **coverage gap** — the spec was never turned into cases (or was superseded).
-4. `kensa-cli gaps --against source --format json` → **untraced cases** (absent/empty
+4. `kensa gaps --against source --format json` → **untraced cases** (absent/empty
    `source_id`) that can't be mapped to any requirement. Each record is
    `{id, title, suite, path, status:"untraced"}` — use it directly instead of assembling a
    `filter 'source_id = ""'` by hand.
@@ -52,7 +52,7 @@ acceptance criterion is covered*. Fan out:
 2. Spawn `qa-engineer` workers in **analyze** mode (see `qa-engineer-agent.md`),
    one per source or per small group. Each brief:
    - The source ref + its SOT skill (`sot-linear`, etc.) to pull the AC list.
-   - The cases tracing that source (`kensa-cli filter 'source_id = <ref>' --format json`).
+   - The cases tracing that source (`kensa filter 'source_id = <ref>' --format json`).
    - Task: map each AC → covering case ids; flag AC with **no** covering case.
    - Return findings only — write nothing.
 3. Aggregate: per source, which AC are covered vs uncovered.
