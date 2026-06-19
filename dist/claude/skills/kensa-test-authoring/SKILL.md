@@ -17,7 +17,7 @@ the files **are** the source of truth.
 
 This skill teaches the **exact on-disk format** (byte-for-byte; round-trips must be
 stable) plus the **conventions for writing good cases**. For bulk querying,
-filtering, and maintenance from the terminal, pair it with the **`kensa-cli`** skill
+filtering, and maintenance from the terminal, pair it with the **`kensa`** skill
 — prefer the CLI for reads and large edits, hand-edit files for authoring single
 artifacts.
 
@@ -172,7 +172,7 @@ ID format is set per-project in `config.yaml` → `project.id_format`:
 - **`prefixed`** — `<prefix>-<padded>` using `project.id_prefix`:
   with prefix `AUTH`: `1 → AUTH-001`, `7 → AUTH-007`.
 
-**Don't hand-allocate ids.** Create cases with `kensa-cli new --suite <path> --title "<t>"`
+**Don't hand-allocate ids.** Create cases with `kensa new --suite <path> --title "<t>"`
 — it atomically allocates the next id (reconciles the counter against what's on disk, formats it
 per the rule above), writes the case shell, and returns `{id, path}`. Concurrent `new` calls never
 collide, so parallel authoring needs no id-range coordination. You then edit the returned file to
@@ -180,7 +180,7 @@ add the body (see the authoring workflow below).
 
 > Hand-allocate (read `project.next_id`, format it, write `suites/<suite>/<id>.md`, then increment
 > `next_id`) **only** when editing a tree entirely outside the CLI. In that case run
-> `kensa-cli sync` afterward to reconcile the counter, and set `next_id` past the highest existing
+> `kensa sync` afterward to reconcile the counter, and set `next_id` past the highest existing
 > id to survive merge collisions.
 
 ---
@@ -277,7 +277,7 @@ Use `@shared:<id>` as a step's action text. The id matches `[A-Za-z0-9_-]+`:
 ```
 
 Keep shared-step ids short and stable (e.g. `LOGIN`, `SETUP-DB`). Renaming an id
-breaks every `@shared:` reference — update referencing cases too. The `kensa-cli`
+breaks every `@shared:` reference — update referencing cases too. The `kensa`
 skill's `shared-step usage`/`orphan` commands find references and dead steps.
 
 ---
@@ -404,19 +404,19 @@ person — or an AI agent — can execute without guessing.
 ## Authoring workflow
 
 ```
-1. Orient    → kensa-cli list --tree ; kensa-cli stats        (what suites/cases exist)
-2. Create    → kensa-cli new --suite <suite> --title "<t>" [--priority …] [--tag …] [--source-id …] --format json
+1. Orient    → kensa list --tree ; kensa stats        (what suites/cases exist)
+2. Create    → kensa new --suite <suite> --title "<t>" [--priority …] [--tag …] [--source-id …] --format json
                (atomic id allocation; returns {id, path} — no manual next_id handling)
 3. Author    → edit the returned path: add ## Steps (+ preconditions, custom, ## Notes)  (match canonical format above)
-4. Validate  → kensa-cli validate  (schema)  ; kensa-cli lint  (quality)  ; kensa-cli doctor (integrity)
+4. Validate  → kensa validate  (schema)  ; kensa lint  (quality)  ; kensa doctor (integrity)
 ```
 
-- **Create cases via `kensa-cli new`** — it allocates the id and writes a valid shell; you only
+- **Create cases via `kensa new`** — it allocates the id and writes a valid shell; you only
   author the body. Don't hand-pick ids or touch `next_id`.
-- **Reads & bulk edits**: use the **`kensa-cli`** skill (`filter`, `bulk update`,
+- **Reads & bulk edits**: use the **`kensa`** skill (`filter`, `bulk update`,
   `context bundle`, etc.) — it's faster and safer than hand-editing many files.
 - **Body authoring**: edit the case file using the formats here.
-- **After any hand-edit batch**: run `kensa-cli validate && kensa-cli lint && kensa-cli doctor`
+- **After any hand-edit batch**: run `kensa validate && kensa lint && kensa doctor`
   to catch schema violations, empty steps, and id/filename drift.
 - **Never** invent top-level frontmatter keys (use `custom:`), break the
   filename==id invariant, or hard-delete a case (move to `.tms/trash/`).

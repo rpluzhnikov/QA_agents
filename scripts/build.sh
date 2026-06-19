@@ -27,6 +27,16 @@ for engine in $ENGINES; do
         cp -R "$SHARED/$s" "$out/"
     done
 
+    # Claude registers the Stop hook inline in .claude-plugin/plugin.json
+    # (expanding ${CLAUDE_PLUGIN_ROOT}). The shared hooks/hooks.json is a
+    # Codex-only registration; if it also ships in the Claude build, Claude
+    # Code auto-discovers it and fires the Stop hook TWICE — the second copy
+    # with an unset $PLUGIN_ROOT, which fails ("/hooks/save-memory-stop.sh:
+    # No such file"). Ship only the hook scripts for Claude.
+    if [ "$engine" = claude ]; then
+        rm -f "$out/hooks/hooks.json"
+    fi
+
     echo "built dist/$engine"
 done
 
@@ -77,9 +87,28 @@ for engine in $ENGINES; do
         errors=$((errors + 1))
     fi
 
-    if [ ! -f "$out/hooks/hooks.json" ]; then
-        echo "  - dist/$engine: missing hooks/hooks.json" >&2
-        errors=$((errors + 1))
+    # hook scripts ship in both engines; the hooks.json registration is
+    # Codex-only (Claude registers the hook inline in plugin.json).
+    for script in save-memory-stop.sh save-memory-stop.ps1; do
+        if [ ! -f "$out/hooks/$script" ]; then
+            echo "  - dist/$engine: missing hooks/$script" >&2
+            errors=$((errors + 1))
+        fi
+    done
+    if [ "$engine" = codex ]; then
+        if [ ! -f "$out/hooks/hooks.json" ]; then
+            echo "  - dist/$engine: missing hooks/hooks.json" >&2
+            errors=$((errors + 1))
+        fi
+    else
+        if [ -f "$out/hooks/hooks.json" ]; then
+            echo "  - dist/$engine: stray hooks/hooks.json (Claude hook is inline in plugin.json — would double-fire)" >&2
+            errors=$((errors + 1))
+        fi
+        if ! grep -q '"Stop"' "$out/.claude-plugin/plugin.json"; then
+            echo "  - dist/$engine: plugin.json missing Stop hook" >&2
+            errors=$((errors + 1))
+        fi
     fi
 done
 

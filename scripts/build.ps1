@@ -39,6 +39,15 @@ foreach ($engine in $engines) {
         Copy-Item -Path (Join-Path $shared $s) -Destination $out -Recurse -Force
     }
 
+    # Claude registers the Stop hook inline in .claude-plugin/plugin.json
+    # (expanding ${CLAUDE_PLUGIN_ROOT}); the shared hooks/hooks.json is a
+    # Codex-only registration. Shipping it in the Claude build makes Claude
+    # Code auto-discover it and fire the Stop hook twice -- the second copy
+    # with an unset $PLUGIN_ROOT, which fails. Ship only the scripts for Claude.
+    if ($engine -eq 'claude') {
+        Remove-Item -Force (Join-Path $out 'hooks\hooks.json') -ErrorAction SilentlyContinue
+    }
+
     Write-Host "built dist/$engine" -ForegroundColor Green
 }
 
@@ -125,9 +134,24 @@ foreach ($engine in $engines) {
         } catch { $errors += "dist/${engine}: plugin.json invalid JSON: $_" }
     }
 
-    # hooks manifest present
-    if (-not (Test-Path (Join-Path $out 'hooks\hooks.json'))) {
-        $errors += "dist/${engine}: missing hooks/hooks.json"
+    # hook scripts ship in both engines; the hooks.json registration is
+    # Codex-only (Claude registers the hook inline in plugin.json).
+    foreach ($script in @('save-memory-stop.sh', 'save-memory-stop.ps1')) {
+        if (-not (Test-Path (Join-Path $out "hooks\$script"))) {
+            $errors += "dist/${engine}: missing hooks/$script"
+        }
+    }
+    if ($engine -eq 'codex') {
+        if (-not (Test-Path (Join-Path $out 'hooks\hooks.json'))) {
+            $errors += "dist/${engine}: missing hooks/hooks.json"
+        }
+    } else {
+        if (Test-Path (Join-Path $out 'hooks\hooks.json')) {
+            $errors += "dist/${engine}: stray hooks/hooks.json (Claude hook is inline in plugin.json -- would double-fire)"
+        }
+        if ((Get-Content $manifest -Raw) -notmatch '"Stop"') {
+            $errors += "dist/${engine}: plugin.json missing Stop hook"
+        }
     }
 }
 

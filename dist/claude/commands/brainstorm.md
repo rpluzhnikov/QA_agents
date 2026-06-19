@@ -101,7 +101,7 @@ user needs three distinct views; you are providing one of them.
 - Source-of-truth refs the user pointed at: <urls, ticket IDs, etc — if any>
 
 ## Existing cases that might be relevant
-<paths or ids from `kensa-cli find`/`filter` if applicable — informational only>
+<paths or ids from `kensa find`/`filter` if applicable — informational only>
 
 ## Output schema (return as the body of your message)
 

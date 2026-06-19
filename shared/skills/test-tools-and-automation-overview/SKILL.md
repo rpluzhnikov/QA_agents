@@ -6,7 +6,7 @@ description: ISTQB CTFL Chapter 6 — the categories of test tools, plus the ben
 > **ISTQB CTFL v4.0.1 grounding**
 > Chapter 6 — Test Tools, §6.1 Tool Support for Testing, §6.2 Benefits and Risks of Test Automation.
 > Learning objectives: FL-6.1.1 (K2) explain how different types of test tools support testing; FL-6.2.1 (K1) recall the benefits and risks of test automation.
-> See also: §1.4 (tools support test activities); §5.1.6 (test pyramid — pairing manual cases with automation layers); the existing `kensa-cli` skill for the test-management tool category.
+> See also: §1.4 (tools support test activities); §5.1.6 (test pyramid — pairing manual cases with automation layers); the existing `kensa` skill for the test-management tool category.
 
 # Test tools and automation — overview
 
@@ -40,7 +40,7 @@ The CTFL §6.1 examples, with a Kensa-relevant note for each:
 > "Increase the test process efficiency by facilitating management
 > of the SDLC, requirements, tests, defects, configuration."
 
-**Kensa example:** the `kensa-cli` IS a test management tool. It
+**Kensa example:** the `kensa` IS a test management tool. It
 manages cases, suites, shared steps, runs. Other tools in this
 category: TestRail, Zephyr, qTest, Xray, TestLink.
 
@@ -116,7 +116,7 @@ a test tool, including dumb spreadsheets and rich AI agents alike.
 
 | Category | Example | Kensa position |
 |---|---|---|
-| Test management | kensa-cli, TestRail, Xray | **Kensa = this** |
+| Test management | kensa, TestRail, Xray | **Kensa = this** |
 | Static testing | Linters, formal reviewers | Used by Kensa's review process |
 | Test design / implementation | Test generators, Kensa qa-engineer-agent | **Kensa = this** (design layer) |
 | Test execution & coverage | Playwright, pytest | Not Kensa — handed off |

@@ -1,5 +1,5 @@
 ---
-description: Design, validate, or run a Kensa Blueprint — a node-graph automation (.tms/blueprints/BP-NNN.json) executed by the Rust engine, driven via kensa-cli blueprint. Supports an agent (prompt) node that runs claude/codex inside the flow. Subcommands: list | show <id> | new <name> | validate <id> | run <id>.
+description: Design, validate, or run a Kensa Blueprint — a node-graph automation (.tms/blueprints/BP-NNN.json) executed by the Rust engine, driven via kensa blueprint. Supports an agent (prompt) node that runs claude/codex inside the flow. Subcommands: list | show <id> | new <name> | validate <id> | run <id>.
 argument-hint: [list | show <id> | new <name> | validate <id> | run <id> [--input k=v]]
 ---
 
@@ -9,17 +9,17 @@ Act as the **test-lead-agent**. Work with a Kensa Blueprint per $ARGUMENTS. Load
 
 Resolve the intent:
 
-- **(empty) or `list`** — `kensa-cli blueprint list`. Show id + name; if none, offer `new`.
-- **`show <id>`** — `kensa-cli blueprint show <id>`. Summarize Start → Finish, node families,
+- **(empty) or `list`** — `kensa blueprint list`. Show id + name; if none, offer `new`.
+- **`show <id>`** — `kensa blueprint show <id>`. Summarize Start → Finish, node families,
   variables/inputs, and any agent (`prompt`) nodes.
-- **`new <name>`** — `kensa-cli blueprint new "<name>"` to scaffold `BP-NNN.json`, then help
+- **`new <name>`** — `kensa blueprint new "<name>"` to scaffold `BP-NNN.json`, then help
   wire it: confirm the goal, sketch Start → … → Finish, pick nodes from the catalog, declare
   `outputFields` on any `prompt` node, converge `parallel` arms on a `join`. Edit the JSON or
   guide the user to the Kensa canvas. Finish by validating.
-- **`validate <id>`** — `kensa-cli blueprint validate <id>`. For every code (`UNKNOWN_PIN_REF`,
+- **`validate <id>`** — `kensa blueprint validate <id>`. For every code (`UNKNOWN_PIN_REF`,
   `PIN_TYPE_MISMATCH`, `DANGLING_EXEC`, `EXEC_CYCLE`, `SECRET_LITERAL`, …) name it, explain it,
   and point at the offending node/pin. Loop until clean — never run an invalid graph.
-- **`run <id>`** — `validate` first, then `kensa-cli blueprint run <id> [--input k=v]…`. Script /
+- **`run <id>`** — `validate` first, then `kensa blueprint run <id> [--input k=v]…`. Script /
   agent nodes are consent-gated: pass `--allow-scripts` only with the user's go-ahead. Report the
   `kind:"blueprint"` run record under `.tms/runs/` and the per-node outcome.
 

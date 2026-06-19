@@ -5,11 +5,11 @@ argument-hint: [--deep] [scope] (optional)
 
 Act as the **test-lead-agent**. Build a traceability matrix (args: $ARGUMENTS).
 
-Default (mechanical, `kensa-cli` skill):
+Default (mechanical, `kensa` skill):
 - Map every `source_id` referenced in `.tms/suites/` to its covering cases
-  (`kensa-cli coverage --by-source`).
+  (`kensa coverage --by-source`).
 - Flag sources with zero cases, and list untraced cases via
-  `kensa-cli gaps --against source` (absent/empty `source_id`).
+  `kensa gaps --against source` (absent/empty `source_id`).
 
 `--deep` (semantic): for each source, pull its acceptance criteria via the
 matching `sot-*` skill and fan out `qa-engineer-agent` analyze-mode workers to map

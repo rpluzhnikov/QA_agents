@@ -12,7 +12,7 @@
 ```
 Kensa GUI ──launch──▶ Chrome (127.0.0.1:<port>, CDP, throw-away profile)
    │                      ▲
-   │ Run routine          │ kensa-cli browser <sub>   (connect → act → disconnect)
+   │ Run routine          │ kensa browser <sub>   (connect → act → disconnect)
    ▼                      │
 Embedded terminal ─▶ claude / codex ─┘
         (seeded with the routine prompt)
@@ -21,29 +21,29 @@ Embedded terminal ─▶ claude / codex ─┘
 - **Kensa owns the browser.** The user starts Chrome from **Tools → Browser**.
   It binds a CDP debug port to loopback only, with a dedicated `--user-data-dir`
   (never the user's real profile).
-- **Agents drive it** by shelling out to `kensa-cli browser …`. They do **not** launch
+- **Agents drive it** by shelling out to `kensa browser …`. They do **not** launch
   their own browser. Each command connects over CDP, performs one action, and
   disconnects. The Chrome process persists between commands (page, cookies, DOM
   survive; in-page JS variables do **not** survive across separate `eval` calls).
 - **Routines** are reusable prompt scenarios that launch an agent (`claude`/`codex`)
   in a fresh terminal, seeded with a prompt that tells it what to do.
 
-### The binary name: `kensa-cli`
+### The binary name: `kensa`
 
-The plugin always calls the CLI as **`kensa-cli`** — every command and every prose
+The plugin always calls the CLI as **`kensa`** — every command and every prose
 reference in this doc, the skills, and the agents. It must resolve in a plain shell
-(`kensa-cli --version`), because the agents run in the host process, not Kensa's
+(`kensa --version`), because the agents run in the host process, not Kensa's
 embedded terminal.
 
 Inside the Kensa app the same binary is *also* injected on the embedded terminal's
 PATH under the short alias `kensa`. The agents don't rely on that alias — using
-`kensa-cli` everywhere keeps the commands working in both contexts.
+`kensa` everywhere keeps the commands working in both contexts.
 
 ---
 
 ## 2. Prerequisites & endpoint resolution
 
-Chrome must be running (Tools → Browser → **Start**). Then every `kensa-cli browser`
+Chrome must be running (Tools → Browser → **Start**). Then every `kensa browser`
 call resolves the CDP endpoint in this order:
 
 1. `--cdp-url <ws://127.0.0.1:PORT/...>` flag (manual override).
@@ -56,9 +56,9 @@ call resolves the CDP endpoint in this order:
 
 ---
 
-## 3. `kensa-cli browser` command reference
+## 3. `kensa browser` command reference
 
-Global form: `kensa-cli browser [--cdp-url <WS-URL>] <subcommand> [args] [--format json]`
+Global form: `kensa browser [--cdp-url <WS-URL>] <subcommand> [args] [--format json]`
 
 `--format`: `table` (default on a TTY) · `json` · `jsonl` · `ids` · `paths`.
 For scripting/agents, prefer **`--format json`** — booleans are real JSON booleans
@@ -130,14 +130,14 @@ Agents should branch on the exit code: `2` ⇒ fix the invocation / launch Chrom
 ## 4. A typical agent flow
 
 ```sh
-kensa-cli browser status                      # reachable: true ?
-kensa-cli browser open https://example.com
-kensa-cli browser title
+kensa browser status                      # reachable: true ?
+kensa browser open https://example.com
+kensa browser title
 # discover what's clickable:
-kensa-cli browser eval "JSON.stringify([...document.querySelectorAll('a,button')].slice(0,30).map(e=>({t:e.tagName,txt:(e.innerText||'').trim().slice(0,40),href:e.getAttribute('href'),id:e.id,cls:e.className})))"
-kensa-cli browser click "nav a[href='/pricing']"
-kensa-cli browser screenshot --out ./pricing.png
-kensa-cli browser open https://example.com/login --capture-console   # catch JS errors
+kensa browser eval "JSON.stringify([...document.querySelectorAll('a,button')].slice(0,30).map(e=>({t:e.tagName,txt:(e.innerText||'').trim().slice(0,40),href:e.getAttribute('href'),id:e.id,cls:e.className})))"
+kensa browser click "nav a[href='/pricing']"
+kensa browser screenshot --out ./pricing.png
+kensa browser open https://example.com/login --capture-console   # catch JS errors
 ```
 
 Persistence: the page survives between calls, so a `click` then a `text`/`screenshot`
@@ -160,14 +160,14 @@ engine: claude          # "claude" | "codex" (allow-listed; anything else is rej
 description: Opens the homepage and verifies the hero headline.
 ---
 
-Open https://example.com with `kensa-cli browser open`, read the `h1` with
-`kensa-cli browser text "h1"`, and report whether it still says "Example Domain".
+Open https://example.com with `kensa browser open`, read the `h1` with
+`kensa browser text "h1"`, and report whether it still says "Example Domain".
 ```
 
 - **`id`** — `RT-<digits>`, allocated automatically; also the filename stem.
   Validated `^RT-\d+$` before any path use (path-traversal guard).
 - **`engine`** — `claude` or `codex` only.
-- **Body = the prompt.** Plain language; reference the `kensa-cli browser` verbs you
+- **Body = the prompt.** Plain language; reference the `kensa browser` verbs you
   want the agent to use. No `## Steps` parsing — the whole body is the prompt.
 
 Authored in **Tools → Browser → Routines** (New / edit / Run / delete). Routine
@@ -184,7 +184,7 @@ files are plain Markdown and committable.
    (the multi-line prompt is never inlined into the command — only the file path is).
 
 The agent starts already holding the prompt and works through the task, driving the
-browser with `kensa-cli browser …` and reporting back in the terminal.
+browser with `kensa browser …` and reporting back in the terminal.
 
 ### Security model (D153)
 
@@ -199,7 +199,7 @@ Routine files are **untrusted** (a repo/PR can plant one). Hardening:
 
 How the plugin makes routines + browser useful:
 
-1. **Teach the agents the verb set.** Add the `kensa-cli browser` reference (section 3)
+1. **Teach the agents the verb set.** Add the `kensa browser` reference (section 3)
    to the plugin's agent instructions / `CLAUDE.md` section, plus the persistence
    model and the exit-code branching rule.
 2. **Teach the "report back into the case" loop.** A browser routine is most useful
@@ -212,7 +212,7 @@ How the plugin makes routines + browser useful:
 ### Proposal — a dedicated `routine-runner` agent (Sonnet)
 
 A thin agent in the plugin whose system prompt bakes in:
-- the `kensa-cli browser` verb set + the connect→act→disconnect model,
+- the `kensa browser` verb set + the connect→act→disconnect model,
 - the "drive the browser, then write findings back into the case" loop,
 - guardrails (loopback only, don't touch the real profile, screenshot to the
   project dir, branch on exit codes).
@@ -233,7 +233,7 @@ cheaper browser-QA behavior than a generic `claude`/`codex` session. **Not built
   `-Encoding UTF8` so non-ASCII (e.g. Cyrillic) prompts aren't mangled.
 - **`screenshot` needs `--out`.** Omitting it is an exit-2 usage error.
 - **One page, reused.** A freshly launched browser may expose only a browser-level
-  target at first; `kensa-cli browser` waits briefly for a page and creates one if
+  target at first; `kensa browser` waits briefly for a page and creates one if
   none exists, then reuses it across calls.
 - **Headed vs headless.** Chosen in the Browser tab at launch. Headless is fine for
   automation; headed lets the user watch the agent work.
