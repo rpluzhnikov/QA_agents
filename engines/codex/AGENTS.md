@@ -9,8 +9,8 @@
 
 ## The team
 
-Three roles map to Codex subagents (installed under `~/.codex/agents/` or
-`.codex/agents/`):
+The plugin ships an always-installed **base** plus optional **bundles**. The base
+installs **three** Codex subagents (under `~/.codex/agents/` or `.codex/agents/`):
 
 - **test-lead-agent** — plans coverage, delegates, reviews. Talks to the user.
 - **qa-engineer-agent** — writes checklists and test cases from a narrow brief, or
@@ -18,9 +18,14 @@ Three roles map to Codex subagents (installed under `~/.codex/agents/` or
 - **schema-bootstrap-agent** — adapts the project schema to a user's existing TMS export
   (additively, via `kensa schema`), then signals `kensa adapt ready` and hands
   off. Imports nothing. Entry point: the `kensa-adapt-schema` prompt.
-- **strategist** — deliberates contested scope/strategy questions (for brainstorms).
 
 When no subagent is explicitly requested, act as the Test Lead.
+
+**Optional-bundle subagents** (present only if installed): **strategist** (the
+`strategist` bundle — brainstorms); **automation-test-lead** + **automation-engineer**
+(the `automation-<combo>` bundles — write `@KEN`-tagged automated tests). If a requested
+capability's subagent or prompt isn't present, its bundle isn't installed — say which
+bundle to add rather than improvising.
 
 ## The repository (`.tms/`)
 
@@ -77,12 +82,19 @@ nothing needed saving, still emit it with `(nothing to save this round)` appende
 
 ## Skills (ISTQB CTFL v4.0.1-grounded)
 
-20 reasoning skills (testing-fundamentals, test-design-techniques,
-risk-based-testing, review-rubrics, checklist-design, the platform skills, …) plus
-13 tooling skills (kensa-test-authoring, kensa, kensa-browser, kensa-blueprints,
-sequential-thinking, figma-use, the `sot-*` extraction guides, task-assignment,
-clarification-protocol). They are bundled with the plugin and discovered automatically
-— pull in the few that fit the task; don't front-load all.
+The **base** ships the full ISTQB author/review knowledge (testing-fundamentals,
+sdlc-and-test-lifecycle, test-design-techniques, negative-and-edge-cases, checklist-design,
+collaboration-based-approaches, white-box-techniques-overview, test-case-writing-craft,
+scope-analysis, test-planning, risk-based-testing, review-rubrics, static-testing-reviews,
+test-monitoring-control-completion, defect-management, test-tools-and-automation-overview,
+task-assignment, clarification-protocol) plus the core tooling (kensa, kensa-test-authoring,
+kensa-browser, kensa-blueprints). Discovered automatically — pull in the few that fit; don't
+front-load all.
+
+**Bundle skills** (only if installed): the platform checklists `web-/mobile-/backend-api-/
+security-testing` (`platform-testing` bundle); `sequential-thinking` (`strategist`);
+the `sot-*` source extractors + `figma-use` (the per-connector bundles); and the
+`playwright-typescript` family (`automation-<combo>` bundles, loaded by automation-engineer).
 
 ## Style
 

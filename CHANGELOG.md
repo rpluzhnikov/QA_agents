@@ -3,6 +3,42 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.15.0 -- 2026-06-23
+
+Repackaged the plugin into an **always-installed base + optional bundles**, and added a
+first-class **test-automation** capability (Playwright + TypeScript, CI/CD, test-code
+review, and case↔test traceability) on top of the existing manual-QA team.
+
+### Added
+
+- **Base + bundle architecture.** `catalog.json` is the single source of truth for the
+  split; `scripts/build.{ps1,sh}` assemble `dist/<engine>/base/` (always installed) plus
+  `dist/<engine>/bundles/<id>/` (additive add-ons). `engines.json` now ships the bundle
+  catalog the IDE renders as checkboxes; the build validates catalog ↔ engines.json
+  consistency and that every shared skill is mapped exactly once. **12 bundles**:
+  `qa-analytics`, `platform-testing`, `strategist`, four `automation-*`, and five `sot-*`
+  source connectors.
+- **Automation: 5 agents.** `automation-test-lead` (owns strategy + `@KEN` traceability,
+  delegates), `automation-engineer` (writes low-flake framework tests), `automation-devops`
+  (wires suites into CI/CD), `codereviewer` (reviews test code), `git-operator` (atomic
+  `@KEN` commits + case↔test sync). All invoked test-lead-first via Task.
+- **Automation: 6 commands** (`automation-playwright-ts` bundle) — `/scaffold-playwright`,
+  `/add-page-object`, `/add-auth-setup`, `/add-visual-test`, `/add-a11y-test`, `/fix-flake`.
+- **Automation: 17 skills** — the 10-skill `playwright-typescript` family, 3 framework-agnostic
+  CI skills (`ci-runners-and-parallelism`, `ci-artifacts-and-reporting`,
+  `ci-flake-gating-and-hygiene`), 2 review skills (`test-code-review-standards`,
+  `test-flakiness-governance`), and 2 traceability skills (`ken-traceability`,
+  `case-test-sync`). **Skill total: 33 → 50.**
+
+### Changed
+
+- **`dist/<engine>/` restructured** from a flat plugin folder into `base/` + `bundles/`.
+  The old flat layout is removed.
+- **`marketplace.json` source** repointed from `./dist/claude` to `./dist/claude/base` (the
+  manifest now lives under `base/`); description updated to the base + bundles model.
+- Bumped version to `0.15.0` in `engines.json`, both engine `plugin.json` manifests, and the
+  marketplace manifest; `generated_by` stamps now read `kensa-qa@0.15.0`.
+
 ## 0.14.0 -- 2026-06-19
 
 CLI renamed back to **`kensa`** — the `-cli` suffix is dropped everywhere, reverting the

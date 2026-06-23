@@ -8,8 +8,9 @@
 
 ## The team (agents)
 
-Three agents install with the plugin; address them with `@` or let a slash command
-route to the right one:
+The plugin ships as an always-installed **base** plus optional **bundles** the user
+adds in the install dialog / Settings → Agents. The base installs **three agents**;
+address them with `@` or let a slash command route to the right one:
 
 - **`test-lead-agent`** — plans coverage, gathers requirements from the source of
   truth (SOT), delegates authoring, reviews in two passes, talks to the user. Entry
@@ -21,10 +22,14 @@ route to the right one:
   TMS export (additively, via `kensa schema`), then signals `kensa adapt ready`
   and hands off. Never imports cases — the user does that via Universal format. Entry
   point: `/adapt-schema`.
-- **`strategist`** — deliberates contested scope/strategy questions; spawned in
-  parallel (×3) by `/brainstorm`.
 
 When no agent is named, act as the **Test Lead**.
+
+**Optional-bundle agents** (present only if that bundle is installed):
+`strategist` (the `strategist` bundle — `/brainstorm`); `automation-test-lead` +
+`automation-engineer` (the `automation-<combo>` bundles — write `@KEN`-tagged
+automated tests). If a command or agent below isn't available, its bundle isn't
+installed — tell the user which bundle to add rather than improvising.
 
 ## The repository (`.tms/`)
 
@@ -63,25 +68,36 @@ verbs are `kensa browser …`. Inside the Kensa app the same binary is also on t
 embedded terminal's PATH as `kensa`, but the agents always call `kensa` so
 commands work in the host process too. See the `kensa` and `kensa-browser` skills.
 
-## Commands (15)
+## Commands
 
-Routed through the Test Lead. **Authoring** (emit a memory checkpoint):
-`/setup` · `/new-feature <ref>` · `/update-feature <ref>`.
-**Read-only shift-left** (write one report, no cases):
-`/pull-context <ref>` · `/review-spec <ref>` · `/risk-assess <ref>` · `/test-plan <epic>`.
-**Read-only test-base intelligence:** `/audit [scope]` · `/analyze-cases [scope]` ·
-`/traceability [--deep]`.
-**Deliberation:** `/brainstorm <topic>` (spawns 3 strategists).
+Routed through the Test Lead. **Base commands** (always installed):
+**Authoring** (emit a memory checkpoint): `/setup` · `/new-feature <ref>` ·
+`/update-feature <ref>`. **Test-base health:** `/audit [scope]`.
 **Browser QA:** `/run-routine [RT-id]` — execute a routine against the live app.
 **Schema & automation:** `/adapt-schema [samples]` — fit the schema to a user's export
 (spawns the schema-bootstrap-agent) · `/blueprint [list|show|new|validate|run]` —
 design/validate/run a Blueprint node-graph automation.
 **Bookkeeping:** `/save-memory` — checkpoint learnings to `.tms/memory/learned/*`.
 
-## Skills (33) — load on demand, don't front-load
+**Bundle commands** (only if the bundle is installed):
+- `qa-analytics` bundle — `/pull-context <ref>` · `/review-spec <ref>` ·
+  `/risk-assess <ref>` · `/test-plan <epic>` · `/analyze-cases [scope]` ·
+  `/traceability [--deep]` (read-only shift-left + test-base intelligence).
+- `strategist` bundle — `/brainstorm <topic>` (spawns 3 strategists).
+- `automation-<combo>` bundles — `/scaffold-playwright`, `/add-page-object`,
+  `/add-auth-setup`, `/add-visual-test`, `/add-a11y-test`, `/fix-flake` (write
+  `@KEN`-tagged automated tests via the automation agents).
 
-Every reasoning skill cites the ISTQB CTFL v4.0.1 chapter + learning objective it
-operationalises; tooling skills complement ISTQB without being derived from it.
+If a user asks for one of these and the command isn't present, the bundle isn't
+installed — name the bundle to add rather than improvising the capability.
+
+## Skills — load on demand, don't front-load
+
+The **base** ships the full ISTQB CTFL v4.0.1 author/review knowledge plus the core
+`kensa-*` tooling (every group below except the four marked *bundle*). Each reasoning
+skill cites the syllabus chapter + learning objective it operationalises; tooling skills
+complement ISTQB without being derived from it. The groups marked **(bundle)** install
+only with their optional bundle — don't assume they're present.
 
 **ISTQB foundation (always at session start):**
 - `testing-fundamentals` — Ch 1: principles, error/defect/failure chain, the 7 test activities, roles.
@@ -106,7 +122,7 @@ operationalises; tooling skills complement ISTQB without being derived from it.
 - `task-assignment` — formulate the engineer brief (non-ISTQB).
 - `clarification-protocol` — when/how to ask the user vs. assume (non-ISTQB).
 
-**Platform (pick the one matching the feature under test):**
+**Platform — (bundle: `platform-testing`)** (pick the one matching the feature under test):
 - `web-testing` · `mobile-testing` · `backend-api-testing` · `security-testing` — ISO 25010 non-functional checklists per platform.
 
 **Authoring craft & on-disk format:**
@@ -118,12 +134,18 @@ operationalises; tooling skills complement ISTQB without being derived from it.
 - `kensa-browser` — drive the Kensa-launched Chrome via `kensa browser …` (CDP) for live browser QA, then write findings back into `.tms/` cases.
 - `kensa-blueprints` — design/validate/run node-graph automations (`kensa blueprint …`); an agent (`prompt`) node can run `claude`/`codex` inside a flow.
 
-**Source-of-truth extractors (load the one matching the reference):**
+**Source-of-truth extractors — (bundle: one per connector, the "which tools do you use?" checklist)** (load the one matching the reference):
 - `sot-linear` · `sot-jira` · `sot-confluence` · `sot-notion` · `sot-figma` — where AC live in each source + which MCP tools fetch them.
-- `figma-use` — governs the `use_figma` tool for deep/programmatic Figma reads (rare for QA).
+- `figma-use` — governs the `use_figma` tool for deep/programmatic Figma reads (rare for QA); ships with the `sot-figma` connector.
 
-**Reasoning:**
+**Reasoning — (bundle: `strategist`):**
 - `sequential-thinking` — structured multi-step reasoning for hard scope/edge-case/decomposition calls. Use sparingly; skip routine work.
+
+**Automation — (bundle: `automation-<combo>`):**
+- The `playwright-typescript` family (locators, fixtures-and-pom, waiting-and-assertions,
+  auth-storagestate, test-data, parallel-and-sharding, reporting-and-traces, ci-docker,
+  visual-and-a11y) — loaded by `automation-engineer` when writing `@KEN`-tagged
+  Playwright + TypeScript tests. Other combos add their own framework skill family.
 
 ## Browser QA & routines
 

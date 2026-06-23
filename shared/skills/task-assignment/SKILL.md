@@ -105,7 +105,7 @@ acknowledge — informational only>
   - `status: draft` (set by `new`)
   - `tags`: <list of tags QA Engineer should apply>  (`--tag` per tag)
   - `source_id`: <SOT ref>  (`--source-id`)
-  - `generated_by: kensa-qa@0.14.0`
+  - `generated_by: kensa-qa@0.15.0`
 
 ## Project conventions to enforce
 <distilled from .tms/memory/conventions.md — the 3-5 things most

@@ -24,7 +24,7 @@ Two stages, never combined:
    returned `path`, then author the body (## Steps, preconditions) by editing it, byte-exact per
    `kensa-test-authoring` and the project `conventions.md`. Reuse shared steps; don't
    inline-duplicate them. `new` sets id/title/status:draft/priority/tags/source_id from your flags;
-   add `generated_by: kensa-qa@0.14.0` when editing.
+   add `generated_by: kensa-qa@0.15.0` when editing.
 
 Analyze mode (read-only): inspect the assigned shard and return findings in your
 message — write nothing.
