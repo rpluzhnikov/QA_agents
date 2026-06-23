@@ -1,0 +1,23 @@
+{
+  "name": "kensa-qa",
+  "version": "0.15.0",
+  "description": "ISTQB CTFL v4.0.1-grounded manual QA team for the Kensa TMS — Codex edition. Ships 33 skills (20 ISTQB-grounded + 13 tooling, incl. browser-driven QA, schema adaptation, and Blueprints automation) and a cross-platform Stop hook for auto memory checkpoints. Test Lead + QA Engineer + Strategist install as project-scoped Codex subagents (.codex/agents/*.toml).",
+  "author": {
+    "name": "Roman Pluzhnikov",
+    "url": "https://github.com/rpluzhnikov"
+  },
+  "homepage": "https://github.com/rpluzhnikov/QA_agents",
+  "repository": "https://github.com/rpluzhnikov/QA_agents",
+  "license": "MIT",
+  "keywords": ["qa", "testing", "istqb", "test-cases", "kensa", "manual-testing"],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Kensa QA",
+    "shortDescription": "ISTQB-grounded manual QA team in your pocket",
+    "longDescription": "A coordinated manual-QA team for the Kensa test-management system. A Test Lead plans coverage and reviews; QA Engineers author checklists and test cases grounded in the ISTQB CTFL v4.0.1 syllabus. Ships 33 skills, a cross-platform Stop hook, read-only SDLC analysis prompts (spec review, risk, test plan, traceability), schema adaptation, and Blueprints node-graph automation.",
+    "developerName": "Roman Pluzhnikov",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/rpluzhnikov/QA_agents"
+  }
+}

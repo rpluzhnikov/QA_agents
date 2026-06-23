@@ -1,0 +1,36 @@
+{
+  "name": "kensa-qa",
+  "version": "0.15.0",
+  "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent + schema-bootstrap-agent for test case authoring, schema adaptation, and Blueprints automation, plus read-only SDLC analysis commands (spec review, risk, test plan, traceability) for Kensa TMS",
+  "author": {
+    "name": "Roman Pluzhnikov",
+    "url": "https://github.com/rpluzhnikov"
+  },
+  "license": "MIT",
+  "mcpServers": {
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell",
+            "args": [
+              "-NoProfile",
+              "-ExecutionPolicy", "Bypass",
+              "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/save-memory-stop.ps1"
+            ],
+            "timeout": 10,
+            "statusMessage": "kensa-qa: checking memory checkpoint"
+          }
+        ]
+      }
+    ]
+  }
+}
