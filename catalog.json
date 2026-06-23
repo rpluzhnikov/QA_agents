@@ -1,0 +1,148 @@
+{
+  "_comment": "Single source of truth for the base + bundle split. scripts/build.{ps1,sh} read this to assemble dist/<engine>/base and dist/<engine>/bundles/<id>. engines.json (the Kensa contract) lists the same bundle ids and must stay consistent — the build validates this. Names are LOGICAL: an agent 'x' is engines/claude/agents/x.md and engines/codex/.codex/agents/x.toml; a command 'y' is engines/claude/commands/y.md and engines/codex/.codex/prompts/kensa-y.md; a skill 's' is shared/skills/s/.",
+  "base": {
+    "_comment": "Base carries the self-contained ISTQB author/review loop the base agents reference, plus core kensa tooling. Optional depth (platform checklists, analytics commands, automation, connectors) lives in bundles.",
+    "skills": [
+      "kensa",
+      "kensa-test-authoring",
+      "kensa-browser",
+      "kensa-blueprints",
+      "testing-fundamentals",
+      "sdlc-and-test-lifecycle",
+      "test-design-techniques",
+      "negative-and-edge-cases",
+      "checklist-design",
+      "collaboration-based-approaches",
+      "white-box-techniques-overview",
+      "test-case-writing-craft",
+      "scope-analysis",
+      "test-planning",
+      "risk-based-testing",
+      "review-rubrics",
+      "static-testing-reviews",
+      "test-monitoring-control-completion",
+      "defect-management",
+      "test-tools-and-automation-overview",
+      "task-assignment",
+      "clarification-protocol"
+    ],
+    "agents": ["test-lead-agent", "qa-engineer-agent", "schema-bootstrap-agent"],
+    "commands": ["setup", "new-feature", "update-feature", "save-memory", "audit", "adapt-schema", "run-routine", "blueprint"]
+  },
+  "bundles": [
+    {
+      "id": "qa-analytics",
+      "displayName": "QA analytics & shift-left",
+      "summary": "Six read-only commands — risk analysis, test plans, static spec review, traceability, deep base audit (reuse base ISTQB skills)",
+      "category": "analysis",
+      "default": false,
+      "commands": ["pull-context", "review-spec", "risk-assess", "test-plan", "analyze-cases", "traceability"]
+    },
+    {
+      "id": "platform-testing",
+      "displayName": "Platform testing knowledge",
+      "summary": "Web, mobile, API and security testing knowledge skills",
+      "category": "platform",
+      "default": false,
+      "skills": ["web-testing", "mobile-testing", "backend-api-testing", "security-testing"]
+    },
+    {
+      "id": "strategist",
+      "displayName": "Brainstorm strategist",
+      "summary": "Three strategists debate approaches in parallel and return 2-3 finalists",
+      "category": "strategy",
+      "default": false,
+      "skills": ["sequential-thinking"],
+      "agents": ["strategist"],
+      "commands": ["brainstorm"]
+    },
+    {
+      "id": "automation-playwright-ts",
+      "displayName": "Playwright (TypeScript) automation",
+      "summary": "Write @KEN-tagged Playwright + TypeScript E2E tests — automation-test-lead + automation-engineer agents, 10 framework skills, scaffold/de-flake commands",
+      "category": "automation",
+      "default": false,
+      "skills": [
+        "playwright-typescript",
+        "playwright-locators",
+        "playwright-fixtures-and-pom",
+        "playwright-waiting-and-assertions",
+        "playwright-auth-storagestate",
+        "playwright-test-data",
+        "playwright-parallel-and-sharding",
+        "playwright-reporting-and-traces",
+        "playwright-ci-docker",
+        "playwright-visual-and-a11y"
+      ],
+      "agents": ["automation-test-lead", "automation-engineer"],
+      "commands": ["scaffold-playwright", "add-page-object", "add-auth-setup", "add-visual-test", "add-a11y-test", "fix-flake"]
+    },
+    {
+      "id": "automation-devops",
+      "displayName": "Automation DevOps (CI/CD)",
+      "summary": "Wire automated tests into CI/CD — runner choice, matrix/sharding, artifacts/reporting, flake handling, merge-gating, hygiene",
+      "category": "automation",
+      "default": false,
+      "skills": ["ci-runners-and-parallelism", "ci-artifacts-and-reporting", "ci-flake-gating-and-hygiene"],
+      "agents": ["automation-devops"]
+    },
+    {
+      "id": "automation-codereview",
+      "displayName": "Automation code review",
+      "summary": "Review automated test code for reliability, maintainability and @KEN-<id> traceability",
+      "category": "automation",
+      "default": false,
+      "skills": ["test-code-review-standards", "test-flakiness-governance"],
+      "agents": ["codereviewer"]
+    },
+    {
+      "id": "automation-git",
+      "displayName": "Automation git & traceability",
+      "summary": "Commit @KEN-tagged tests atomically and keep .tms/ cases <-> tests in sync (drift detection, greenfield stubs)",
+      "category": "automation",
+      "default": false,
+      "skills": ["ken-traceability", "case-test-sync"],
+      "agents": ["git-operator"]
+    },
+    {
+      "id": "sot-linear",
+      "displayName": "Linear connector",
+      "summary": "Pull specs / acceptance criteria from Linear",
+      "category": "sources",
+      "default": false,
+      "skills": ["sot-linear"]
+    },
+    {
+      "id": "sot-jira",
+      "displayName": "Jira connector",
+      "summary": "Pull specs / acceptance criteria from Jira",
+      "category": "sources",
+      "default": false,
+      "skills": ["sot-jira"]
+    },
+    {
+      "id": "sot-confluence",
+      "displayName": "Confluence connector",
+      "summary": "Pull specs from Confluence",
+      "category": "sources",
+      "default": false,
+      "skills": ["sot-confluence"]
+    },
+    {
+      "id": "sot-notion",
+      "displayName": "Notion connector",
+      "summary": "Pull specs from Notion",
+      "category": "sources",
+      "default": false,
+      "skills": ["sot-notion"]
+    },
+    {
+      "id": "sot-figma",
+      "displayName": "Figma connector",
+      "summary": "Pull specs / flows from Figma (Dev Mode MCP)",
+      "category": "sources",
+      "default": false,
+      "skills": ["sot-figma", "figma-use"]
+    }
+  ]
+}
