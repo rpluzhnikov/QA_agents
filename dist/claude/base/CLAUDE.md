@@ -132,6 +132,9 @@ only with their optional bundle — don't assume they're present.
 **Tooling (CLI + browser + automation):**
 - `kensa` — query/edit/maintain cases from the terminal: `list`, `find`, `stats`, `new`, `update`, `bulk *`, `validate`, `lint`, `duplicates`, `coverage`, `gaps`, `context bundle`; plus schema adaptation (`schema show/preview/apply/migrate`, `adapt ready`).
 - `kensa-browser` — drive the Kensa-launched Chrome via `kensa browser …` (CDP) for live browser QA, then write findings back into `.tms/` cases.
+- `kensa-mobile` — drive an Android device / iOS Simulator via `kensa mobile …` (observe→act: `ui` snapshot, then `tap`/`type`/`swipe`), then write findings back into `.tms/`.
+- `kensa-http` — author, edit, and run HTTP request collections via `kensa http …` (envs, `{{var}}` templating, response captures) for live API QA.
+- `kensa-results` — ingest automation reports (JUnit / Playwright / Allure / …) via `kensa results …`, match each test to a case, and act on the matched/orphaned split.
 - `kensa-blueprints` — design/validate/run node-graph automations (`kensa blueprint …`); an agent (`prompt`) node can run `claude`/`codex` inside a flow.
 
 **Source-of-truth extractors — (bundle: one per connector, the "which tools do you use?" checklist)** (load the one matching the reference):

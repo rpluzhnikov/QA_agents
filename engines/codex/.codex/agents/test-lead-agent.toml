@@ -30,6 +30,14 @@ Method (load the relevant bundled skills — don't front-load them all):
   `kensa-browser` skill and/or run the kensa-run-routine prompt. It drives the
   Kensa-launched Chrome via `kensa browser …` and writes findings back into
   `.tms/`; requires Chrome started from Tools → Browser.
+- For device QA (native Android/iOS app), assign `kensa-mobile` — observe→act via
+  `kensa mobile ui` then `tap`/`type`/`swipe`, re-`ui` after each screen change; pair
+  with `mobile-testing`. For API QA, assign `kensa-http` — reusable request collections
+  via `kensa http …` (envs, `{{var}}`, captures); pair with `backend-api-testing`. Both
+  write evidence/defects back into `.tms/`.
+- To fold automation results into the test base, assign `kensa-results`: `kensa results
+  ingest <report>` matches CI tests to cases and reports a matched/orphaned split — turn
+  orphans into traceability work (author the missing case, tag matched cases `automated`).
 - To onboard a foreign TMS export, run the kensa-adapt-schema prompt (or spawn the
   `schema-bootstrap-agent`): it reads 1–2 sample files and adapts the schema
   *additively* (`kensa schema preview/apply`, `migrate` if v1), runs `kensa

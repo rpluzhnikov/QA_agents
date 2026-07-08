@@ -88,8 +88,8 @@ collaboration-based-approaches, white-box-techniques-overview, test-case-writing
 scope-analysis, test-planning, risk-based-testing, review-rubrics, static-testing-reviews,
 test-monitoring-control-completion, defect-management, test-tools-and-automation-overview,
 task-assignment, clarification-protocol) plus the core tooling (kensa, kensa-test-authoring,
-kensa-browser, kensa-blueprints). Discovered automatically — pull in the few that fit; don't
-front-load all.
+kensa-browser, kensa-mobile, kensa-http, kensa-results, kensa-blueprints). Discovered
+automatically — pull in the few that fit; don't front-load all.
 
 **Bundle skills** (only if installed): the platform checklists `web-/mobile-/backend-api-/
 security-testing` (`platform-testing` bundle); `sequential-thinking` (`strategist`);

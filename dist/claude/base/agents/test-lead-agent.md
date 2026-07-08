@@ -73,6 +73,9 @@ When forming the brief, name the relevant ones explicitly so the engineer loads 
 - `white-box-techniques-overview` — when the spec mentions branches/loops/coverage thresholds
 - `kensa` — when the engineer needs to read related cases under a token budget (`context bundle`), reuse shared steps (`shared-step list/usage`), or check duplicates
 - `kensa-browser` — when the scope needs **live browser evidence** (smoke tour, form-submission flow, visual baseline) or the engineer is executing a routine. It drives the Kensa-launched Chrome via `kensa browser …` and writes findings back into `.tms/`. Assign it whenever the verification is "go look at the running app", not just "reason about the spec".
+- `kensa-mobile` — when the scope needs **live device evidence** on an Android device or iOS Simulator (native app smoke tour, on-device form flow, mobile visual check). It drives the device via `kensa mobile …` (observe→act) and writes findings back into `.tms/`. Pair it with `mobile-testing`.
+- `kensa-http` — when the scope needs **live API evidence** (endpoint smoke check, auth flow, contract spot-check). It runs reusable HTTP collections via `kensa http …` and writes findings back into `.tms/`. Pair it with `backend-api-testing`.
+- `kensa-results` — when the brief involves **automation-result ingestion or manual↔automation traceability**. It parses CI reports via `kensa results ingest`, matches each test to a case, and surfaces the matched/orphaned split to drive coverage work. Pair it with `test-tools-and-automation-overview`.
 
 ## SOT skills — concrete extraction guidance per source
 

@@ -71,7 +71,7 @@ After the Test Lead approves the checklist (you'll be re-invoked with `stage: ca
      and the Kensa GUI doesn't churn the file on re-save.
    - `test-case-writing-craft` — case anatomy, expected results, step quality
    - Project `conventions.md` — naming, frontmatter, granularity
-   Also add `generated_by: kensa-qa@0.15.0` to the frontmatter. (`new` already set `id`, `title`,
+   Also add `generated_by: kensa-qa@0.16.0` to the frontmatter. (`new` already set `id`, `title`,
    `status: draft`, `priority`, `tags`, and `source_id` from the flags you passed — verify they're
    present; the SOT ref the Test Lead gave you goes in `--source-id`.)
 3. Use existing shared steps (referenced from `.tms/shared-steps/`) where applicable. Do NOT inline duplicated steps. Use `kensa` (`shared-step list`, `shared-step usage <id>`) to find reusable ones, and `context bundle` to load related cases under a token budget instead of reading whole suites.
@@ -130,6 +130,25 @@ the Test Lead names the `kensa-browser` skill, load it and:
    with `kensa new` (reproduction `## Steps` = the exact browser commands,
    observed vs. expected, screenshot path). Use test/staging, never real production
    credentials or data.
+
+## Device / API / automation-result QA (when the brief names those skills)
+
+The same observe→act→write-back loop applies to the sibling tool skills. Load the one
+the Test Lead named and follow its report-back loop:
+
+- **`kensa-mobile`** — verify against a running **Android device / iOS Simulator**.
+  Snapshot with `kensa mobile ui`, act by alias (`tap @N` / `--label`), **re-`ui` after
+  every screen change**, capture `screenshot --out .tms/attachments/…`, then annotate
+  the case or file a defect with `kensa new`.
+- **`kensa-http`** — verify against a running **API**. Author/run a request collection
+  with `kensa http … --format json`, save the response as evidence, then annotate or
+  file a defect. Never inline real secrets — use an env value / `{{var}}`.
+- **`kensa-results`** — when handed a CI report, `kensa results ingest … --format json`,
+  read the **matched / orphaned** split, and turn orphans into traceability work (author
+  the missing case, or tag matched cases `automated`).
+
+For all three: use test/staging, never real production credentials or data, and follow
+`kensa-test-authoring` for the byte-exact defect-case format.
 
 ## Style alignment
 
