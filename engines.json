@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "plugin": "kensa-qa",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Integration manifest for IDEs. Lists the installable engine builds (an always-installed base) plus an optional bundle catalog the user picks with checkboxes. The IDE copies the chosen engine's base on every install, then each selected bundle on top. Bundle membership is sourced from catalog.json; the build keeps the two consistent.",
   "engines": [
     {

@@ -3,6 +3,58 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.16.0 -- 2026-07-08
+
+Full `kensa` CLI coverage: the plugin now documents every command family from the
+authoritative CLI reference (`docs/KENSA-CLI.md`, kensa v0.52.0, 38 families). Three new
+base tooling skills for the previously-undocumented families (mobile, HTTP, automation
+results), core-CLI accuracy fixes, and a decluttered repo root. Built on top of the
+0.15.0 base+bundle architecture.
+
+### Added
+
+- **`kensa-mobile` skill** (base) — drive an Android device / iOS Simulator via
+  `kensa mobile …` (observe→act: `ui` snapshot → `tap`/`type`/`swipe`/`button`/`screenshot`;
+  alias cache, `--device` UUID/serial routing, the JSON error envelope). Pairs with
+  `mobile-testing`.
+- **`kensa-http` skill** (base) — author, edit, and run HTTP request collections via
+  `kensa http …` (`.http` collections + env files, `{{var}}` templating precedence,
+  response captures, `env set/get/list`). Pairs with `backend-api-testing`.
+- **`kensa-results` skill** (base) — ingest automation reports (11 formats: JUnit /
+  Playwright / Allure / CTRF / gotest / trx / nunit / xunit / mochawesome / newman /
+  cucumber) via `kensa results ingest`, match tests to cases, and act on the
+  matched/orphaned split; plus `results push` (project-independent, CI-safe, stub
+  transport). Pairs with `test-tools-and-automation-overview`.
+- **`export` / `import` in the core `kensa` skill** — profile-driven `export`
+  (`universal-csv` / `testrail-csv`) and the `import --dry-run` column-mapping report.
+- Registered the three new skills in `catalog.json` (`base.skills`) and wired them into
+  both agents (Claude `.md` + Codex `.toml`), `CLAUDE.md`, `AGENTS.md`, and the README
+  taxonomy. **Base skills 22 → 25; shared skills 50 → 53.**
+
+### Fixed — `kensa` skill accuracy (code is source of truth)
+
+- **Filter DSL fields corrected** to the real `BUILTIN_FIELDS`: `tag` (not `tags`),
+  `modified` (not `mtime`), plus the previously-missing `steps` (numeric) and `source`,
+  with per-type operator semantics. Fixed invalid examples (`mtime > 30d` →
+  `modified > 30d`; the non-grammatical `tag:tbd` colon form → `tag=tbd`).
+- **Schema commands rewritten to the real proposal-based interface.** `schema apply
+  --from <PATH|->` and `schema preview --from <PATH> --sample <CASE.md>` replace the
+  documented-but-nonexistent `--add-field` / `--rename-field` flags; `schema show
+  --format json` emits the round-trippable proposal; `schema migrate` corrected to its
+  version-stamp behavior; `adapt ready --message` documented. This unbreaks the
+  `/adapt-schema` flow.
+- Corrected `stats` output fields (`by_tag` / `avg_steps` / `missing_source_id`).
+
+### Changed / removed
+
+- **Root decluttered.** Removed stale feature specs now fully absorbed into skills —
+  `BROWSER_AND_ROUTINES.md`, `SCHEMA-ADAPTATION-AND-BLUEPRINTS.md` — and the stale
+  marketing docs `PLUGIN_LANDING.md` / `PLUGIN_MARKETING.md`. Added the authoritative CLI
+  reference at `docs/KENSA-CLI.md`.
+- Bumped version to `0.16.0` across both engine `plugin.json` manifests, `engines.json`,
+  and the marketplace manifest; `generated_by` stamps now read `kensa-qa@0.16.0`.
+- Rebuilt `dist/` for both engines (base + bundles; 53 skills materialized 1:1).
+
 ## 0.15.0 -- 2026-06-23
 
 Repackaged the plugin into an **always-installed base + optional bundles**, and added a

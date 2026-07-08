@@ -81,7 +81,7 @@ Every reasoning step is backed by an explicit skill — and **20 of the 33 skill
 | 🟩 **Test Management** | `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management` | Ch 5 + §3.2 |
 | 🟨 **Static & Lifecycle** | `sdlc-and-test-lifecycle`, `static-testing-reviews` | Ch 2 + 3 |
 | 🟪 **Platform** | `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview` | §2.2.2 / Ch 6 |
-| 🟥 **Tooling** | `kensa`, `kensa-test-authoring`, 5 × `sot-*`, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol` | non-ISTQB |
+| 🟥 **Tooling** | `kensa`, `kensa-test-authoring`, `kensa-browser`, `kensa-mobile`, `kensa-http`, `kensa-results`, `kensa-blueprints`, 5 × `sot-*`, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol` | non-ISTQB |
 
 The Test Lead loads the management & static skills on demand. Every QA Engineer brief always loads `testing-fundamentals`, `test-design-techniques`, `negative-and-edge-cases`, `test-case-writing-craft`, and one platform skill — plus the matching SOT extractor for the ticket source.
 

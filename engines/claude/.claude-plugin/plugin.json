@@ -1,7 +1,7 @@
 {
   "name": "kensa-qa",
-  "version": "0.15.0",
-  "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent + schema-bootstrap-agent for test case authoring, schema adaptation, and Blueprints automation, plus read-only SDLC analysis commands (spec review, risk, test plan, traceability) for Kensa TMS",
+  "version": "0.16.0",
+  "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — test-lead-agent + qa-engineer-agent + schema-bootstrap-agent for test case authoring, schema adaptation, Blueprints automation, and browser / device / API / automation-result tooling, plus read-only SDLC analysis commands (spec review, risk, test plan, traceability) for Kensa TMS",
   "author": {
     "name": "Roman Pluzhnikov",
     "url": "https://github.com/rpluzhnikov"

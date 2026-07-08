@@ -23,8 +23,11 @@ Use `kensa` when you want to:
 - Run quality checks (`lint`, `duplicates`, `coverage`, `gaps`, `doctor`)
 - Prepare agent editing context (`context show`, `context bundle`)
 - Inspect git history per case (`blame`, `log`, `changed`, `stale`)
+- Export cases with a profile, or preview a foreign import's column mapping (`export`, `import --dry-run`)
 
 Do NOT call `kensa` to write outside the `.tms/` format, start a server, or access remote systems (it is purely local).
+
+**Sibling tool skills.** `kensa` also fronts several **tool families** that have their own dedicated skills — load the matching one when a scope needs it: `kensa-browser` (drive Chrome over CDP), `kensa-mobile` (drive an Android/iOS device), `kensa-http` (run HTTP request collections), `kensa-results` (ingest automation reports and match them to cases), and `kensa-blueprints` (node-graph automations). This skill covers the core project/case surface.
 
 ---
 
@@ -90,7 +93,7 @@ kensa bulk update --filter "status=draft" --set status=active --yes       # appl
 
 ## Filter DSL
 
-Used by `filter`, `bulk update/add-tag/remove-tag/move/delete`, `context bundle`, and `bulk-apply` scripts.
+Used by `filter`, `bulk update/add-tag/remove-tag/move/delete`, `context bundle`, `bulk-apply` op filters, and `export --filter`.
 
 ### Grammar
 
@@ -121,7 +124,12 @@ Operator precedence (lowest to highest): `or` < `and` < `not` < comparison.
 
 ### Fields available in filter expressions
 
-Standard fields: `id`, `title`, `priority`, `status`, `tags`, `suite`, `source_id`. Duration fields: `mtime` (last git/fs modification time), `created` (file creation time). Custom schema fields are also available.
+The built-in fields are `id`, `title`, `tag`, `priority`, `status`, `source`, `source_id`, `suite`, `steps`, `modified`, `created` — plus any schema custom field key (and an explicit `custom.<key>` reference). Field semantics differ by type:
+
+- **String fields** (`id`, `title`, `priority`, `status`, `source`/`source_id`, `suite`, custom): `=`, `!=`, `~`, `!~`, `in`, `not in`. Ordering ops (`>`/`<`) → error.
+- **`tag`** (singular — membership over the case's tag list): `=`/`!=` test membership, `~`/`!~` substring/regex over tags, `in`/`not in` list intersection. Note the field is **`tag`, not `tags`**.
+- **`steps`** (numeric — the step count): `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`. `~`/`!~` → error.
+- **`modified`, `created`** (date/age — require an **ordering op with a duration value**): `modified` uses the file mtime; `created` uses the `created_at` frontmatter (a case without it never matches). `=`/`!=`/`~`/`in` on these → error. The field is **`modified`, not `mtime`**.
 
 ### Examples
 
@@ -129,12 +137,15 @@ Standard fields: `id`, `title`, `priority`, `status`, `tags`, `suite`, `source_i
 kensa filter "tag=auth and priority=high"
 kensa filter "status in [draft, active]"
 kensa filter "title ~ login"
-kensa filter "mtime > 30d"                  # modified in last 30 days
+kensa filter "modified > 30d"               # not modified in the last 30 days
+kensa filter "created < 7d"                 # created within the last 7 days
+kensa filter "steps >= 5"
 kensa filter "not tag=deprecated"
 kensa filter "suite = auth/flows and status != deprecated"
+kensa filter "custom.owner = alice"
 ```
 
-Duration literals: `7d` (days), `2w` (weeks), `1m` (months), `1h` (hours).
+Duration literals: `7d` (days), `2w` (weeks), `1m` (30-day months), `1y` (365-day years), `1h` (hours).
 
 ---
 
@@ -179,7 +190,7 @@ kensa find "payment" --limit 5
 ```
 
 #### `stats`
-Aggregate statistics over the project (total cases, by priority, by status, by suite).
+Aggregate statistics over the project: `total_cases`, `by_priority`, `by_status`, `by_tag`, `avg_steps`, and `missing_source_id` (count of cases with no `source_id`). Empty priority/status buckets key as `(none)`.
 ```sh
 kensa stats
 kensa stats --format json
@@ -357,46 +368,67 @@ kensa sync --quiet          # suppress progress on stderr
 > never mutates the schema. See `commands/adapt-schema.md` and the
 > `schema-bootstrap-agent` for the full flow.
 
+> **The schema interface is proposal-based.** You do not pass `--add-field` flags.
+> You dump the current schema as an editable JSON **proposal** (`{version, fields:[…]}`),
+> edit that object (add/rename entries in `fields[]`), and feed it back through
+> `schema apply --from`. The round-trip is: `schema show --format json` → edit →
+> `schema preview --from` → `schema apply --from`.
+
 #### `schema show`
-Print the project's current schema (system + custom fields). The starting point for
-any adaptation — see what fields already exist before proposing changes.
+Print the project's current schema. Default (`table`) renders a fields table
+(`key`, `name`, `type`, `required`, `options`, `order`, `system`). **`--format json`
+emits the editable *proposal* shape** that round-trips straight back into
+`schema apply --from -`. No `schema.yaml` yet → exit 0 with a note. This is the
+starting point for any adaptation — dump it, then edit the JSON.
 ```sh
 kensa schema show
-kensa schema show --format json
+kensa schema show --format json > proposal.json     # dump the editable proposal
 ```
 
-#### `schema preview <field-spec>`
-Dry-run a schema change: show the diff, write nothing. Always preview before
-`apply` so the user (and you) can see exactly what fields are added/renamed.
+#### `schema preview --from <PATH> --sample <CASE.md>`
+Dry-run a proposal: render a **sample case** under the draft schema and **write
+nothing**. Prints each draft field with the sample's value (system fields from
+top-level frontmatter; others from the `custom:` map; absent → `(no value)`) — a
+"does this shape fit the data?" confirmation step. Always preview before `apply`.
+Invalid proposal → exit 3.
 ```sh
-kensa schema preview --add-field "anticipated_outcome:text"
-kensa schema preview --rename-field "expected=anticipated_outcome"
+kensa schema preview --from proposal.json --sample suites/auth/AUTH-1.md
 ```
 
-#### `schema apply <field-spec>`
-Apply the schema change to `.tms/schema.yaml` (byte-parity preserved, exactly how the
-Kensa GUI writes it). **Additive by default** — add fields, rename system fields; do
-**not** delete or rewrite existing fields unless the user explicitly asked.
+#### `schema apply --from <PATH|->`
+Apply a JSON schema proposal (`{version, fields:[…]}`, or a bare-array shape) to
+`.tms/schema.yaml`. Validates + builds the canonical schema, **backs up** any existing
+`schema.yaml` to `schema.yaml.bak-<ms>`, then atomically writes the new schema
+(byte-parity with the Kensa GUI). `-` reads the proposal from **stdin**. Keep it
+**additive** — add fields, rename system fields; do **not** delete or rewrite existing
+fields unless the user explicitly asked. Invalid JSON / unknown type / duplicate keys
+→ exit 3; I/O error → exit 1.
 ```sh
-kensa schema apply --add-field "anticipated_outcome:text"
-kensa schema apply --add-field "pre_reqs:text" --add-field "tc_ref:string"
+kensa schema apply --from proposal.json
+cat proposal.json | kensa schema apply --from -     # or stream it from stdin
 ```
 
 #### `schema migrate`
-Upgrade a v1 schema to v2 so custom fields can be defined. Run this first if
-`schema show` reports a v1 schema and `apply` rejects custom-field specs.
+Version-stamp migration: compare `schema.yaml`'s version to the CLI's current schema
+version and apply registered migrations. The migration registry is **currently empty**,
+so this is usually a no-op ("already up to date"). A schema **newer** than the CLI
+supports → exit 3 (a read-only refusal — it never downgrades). No `schema.yaml` → exit 0.
+Note: this does **not** add custom-field capability — custom fields are defined by
+editing the proposal's `fields[]` and running `schema apply`.
 ```sh
 kensa schema migrate
 ```
 
-#### `adapt ready`
+#### `adapt ready [--message <TEXT>]`
 Signal **"schema is adapted"** — writes `.tms/.cache/adapt-ready.json` (a gitignored
-sentinel the Kensa GUI watches via `fs://changed`). The GUI refreshes the schema and
-tells the user: *"Schema adapted — now load your full export in Universal format."*
-Run this **once, last**, after the schema fits the user's sample files. It is the
-agent's hand-off; it imports nothing.
+sentinel `{ts, schema:true, message?}` the Kensa GUI watches via `fs://changed`). The
+GUI refreshes the schema and tells the user: *"Schema adapted — now load your full
+export in Universal format."* `--message` stores an optional display message. Run this
+**once, last**, after the schema fits the user's sample files. It is the agent's
+hand-off; it imports nothing. I/O error → exit 1.
 ```sh
 kensa adapt ready
+kensa adapt ready --message "schema adapted from TestRail export"
 ```
 
 > **Contract for the agent.** Adapt the schema *additively* and then run `adapt
@@ -498,6 +530,47 @@ List shared steps with zero references.
 kensa shared-step orphan
 ```
 
+### Import / Export
+
+> The CLI's `export`/`import` are **deterministic, profile-driven, and deliberately
+> narrow** — for the full range of TMS formats use the Kensa GUI export/import wizards.
+> The CLI covers the scriptable slice.
+
+#### `export --profile <PATH> [--filter <EXPR>] [--out <PATH>]`
+Profile-driven deterministic export. `--profile` (required) is an export-profile JSON
+(`{format, fieldMap?, static?}`). **Supported formats: `universal-csv`, `testrail-csv`**
+— any other (`qase-json`, `allure-json`, …) → exit 3 ("use the GUI export wizard").
+`fieldMap` maps a foreign column → a kensa key (builtins `id`/`title`/`priority`/`status`/
+`tags`/`suite`/`source_id`, or a custom field); `static` maps a foreign column → a literal
+(wins over `fieldMap`). Column order is deterministic (fieldMap keys, then static-only
+keys). `--filter` selects cases (Kensa DSL); `--out` is the output path (`-`, the default,
+writes to stdout). Invalid/malformed profile JSON → exit 3.
+```sh
+kensa export --profile .tms/tools/export-profiles/testrail.json --filter "tag=smoke" --out out.csv
+kensa export --profile universal.json                  # → CSV on stdout
+```
+
+#### `import --from <PATH> --dry-run [--sample <N>] [--profile <PATH>]`
+Tolerant import — **mapping report only**. This slice supports `--dry-run` **only**
+(omitting it → exit 2, "full import is not yet supported; use the GUI importer"). It
+classifies the foreign CSV's columns against the built-in keys (`id`/`title`/`priority`/
+`status`/`tags`/`source_id`/`suite`/`preconditions`) + schema custom keys and reports the
+mapping quality **without writing**. `--sample <N>` (default 40) is the row count for the
+report; `--profile` applies a profile's `fieldMap` before checking known keys. Table
+output: `N mapped clean, M with leftovers`; JSON: `{sample_rows, columns_total,
+mapped_clean, leftovers, leftover_columns}`. Never fails on unknown columns (exit 0); bad
+`--profile` JSON → exit 2.
+```sh
+kensa import --from testrail-export.csv --dry-run --format json
+kensa import --from export.csv --dry-run --profile map.json --sample 100
+```
+
+> **Import is the user's job, not the agent's.** For the schema-adaptation flow the
+> agent shapes the *schema* (see "Schema & adaptation") and the user loads their real
+> export through the GUI's deterministic **Universal-format** importer. `import
+> --dry-run` is a diagnostic — a way to *preview* how well a foreign CSV's columns line
+> up before the user imports — not a write path.
+
 ### Util / shell
 
 #### `completions <shell>`
@@ -576,13 +649,13 @@ Shape the project structure to match the user's existing TMS columns, then hand 
 **Never import the cases yourself** — the user does that via Universal format.
 
 ```sh
-kensa schema show --format json                       # 1. what fields exist now
-# (read 1-2 of the user's sample case files to learn their columns)
-kensa schema migrate                                  # 2. only if schema is v1
-kensa schema preview --add-field "anticipated_outcome:text"   # 3. dry-run the fit
-kensa schema apply   --add-field "anticipated_outcome:text"   # 4. apply additively
-kensa schema show                                     # 5. confirm the new shape
-kensa adapt ready                                     # 6. hand off — import is the user's
+kensa schema show --format json > proposal.json       # 1. dump the editable proposal
+# (read 1-2 of the user's sample case files to learn their columns, then edit
+#  proposal.json: add/rename entries in fields[] to match — additive only)
+kensa schema preview --from proposal.json --sample suites/auth/AUTH-1.md   # 2. dry-run the fit
+kensa schema apply   --from proposal.json             # 3. apply (backs up schema.yaml first)
+kensa schema show                                     # 4. confirm the new shape
+kensa adapt ready                                     # 5. hand off — import is the user's
 ```
 
 ### Audit workflow (used by `/audit`)
@@ -608,8 +681,8 @@ kensa coverage --by-tag --format json
 
 # 3. Cross-reference (combine with .tms/memory/sot.yaml and learned/tags.md)
 kensa filter 'source_id != ""' --format json          # all cases with a source
-kensa filter 'tag:<X> and not tag:<Y>' --format ids   # required_with violations
-kensa filter 'status = draft and tag:tbd and mtime > 30d' --format ids
+kensa filter 'tag=<X> and not tag=<Y>' --format ids   # required_with violations
+kensa filter 'status = draft and tag=tbd and modified > 30d' --format ids
 
 # 4. Qualitative sample
 kensa list --format ids                                # pick a stratified sample

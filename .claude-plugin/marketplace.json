@@ -8,8 +8,8 @@
     {
       "name": "kensa-qa",
       "source": "./dist/claude/base",
-      "version": "0.15.0",
-      "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — base ships test-lead-agent + qa-engineer-agent + schema-bootstrap-agent for test case authoring, schema adaptation, and Blueprints automation, core slash commands, kensa + core testing skills, Stop hook, bundled sequential-thinking MCP. Optional bundles (analytics, platform knowledge, brainstorm strategist, source connectors, Playwright automation) layer on top. Points at the built Claude base under dist/claude/base."
+      "version": "0.16.0",
+      "description": "ISTQB CTFL v4.0.1-grounded manual QA team in your pocket — base ships test-lead-agent + qa-engineer-agent + schema-bootstrap-agent for test case authoring, schema adaptation, and Blueprints automation, core slash commands, kensa + core testing skills plus browser / device / API / automation-result tooling, Stop hook, bundled sequential-thinking MCP. Optional bundles (analytics, platform knowledge, brainstorm strategist, source connectors, Playwright automation) layer on top. Points at the built Claude base under dist/claude/base."
     }
   ]
 }
