@@ -14,6 +14,11 @@ command **adapts the schema and hands off — it imports no cases.**
 
 ## Phase 1 — Resolve the samples
 
+0. Preflight: `kensa --version` — if the CLI isn't on PATH, tell the user and
+   stop (every phase below drives `kensa schema`). `/adapt-schema` does NOT
+   require `.tms/memory/` — it typically runs *before* `/setup` on a migration
+   (schema first, then import, then `/setup` learns conventions from the
+   imported cases).
 1. If sample paths were given, use them. Otherwise look for likely export files in the
    project (CSV / JSON / YAML / XML) and ask the user to confirm 1–2 representative ones.
    - If none can be found, ask the user to point at 1–2 files. Do **not** guess a schema
@@ -52,6 +57,16 @@ Tell the user, concisely:
   any CSV / JSON / YAML / XML into this schema; unmapped columns become custom fields.
 
 This command mutates only `.tms/schema.yaml` (additively) and writes the
-`adapt-ready.json` sentinel. It authors **no** test cases and does **not** emit
-`memory-checkpoint: done` — the Stop hook only enforces checkpoints for `/new-feature`
-and `/update-feature`.
+`adapt-ready.json` sentinel. It authors **no** test cases and owes no memory
+checkpoint — only `/new-feature` and `/update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** schema adapted — <N> fields added/renamed; `adapt ready` signaled; mapping report above
+➡️ **Next:**
+1. Load the full export via **Universal format** in the Kensa GUI (unmapped columns land in `custom.<key>`)
+2. After the import: `/setup` (choose *update specific files*) — so conventions are learned from the imported cases
+3. Then `/audit` — baseline the imported base's health

@@ -341,7 +341,7 @@ This is `/update-feature` operationalising §2.3 maintenance testing.
 
 Kensa's `/save-memory` command IS a lightweight retrospective. After
 a session, the Test Lead asks the user what worked, what didn't, and
-records project-level learnings in `learned/patterns.md`. This is
+records project-level learnings in `.tms/memory/learned/patterns.md`. This is
 how the plugin embodies §2.1.6.
 
 ## When to load this skill

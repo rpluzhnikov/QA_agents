@@ -7,9 +7,12 @@ Act as the **automation-test-lead**. Scaffold an accessibility test for: $ARGUME
 `playwright-visual-and-a11y` skill and follow it exactly — **do not invent the pattern**; copy
 the `AxeBuilder` shape verbatim, adapting only the URL, scope, and interaction steps.
 
-1. **Resolve** — take the URL (or page name) from the argument. If missing or ambiguous,
-   **ask** — don't guess a route. Note whether the check is on first paint or on
-   interaction-revealed UI (modal/menu/panel that only renders after a click).
+1. **Resolve** — check a Playwright project exists (`playwright.config.*` or
+   `@playwright/test` in `package.json`); if none, tell the user to run
+   `/kensa-scaffold-playwright` first and stop. Take the URL (or page name) from the
+   argument. If missing or ambiguous, **ask** — don't guess a route. Note whether the
+   check is on first paint or on interaction-revealed UI (modal/menu/panel that only
+   renders after a click).
 2. **Dependency** — confirm `@axe-core/playwright` is installed; if not,
    `npm install -D @axe-core/playwright`. **Pin deliberately:** per the skill it does **not**
    follow SemVer — it tracks the major/minor of the bundled `axe-core` (e.g. `4.11.x`), so a
@@ -31,5 +34,11 @@ full compliance. Combine with **manual/exploratory** accessibility testing (it l
 side, not here), and complement with `toMatchAriaSnapshot()` to lock reading-order and landmark
 structure that axe won't catch.
 
-This command authors **no** `.tms/` feature cases (beyond optional tagging) and does **not** emit
-`memory-checkpoint: done`.
+This command authors **no** `.tms/` feature cases (beyond optional tagging) and owes no
+memory checkpoint — only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
+
+End your final message with:
+
+✅ **Done:** <spec path> — WCAG A+AA scan for <target>; dependency pinned <version>
+➡️ **Next:** manual a11y pass for what axe can't see → `/kensa-new-feature <ref>` with the a11y checklist dimension (platform-testing bundle helps) · `/kensa-fix-flake <spec>` if the scan flakes on interaction-revealed UI · `/kensa-add-a11y-test <next-url>` for the next critical page.

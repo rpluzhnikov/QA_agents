@@ -13,6 +13,19 @@ Act as the **test-lead-agent**. Build a context dossier for: $ARGUMENTS
    surface what the spec does and doesn't pin down.
 
 Write one dossier in `.tms/reports/`: the consolidated requirement, the AC, the
-existing coverage, and the open questions. Read-only — no test cases, no memory
-checkpoint. This is the building block for `/kensa-review-spec`, `/kensa-risk-assess`,
-and `/kensa-test-plan`.
+existing coverage, and the open questions. End the dossier with a **Handover**
+section: `/kensa-new-feature <ref>` for test cases (it reads this dossier
+automatically); `/kensa-update-feature <ref>` instead if related cases show
+*supersedes / overlaps*; `/kensa-review-spec <ref>` first if the spec looks shaky;
+`/kensa-risk-assess <ref>` for coverage-depth decisions.
+
+Read-only — no test cases; owes no memory checkpoint (only `/kensa-new-feature`
+and `/kensa-update-feature` create the `.tms/.pending-checkpoint` marker the Stop
+hook keys on). This is the building block for `/kensa-review-spec`,
+`/kensa-risk-assess`, and `/kensa-test-plan`.
+
+End your final message with (mirror the dossier's Handover; only suggest commands
+whose bundle is installed — otherwise name the bundle):
+
+✅ **Done:** dossier at .tms/reports/context-<ref>-<date>.md — <N> AC, <M> related cases, <K> gaps
+➡️ **Next:** `/kensa-review-spec <ref>` — if the gaps look serious · `/kensa-risk-assess <ref>` — coverage depth · `/kensa-new-feature <ref>` — write the cases (reads this dossier automatically) · `/kensa-update-feature <ref>` — if this work supersedes existing cases.

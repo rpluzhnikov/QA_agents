@@ -1,5 +1,6 @@
 ---
 description: Diagnose and de-flake a Playwright + TypeScript spec — replace point-in-time checks, hard waits, and brittle locators with web-first auto-retrying assertions and resilient role/label/testid locators, then re-run to confirm stability. Preserves test intent and @KEN-<id> tags.
+argument-hint: <spec path>
 ---
 
 You are the **automation-test-lead**. The user invoked `/fix-flake <spec>`. Load the
@@ -50,5 +51,16 @@ precision FIRST — most "flaky assertions" are really an ambiguous locator or a
 **Pitfall:** retries / `poll` / `toPass` must FIX the root cause, not mask a bad locator —
 if a fix only works because retries hide the race, the locator or wait is still wrong.
 
-This command edits spec files only — it authors no `.tms/` cases and does **not** emit
-`memory-checkpoint: done`.
+This command edits spec files only — it authors no `.tms/` cases and owes no
+memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block (only suggest what's installed —
+otherwise name the bundle):
+
+✅ **Done:** <spec> de-flaked — <N> findings fixed; re-run <result, e.g. 5/5 green with --repeat-each=5>
+➡️ **Next:**
+- CI flake gating (`--fail-on-flaky-tests`, quarantine policy) → ask `@automation-devops` (automation-devops bundle)
+- systemic flake policy across the suite → `@codereviewer` review pass (automation-codereview bundle)
+- `/fix-flake <next-spec>` — if the run surfaced more flaky specs

@@ -59,5 +59,5 @@ test('new project shows in dashboard', async ({ page, request }) => {
 
 ## See also
 
-- `playwright-auth-storagestate` — the auth half of §5: log in once, reuse `storageState` across tests.
+- `playwright-auth-storagestate` — the auth half of test-data isolation: log in once, reuse `storageState` across tests.
 - `playwright-parallel-and-sharding` — how workers map to processes, which is what `workerIndex`-based isolation builds on.

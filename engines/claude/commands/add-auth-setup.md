@@ -58,6 +58,15 @@ unique account instead.
    (whether `playwright/.auth/` was already ignored or just added).
 2. Pitfalls to restate: **never commit `.auth` JSON**; prefer API login; confirm the
    app's auth storage (cookie vs IndexedDB) so the saved state is complete.
-3. This command writes project files only — it authors **no** `.tms/` cases and does
-   **not** emit `memory-checkpoint: done` (the Stop hook only enforces checkpoints for
-   `/new-feature` and `/update-feature`).
+3. This command writes project files only — it authors **no** `.tms/` cases and
+   owes no memory checkpoint (only `/new-feature` and `/update-feature` create
+   the `.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** auth.setup.ts + config wiring (<roles>); playwright/.auth/ gitignored <already/added>
+➡️ **Next:**
+- `/add-page-object <Name>` — POM for the first authenticated page
+- `/automate-case <KEN-id>` — first authenticated @KEN-tagged test

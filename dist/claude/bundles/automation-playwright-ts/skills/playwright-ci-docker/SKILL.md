@@ -1,13 +1,13 @@
 ---
 name: playwright-ci-docker
-description: Official Playwright Docker image, --with-deps, browser caching, exact version pinning, sharded CI. Load when the automation-engineer runs Playwright + TypeScript in CI or containers; defers generic CI/CD platform setup to the kensa-qa CI/devops skill.
+description: Official Playwright Docker image, --with-deps, browser caching, exact version pinning, sharded CI. Load when the automation-engineer runs Playwright + TypeScript in CI or containers; defers generic CI/CD platform setup to ci-runners-and-parallelism and ci-artifacts-and-reporting.
 ---
 
-Playwright-**specific** CI and container concerns only. The generic CI/CD platform setup — GitHub Actions / GitLab YAML scaffolding, runners, full matrix mechanics, artifact retention — lives in the separate **kensa-qa CI/devops skill**. Cross-link to it rather than re-deriving the pipeline here; this skill covers what Playwright adds on top: the image, the browser install, version sync, and the sharded blob-report flow.
+Playwright-**specific** CI and container concerns only. The generic CI/CD platform setup — GitHub Actions / GitLab YAML scaffolding, runners, full matrix mechanics — lives in **`ci-runners-and-parallelism`**; artifact retention and report publishing live in **`ci-artifacts-and-reporting`** (both in the automation-devops bundle). Cross-link to them rather than re-deriving the pipeline here; this skill covers what Playwright adds on top: the image, the browser install, version sync, and the sharded blob-report flow.
 
 ## Concept
 
-The official image `mcr.microsoft.com/playwright:vX.Y.Z-noble` ships the browsers **and** their system dependencies, but **not** the `@playwright/test` package — you still install that with `npm ci`. Browsers are native binaries built against glibc, so the base must be glibc (Ubuntu noble/jammy), never Alpine/musl. Chromium and Browserify-style sandboxing also need correct container flags (`--ipc=host`, `--init`) to avoid OOM crashes and zombie PID-1 processes. Whether you use the Docker image or a bare runner, the browser binary version must match the installed `@playwright/test` version — drift is the most common "works locally, fails in CI" cause.
+The official image `mcr.microsoft.com/playwright:vX.Y.Z-noble` ships the browsers **and** their system dependencies, but **not** the `@playwright/test` package — you still install that with `npm ci`. Browsers are native binaries built against glibc, so the base must be glibc (Ubuntu noble/jammy), never Alpine/musl. Chromium's sandbox also needs correct container flags (`--ipc=host`, `--init`) to avoid OOM crashes and zombie PID-1 processes. Whether you use the Docker image or a bare runner, the browser binary version must match the installed `@playwright/test` version — drift is the most common "works locally, fails in CI" cause.
 
 ## Rules
 
@@ -37,23 +37,10 @@ npx playwright install --with-deps chromium
 npx playwright test
 ```
 
-```yaml
-# Sharded matrix SKETCH — full pipeline lives in the kensa-qa CI/devops skill.
-# Each shard emits a blob report; a needs-dependent job merges them.
-test:
-  strategy:
-    matrix: { shard: [1, 2, 3, 4] }
-  steps:
-    - run: npx playwright test --shard=${{ matrix.shard }}/4 --reporter=blob
-    - uses: actions/upload-artifact@v4
-      with: { name: blob-report-${{ matrix.shard }}, path: blob-report }
-
-merge-reports:
-  needs: [test]            # runs only after all shards finish
-  steps:
-    - uses: actions/download-artifact@v4   # collect every blob-report-*
-    - run: npx playwright merge-reports --reporter=html ./all-blob-reports
-```
+For the sharded matrix + blob-report merge pipeline, see
+**`ci-runners-and-parallelism`** — it owns the full YAML; the Playwright side is
+just `--shard=N/M --reporter=blob` per shard and `npx playwright merge-reports`
+in a needs-dependent job afterwards.
 
 ## Pitfalls
 

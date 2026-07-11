@@ -12,10 +12,14 @@ shapes the structure once; the user imports their full export deterministically 
 Kensa's **Universal format** importer afterwards. This prompt **adapts the schema and
 hands off — it imports no cases.**
 
-1. **Resolve samples** — use the given paths, else look for export files (CSV / JSON /
-   YAML / XML) and confirm 1–2 representative ones with the user. If none, ask — never
-   guess a schema from nothing. Read the current schema: `kensa schema show
-   --format json` (note system + existing custom fields so nothing gets clobbered).
+1. **Resolve samples** — preflight `kensa --version`; if the CLI isn't on PATH, tell
+   the user and stop (everything below drives `kensa schema`). No `.tms/memory/`
+   required — this typically runs *before* `/kensa-setup` on a migration (schema first,
+   then import, then setup learns conventions from the imported cases). Use the given
+   paths, else look for export files (CSV / JSON / YAML / XML) and confirm 1–2
+   representative ones with the user. If none, ask — never guess a schema from nothing.
+   Read the current schema: `kensa schema show --format json` (note system + existing
+   custom fields so nothing gets clobbered).
 2. **Delegate** — spawn the `schema-bootstrap-agent` with: the sample path(s), the
    current schema, any user intent, and the contract (additive only; preview before
    apply; `adapt ready` last; import nothing; don't delete/rewrite existing fields
@@ -30,6 +34,11 @@ hands off — it imports no cases.**
    export via Universal format**.
 
 This prompt mutates only `.tms/schema.yaml` (additively) and writes the
-`adapt-ready.json` sentinel. It authors **no** test cases and does **not** emit
-`memory-checkpoint: done` — the Stop hook only enforces checkpoints for
-`kensa-new-feature` / `kensa-update-feature`.
+`adapt-ready.json` sentinel. It authors **no** test cases and owes no memory
+checkpoint — only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
+
+End your final message with:
+
+✅ **Done:** schema adapted — <N> fields added/renamed; `adapt ready` signaled; mapping report above
+➡️ **Next:** 1. load the full export via **Universal format** in the Kensa GUI (unmapped columns land in `custom.<key>`); 2. `/kensa-setup` (update mode) so conventions are learned from the imported cases; 3. `/kensa-audit` to baseline the imported base's health.

@@ -1,5 +1,6 @@
 ---
 description: Scaffold a Playwright accessibility test with @axe-core/playwright (AxeBuilder) for a URL, scoped to WCAG 2.0/2.1 A+AA tags and asserting zero violations. Automated subset only — pairs with manual a11y testing.
+argument-hint: <url | page name>
 ---
 
 You are the **automation-test-lead**. The user invoked `/add-a11y-test <url>`. Load the
@@ -9,6 +10,9 @@ adapting only the URL, scope, and interaction steps.
 
 ## Phase 1 — Resolve the target
 
+0. Check a Playwright project exists (`playwright.config.*` or `@playwright/test`
+   in `package.json`). If none, tell the user to run `/scaffold-playwright` first
+   and stop.
 1. Take the URL (or page name) from the argument. If it's missing or ambiguous, **ask** —
    do not guess a route.
 2. Note whether the a11y check is on first paint or on interaction-revealed UI (a modal,
@@ -48,5 +52,15 @@ adapting only the URL, scope, and interaction steps.
    is not full compliance. Combine with **manual/exploratory** accessibility testing (which
    lives on the manual side, not here), and complement with `toMatchAriaSnapshot()` to lock
    reading-order and landmark structure that axe won't catch.
-3. This command authors **no** `.tms/` feature cases (beyond optional tagging) and does
-   **not** emit `memory-checkpoint: done`.
+3. This command authors **no** `.tms/` feature cases (beyond optional tagging) and
+   owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** <spec path> — WCAG A+AA scan for <target>; dependency pinned <version>
+➡️ **Next:**
+- manual a11y pass for what axe can't see → `/new-feature <ref>` with the a11y checklist dimension (platform-testing bundle helps)
+- `/fix-flake <spec>` — if the scan flakes on interaction-revealed UI
+- `/add-a11y-test <next-url>` — next critical page

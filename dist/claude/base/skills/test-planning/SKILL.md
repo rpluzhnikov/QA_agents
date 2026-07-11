@@ -128,8 +128,8 @@ For a Kensa session:
 
 - SOT reference provided by user (Jira/Linear/Confluence/etc.).
 - AC present in the SOT (or user agrees to draft AC with the Test Lead).
-- The right MCP server is configured to read the SOT (see
-  `kensa-setup` and `sot-*` skills).
+- The right MCP server is configured to read the SOT (wired by the
+  `/setup` command; extraction guidance in the `sot-*` skills).
 - `project.md` exists or this is the first session.
 
 **Definition of Done (exit criteria for the session):**
@@ -151,7 +151,7 @@ The syllabus describes four. Use these as appropriate.
 Use historical project ratios. "If past dev:test was 3:2 and current
 dev is 600 person-days, test = 400 person-days."
 
-**Kensa application:** if `learned/patterns.md` records "average 8
+**Kensa application:** if `.tms/memory/learned/patterns.md` records "average 8
 cases per AC for this team", use that ratio for the new feature.
 
 ### 2. Extrapolation

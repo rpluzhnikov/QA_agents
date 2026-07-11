@@ -103,7 +103,7 @@ For Kensa, the Test Lead's primary techniques:
 2. **Walk the four dimensions** from `negative-and-edge-cases`
    (input / action / state / environment) — each dimension surfaces
    risk areas.
-3. **Check `learned/patterns.md`** for past defect clusters in this
+3. **Check `.tms/memory/learned/patterns.md`** for past defect clusters in this
    project (per §1.3 principle 4: defects cluster).
 4. **Ask the user** when something is opaque ("Is this auth-adjacent?
    Does it touch payment data?").
@@ -257,7 +257,7 @@ Test Lead's risk analysis:
 - Brainstorm + spec read: PII, payment fraud, double-charging,
   currency, refund, network failure mid-transaction, race
   conditions on inventory.
-- Check `learned/patterns.md`: this team had 2 payment bugs in the
+- Check `.tms/memory/learned/patterns.md`: this team had 2 payment bugs in the
   past 6 months. Defect cluster signal (per §1.3 principle 4).
 
 **Assessment (qualitative matrix):**
@@ -354,5 +354,5 @@ Per §5.2.4 risk transfer is valid; document it explicitly.
   telling the user). Always document accepted risks.
 - Over-testing low-risk areas to look thorough. Cite §1.3 principle
   2 (exhaustive testing impossible) and reallocate.
-- Ignoring `learned/patterns.md` defect history — that's free
+- Ignoring `.tms/memory/learned/patterns.md` defect history — that's free
   likelihood data per principle 4 (defects cluster).

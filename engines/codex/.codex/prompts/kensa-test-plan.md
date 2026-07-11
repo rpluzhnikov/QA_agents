@@ -14,6 +14,15 @@ Using the `test-planning` skill (ISTQB §5.1):
 
 Fold in any existing artifacts you find for this area: a `/kensa-risk-assess`
 register, a `/kensa-pull-context` dossier, or a `/kensa-brainstorm` decision. If
-the *strategy itself* is contested, send the user to `/kensa-brainstorm` first.
+the *strategy itself* is contested, send the user to `/kensa-brainstorm` first
+(strategist bundle — name the bundle if it isn't installed). Include a
+deliverables/allocation section decomposing the work into `/kensa-new-feature` runs.
 
-Write one plan in `.tms/reports/`. Read-only — no test cases, no memory checkpoint.
+Write one plan in `.tms/reports/`. Read-only — no test cases; owes no memory
+checkpoint (only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+End your final message with:
+
+✅ **Done:** plan at .tms/reports/test-plan-<slug>-<date>.md — <N> areas, ~<X-Y> cases, <K> suggested /kensa-new-feature runs
+➡️ **Next:** `/kensa-new-feature <ref>` × K — execute the plan run by run (each reads the plan + risk register automatically) · `/kensa-brainstorm <topic>` — only if the approach section flagged a contested strategy (strategist bundle).

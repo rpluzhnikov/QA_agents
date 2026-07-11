@@ -146,8 +146,12 @@ with `kensa` writes (see the `kensa` skill for the full verb set):
      evidence path and the SOT ref:
      ```sh
      kensa new --suite bugs/auth --title "Login: email field accepts spaces, no validation error" \
-       --priority high --tag browser --tag regression --source-id AUTH-014 --format json
+       --priority high --tag browser --tag regression --tag related-AUTH-014 \
+       --source-id LIN-89 --format json
      ```
+     `--source-id` is the **external** tracker ref the behavior traces to (ticket,
+     spec) — never an internal case id. Link the case under test with a
+     `related-<case-id>` tag instead (convention in `kensa-test-authoring`).
      Then `Edit` the returned file to add `## Steps` (the exact `kensa browser`
      commands that reproduce it), the observed vs. expected result, and a
      `## Notes` line pointing at the screenshot. Follow `kensa-test-authoring` for

@@ -13,5 +13,13 @@ Using `static-testing-reviews` (ISO 20246), `collaboration-based-approaches`, an
 - Undefined terms, implicit assumptions, gaps in error/edge handling.
 
 Write one report in `.tms/reports/` listing each finding with: type, severity,
-the exact spec location, and a concrete suggested fix or clarifying question.
-Read-only — no test cases, no memory checkpoint.
+the exact spec location, and a concrete suggested fix or clarifying question —
+plus a verdict: `pass | pass-with-fixes | needs-rework`. Findings go back to
+product/analyst; they are NOT test cases. Read-only — no test cases; owes no
+memory checkpoint (only `/kensa-new-feature` and `/kensa-update-feature` create
+the `.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+End your final message with (branch on the verdict):
+
+✅ **Done:** verdict <pass|pass-with-fixes|needs-rework>; <N> findings; report at .tms/reports/spec-review-<ref>-<date>.md
+➡️ **Next:** pass / pass-with-fixes → `/kensa-risk-assess <ref>` (coverage depth) or straight to `/kensa-new-feature <ref>` (reads this report automatically) · needs-rework → take the findings to product/analyst, re-run `/kensa-review-spec <ref>` after the spec is fixed.

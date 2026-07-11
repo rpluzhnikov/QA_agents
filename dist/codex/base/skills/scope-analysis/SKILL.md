@@ -23,7 +23,7 @@ scope analysis prevents most of this before any case is written.
 - Project memory:
   - `project.md` — what kinds of testing are in scope for THIS TMS
   - `conventions.md` — granularity expectations
-  - `learned/patterns.md` — past patterns for similar features
+  - `.tms/memory/learned/patterns.md` — past patterns for similar features
 - Related existing cases in `.tms/suites/`
 
 ## Output

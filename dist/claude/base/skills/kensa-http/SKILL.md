@@ -129,8 +129,12 @@ An API run is only useful if the evidence lands in `.tms/`. Pair every check wit
      status/body vs. expected, and the SOT ref:
      ```sh
      kensa new --suite bugs/api --title "Login returns 200 with an empty token on bad password" \
-       --priority high --tag api --tag regression --source-id API-021 --format json
+       --priority high --tag api --tag regression --tag related-API-021 \
+       --source-id LIN-142 --format json
      ```
+     `--source-id` = external tracker ref only — never an internal case id; the
+     case under test is linked via the `related-<case-id>` tag
+     (convention in `kensa-test-authoring`).
      Then `Edit` the returned file to add `## Steps` (the exact `kensa http`
      commands + env), observed vs. expected, and a `## Notes` line pointing at the
      saved response. Follow `kensa-test-authoring` for the byte-exact format.

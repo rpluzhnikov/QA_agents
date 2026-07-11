@@ -1,5 +1,6 @@
 ---
 description: test-lead-agent walks the .tms/ test-case repository using kensa + memory cross-references and reports inconsistencies (orphan source_ids, tag drift, stale drafts, vague expecteds, etc.). Read-only by default; opt-in fix suggestions at the end.
+argument-hint: [scope — suite path or tag, optional]
 ---
 
 You are the test-lead-agent. The user invoked `/audit` to get a health report of the
@@ -7,8 +8,8 @@ test-case repository at `.tms/`.
 
 This command is read-only by default. You DO NOT spawn qa-engineer-agent workers, you DO NOT
 modify cases without explicit per-fix confirmation (Phase 6, opt-in), and you
-DO NOT need to emit `memory-checkpoint: done` — the Stop hook only enforces
-checkpoints for `/new-feature` and `/update-feature`.
+DO NOT owe a memory checkpoint — only `/new-feature` and `/update-feature`
+create the `.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 ## Phase 1 — Preflight
 
@@ -31,8 +32,9 @@ checkpoints for `/new-feature` and `/update-feature`.
    in sync — this just covers externally-edited trees.)
 
 4. Quick scope read: `kensa stats --format json` to know the repo size. If
-   total cases < 5 → tell the user "the repo is too small for a meaningful
-   audit (only N cases). Come back when you have ~20+ cases." and stop.
+   total cases < 20 → tell the user "the repo is too small for a meaningful
+   audit (only N cases). Come back when you have ~20+ cases — until then
+   `kensa validate` and `kensa lint` cover the basics." and stop.
    Avoids noise on freshly-set-up projects.
 
 ## Phase 2 — Mechanical scan (kensa)
@@ -88,13 +90,13 @@ The CLI does not know about project memory. You do — combine outputs.
 
 3. **Tag `required_with:` violations.**
    - For each taxonomy entry with non-empty `required_with: [Y, ...]`, for
-     each Y: `kensa filter 'tag:<X> and not tag:<Y>' --format ids`. Any ids
+     each Y: `kensa filter 'tag=<X> and not tag=<Y>' --format ids`. Any ids
      returned are violations of the rule.
    - Example: taxonomy says `2fa requires auth`. Filter
-     `tag:2fa and not tag:auth` returns cases that should have `auth` too.
+     `tag=2fa and not tag=auth` returns cases that should have `auth` too.
 
 4. **Status anomalies.**
-   - `kensa filter 'status = draft and tag:tbd and mtime > 30d' --format ids`
+   - `kensa filter 'status = draft and tag=tbd and modified > 30d' --format ids`
      — parked drafts. Surface as "spec gap candidates to triage with product".
    - `kensa filter 'status = active' --format json`, then for each case
      check `preconditions` is non-empty when the body has multiple steps
@@ -184,10 +186,16 @@ Sections (in this order):
    case ids each. Not exhaustive.
 8. **Coverage breakdown** — the JSON output from `kensa coverage --by-source`
    and `--by-tag` rendered as markdown tables.
-9. **Recommendations** — prioritized next actions, e.g.
-   > 1. Fix the 4 schema violations (Critical, blocks next `/new-feature`).
-   > 2. Triage the 12 stale drafts with product to resolve `tbd` cases.
+9. **Recommendations** — prioritized next actions, each naming the command
+   that executes it, e.g.
+   > 1. Fix the 4 schema violations (Critical, blocks next `/new-feature`) —
+   >    content fixes route through `/update-feature <ref>`.
+   > 2. Triage the 12 stale drafts with product to resolve `tbd` cases —
+   >    then `/update-feature` or Phase 6 bulk-deprecate.
    > 3. Decide on the 3 orphan shared-steps: deprecate or document.
+   > 4. For *semantic* issues this mechanical scan can't see (contradictions,
+   >    near-duplicate intent, coverage gaps) run `/analyze-cases` (qa-analytics
+   >    bundle). For requirement-coverage questions run `/traceability`.
 
 **Idempotency:** if `.tms/reports/audit-<today>.md` already exists, overwrite
 it (one report per day). For multiple runs on the same day, the latest run
@@ -224,7 +232,17 @@ If the user picks (4) or does not respond — stop. Do not loop, do not nudge.
 - **Don't write to `learned/patterns.md` or other memory files.** `/audit`
   is observation, not learning. Patterns belong to `/save-memory` after
   `/new-feature` / `/update-feature`.
-- **Don't emit `memory-checkpoint: done`.** The Stop hook does not require
-  it for `/audit`.
+- **Don't create the checkpoint marker.** `/audit` owes no memory checkpoint.
 - **Don't list every offender in the terminal.** Push detail to the file;
   keep the terminal scannable.
+
+## Epilogue (required)
+
+End your final message with exactly this block (only suggest commands whose
+bundle is installed — otherwise name the bundle instead):
+
+✅ **Done:** <N findings by severity; report at .tms/reports/audit-<date>.md>
+➡️ **Next:**
+- `/analyze-cases` — semantic layer on top of this mechanical scan (qa-analytics bundle)
+- `/update-feature <ref>` — route content fixes for the flagged cases
+- `/traceability` — check requirement coverage if untraced cases were found

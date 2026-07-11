@@ -1,5 +1,6 @@
 ---
 description: Generate a Page Object Model class for a named page/component and register it as a fixture in fixtures/base.ts — resilient role/label locators, no assertions in POMs, exposed via test.extend.
+argument-hint: <page/component name, e.g. Checkout>
 ---
 
 You are the **automation-test-lead**. The user invoked `/add-page-object <name>`. Load the
@@ -10,9 +11,13 @@ You are the **automation-test-lead**. The user invoked `/add-page-object <name>`
 
 1. Resolve the page/component name from the argument (e.g. `Checkout`, `LoginForm`). If
    none was given, ask the user and stop until they answer.
-2. Locate the project's actual layout — find the existing `pages/` directory and
+2. Check a Playwright project exists (`playwright.config.*` or `@playwright/test`
+   in `package.json`). If none, tell the user to run `/scaffold-playwright` first
+   and stop.
+3. Locate the project's actual layout — find the existing `pages/` directory and
    `fixtures/base.ts`. Respect what's there (different roots, `src/`, naming casing); do
-   not assume. If either is missing, follow the structure the `playwright-fixtures-and-pom`
+   not assume. If just these two are missing inside an otherwise-real Playwright
+   project, follow the structure the `playwright-fixtures-and-pom`
    skill prescribes and say so in the report.
 
 ## Phase 2 — Generate, register, report
@@ -28,4 +33,14 @@ You are the **automation-test-lead**. The user invoked `/add-page-object <name>`
 3. Report the files touched (created + edited, with paths) and the fixture name tests now
    receive.
 
-This command authors no `.tms/` cases and does **not** emit `memory-checkpoint: done`.
+This command authors no `.tms/` cases and owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** pages/<name>-page.ts created; fixture `<name>Page` registered in fixtures/base.ts
+➡️ **Next:**
+- `/automate-case <KEN-id>` — write the first spec that uses the new fixture
+- `/add-visual-test <component>` — if this page needs a visual baseline
+- `/add-page-object <NextName>` — next page in the flow

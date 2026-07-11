@@ -47,8 +47,18 @@ from the skill verbatim, adapting only `baseURL` / `webServer` to the project.
 ## Phase 5 — Report
 
 1. List what was created (files + dirs) and the install commands run.
-2. Point the user at the next steps: `/add-page-object` to add a POM, and
-   `/add-auth-setup` to flesh out real authentication.
-3. This command scaffolds project files only — it authors **no** `.tms/` cases and
-   does **not** emit `memory-checkpoint: done` (the Stop hook only enforces
-   checkpoints for `/new-feature` and `/update-feature`).
+2. This command scaffolds project files only — it authors **no** `.tms/` cases and
+   owes no memory checkpoint (only `/new-feature` and `/update-feature` create
+   the `.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+## Epilogue (required)
+
+End your final message with exactly this block (only suggest commands whose
+bundle is installed — otherwise name the bundle):
+
+✅ **Done:** Playwright + TS scaffolded — <files/dirs created>, browsers installed
+➡️ **Next:**
+- `/add-auth-setup` — wire real authentication (setup project + storageState)
+- `/add-page-object <Name>` — first POM for your main page
+- then `/automate-case <KEN-id>` — derive your first @KEN-tagged test from a manual case
+- CI wiring (runners, sharding, artifacts) → ask `@automation-devops` (automation-devops bundle)

@@ -1,17 +1,18 @@
 ---
-description: Semantic deep-audit of the whole (or scoped) test base by a fan-out of 1-N qa-engineer workers in analyze mode. Finds what the mechanical /audit can't — cross-case contradictions, semantic duplicates, convention drift, coverage gaps vs source, mis-prioritized/mis-tagged cases. Read-only by default; optional per-batch fixes at the end. Built for large projects.
+description: Semantic deep-audit of the whole (or scoped) test base by a fan-out of 1-N qa-engineer-agent workers in analyze mode. Finds what the mechanical /audit can't — cross-case contradictions, semantic duplicates, convention drift, coverage gaps vs source, mis-prioritized/mis-tagged cases. Read-only by default; optional per-batch fixes at the end. Built for large projects.
+argument-hint: [scope — suite path, tag, or source_id, optional]
 ---
 
 You are the test-lead-agent. The user invoked `/analyze-cases` to get a deep,
 *semantic* read of the test-case base — the kind of judgment `kensa` can't
 make. Where `/audit` runs mechanical checks (schema, lint, exact duplicates,
 stale, orphan refs) solo, `/analyze-cases` shards the base and fans out
-`qa-engineer` workers to reason over it, then synthesizes their findings.
+`qa-engineer-agent` workers to reason over it, then synthesizes their findings.
 
 This command is **read-only by default**: workers do NOT write or modify cases —
-they return findings in their message; you write one report. It does NOT emit
-`memory-checkpoint: done` — the Stop hook only enforces checkpoints for
-`/new-feature` and `/update-feature`.
+they return findings in their message; you write one report. It owes NO memory
+checkpoint — only `/new-feature` and `/update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 **See also `/audit`** — run it first for the mechanical baseline; `/analyze-cases`
 is the semantic layer on top.
@@ -130,4 +131,14 @@ user declines or doesn't respond — stop, don't nudge.
 - **Don't report noise.** Filter through `review-rubrics` — every reported finding
   should be worth the user's time.
 - **Don't shard so finely that context is lost.** Comparable cases must share a shard.
-- **Don't emit `memory-checkpoint: done`.** Not required for this command.
+- **Don't create the checkpoint marker.** This command owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** <N> semantic findings (<X> contradictions / <Y> dupes / <Z> gaps / …); report at .tms/reports/analyze-cases-<date>.md
+➡️ **Next:**
+- `/update-feature <ref>` — resolve contradictions and merge duplicates (judgment fixes)
+- `/new-feature <ref>` — close the coverage gaps found
+- re-run `/audit` after the fixes land, to confirm a clean mechanical baseline

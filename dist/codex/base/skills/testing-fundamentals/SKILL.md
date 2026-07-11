@@ -54,7 +54,7 @@ you need to defend a decision.
    find AC ambiguities before any case is written.
 4. **Defects cluster together** (Enders 1975, Pareto). A small set of
    components contains most of the defects. *Kensa application:* if
-   `learned/patterns.md` shows the auth module has produced 60% of
+   `.tms/memory/learned/patterns.md` shows the auth module has produced 60% of
    recent bugs, allocate more cases there.
 5. **Tests wear out** (Beizer 1990). Repeating the same tests stops
    finding new defects. *Kensa application:* `/update-feature` is the
@@ -199,20 +199,23 @@ In Kensa, traceability is operationalised through frontmatter:
 id: auth.2fa.setup-001
 title: User enables TOTP from Security settings
 source_id: LIN-89          # links to test basis (Linear issue)
-source_ac: AC-1            # specific acceptance criterion (test condition)
-risk_refs: [risk-2fa-bypass]  # links to risk register
 priority: high
 status: ready
+tags: [risk-2fa-bypass]    # risk register ids live as tags
+custom:
+  source_ac: AC-1          # optional custom field (add via `kensa schema apply`)
 ---
 ```
 
-The `source_id` field IS the test basis → testware link of §1.4.4.
-This is what powers coverage queries:
+The `source_id` field IS the test basis → testware link of §1.4.4. (`source_ac`
+and any risk-register refs are **not** schema fields — model AC granularity as a
+`custom.*` field added additively via `kensa schema apply`, and risk ids as
+tags.) This is what powers coverage queries:
 
-- `kensa coverage --by-source LIN-89` — which AC have cases?
-- `kensa coverage --by-risk risk-2fa-bypass` — what mitigates this risk?
+- `kensa coverage --by-source` — which sources have cases? (read your ref's row)
+- `kensa filter "tag=risk-2fa-bypass"` — what mitigates this risk?
 - Reverse: when an AC changes, `grep source_ac: AC-1` finds every
-  affected case.
+  affected case (if the project added that custom field).
 
 Without traceability you cannot answer "are we covered?" — see
 `test-monitoring-control-completion`.
@@ -261,8 +264,7 @@ The Kensa plugin sits at "high independence" (a separate agent team
 from whoever wrote the code/spec). Benefits: catches what the author
 missed. Drawbacks: less context. Mitigations the Test Lead should apply:
 
-- Read the SOT thoroughly to build context (`reading-existing-codebase`
-  pattern from sibling skills).
+- Read the SOT thoroughly to build context before judging it.
 - Engage the user when something is unclear — don't write cases
   against assumptions.
 - Use existing cases (`.tms/suites/`) as a source of project
@@ -281,8 +283,8 @@ User: "Write tests for the new TOTP 2FA in LIN-89."
    risks. **Principle applied:** #2 exhaustive testing impossible —
    pick BVA on the 6-digit code, EP on the secret format.
 3. **Test design** (qa-engineer-agent) — write 14 cases in
-   `.tms/suites/auth/2fa/`, each with `source_id: LIN-89` and
-   `source_ac: AC-N` for traceability.
+   `.tms/suites/auth/2fa/`, each with `source_id: LIN-89` (and
+   `custom.source_ac: AC-N` if the project added that field) for traceability.
 4. **Test completion** (lead) — report to user: "14 cases, all AC
    covered, residual risk: SMS fallback not tested (out of scope per
    spec). Recommend separate ticket."

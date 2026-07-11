@@ -5,8 +5,10 @@ installer script; you either install the Claude build from the marketplace or co
 the Codex build into your project.
 
 The shipped builds live under [`dist/claude/`](dist/claude) and
-[`dist/codex/`](dist/codex) (self-contained: agents, prompts, 33 skills, hooks,
-manifest all inside).
+[`dist/codex/`](dist/codex). Each engine ships an always-installed
+**`base/`** (agents, commands/prompts, 26 skills, hooks, manifest) plus
+**`bundles/<id>/`** add-ons (12 optional bundles, 28 more skills) you copy on
+top as needed — [`catalog.json`](catalog.json) lists what's in each.
 
 ---
 
@@ -24,9 +26,10 @@ marketplace install is complete:
 `/plugin marketplace update rpluzhnikov`.
 
 Verify:
-- `/help` lists `setup`, `new-feature`, `update-feature`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `adapt-schema`, `blueprint`, `save-memory`
-- `@` shows `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`, `strategist`
-- `/hooks` shows one **Stop** hook (memory checkpoint) — there is no PostToolUse hook (ids are allocated atomically by `kensa new`)
+- `/help` lists the 11 **base** commands: `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `adapt-schema`, `run-routine`, `new-routine`, `blueprint`, `next`, `import-results`
+- `@` shows the base agents: `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`
+- `/hooks` shows one **Stop** hook (memory checkpoint; runs via `node`) — there is no PostToolUse hook (ids are allocated atomically by `kensa new`)
+- Bundle commands and agents (`/brainstorm` + `strategist`, the six `qa-analytics` commands, `/automate-case` + the automation agents, …) appear **only if you installed their bundle**
 
 Then run `/setup` in your project.
 
@@ -35,9 +38,11 @@ Drop only the pieces into the project's `.claude/` — Claude auto-discovers the
 
 ```powershell
 $p = "C:\path\to\your-project\.claude"
-Copy-Item .\dist\claude\agents   "$p\agents"   -Recurse -Force
-Copy-Item .\dist\claude\commands "$p\commands" -Recurse -Force
-Copy-Item .\dist\claude\skills   "$p\skills"   -Recurse -Force
+Copy-Item .\dist\claude\base\agents   "$p\agents"   -Recurse -Force
+Copy-Item .\dist\claude\base\commands "$p\commands" -Recurse -Force
+Copy-Item .\dist\claude\base\skills   "$p\skills"   -Recurse -Force
+# plus any bundles, merged on top:
+Copy-Item .\dist\claude\bundles\qa-analytics\* "$p\" -Recurse -Force
 ```
 
 Note: this route loads agents/commands/skills but **not** the Stop hooks or the
@@ -55,12 +60,16 @@ project root:
 
 ```powershell
 git clone https://github.com/rpluzhnikov/QA_agents.git
-Copy-Item .\QA_agents\dist\codex\* C:\path\to\your-project\ -Recurse -Force
+Copy-Item .\QA_agents\dist\codex\base\* C:\path\to\your-project\ -Recurse -Force
+# plus any bundles, merged on top:
+Copy-Item .\QA_agents\dist\codex\bundles\qa-analytics\* C:\path\to\your-project\ -Recurse -Force
 ```
 
 ```bash
 git clone https://github.com/rpluzhnikov/QA_agents.git
-cp -R QA_agents/dist/codex/. /path/to/your-project/
+cp -R QA_agents/dist/codex/base/. /path/to/your-project/
+# plus any bundles, merged on top:
+cp -R QA_agents/dist/codex/bundles/qa-analytics/. /path/to/your-project/
 ```
 
 This places `.codex/agents/*.toml` (subagents, auto-loaded), `.codex/prompts/*.md`,

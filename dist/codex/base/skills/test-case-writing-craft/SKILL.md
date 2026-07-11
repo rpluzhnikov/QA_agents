@@ -36,7 +36,7 @@ preconditions: |
   - User account exists: test+std@example.com / Valid-Pass-1
   - User has confirmed their email
   - User is on /login
-generated_by: kensa-qa@0.16.0
+generated_by: kensa-qa@<plugin version>
 ---
 
 ## Steps
@@ -179,6 +179,26 @@ Pattern A is better when you want failure points granular. Pattern B is
 better when many small steps lead to one final state and intermediate
 observations don't add value. Default to A.
 
+### Where does the expected result come from? (test oracles)
+
+Every expected result needs an identifiable **oracle** — the authority that says
+what "correct" is. Know which one you're using:
+
+- **Spec oracle** — the AC/spec states it. The strongest; the `source_id` (and
+  section pointer in the checklist ref) is your citation.
+- **Consistency oracle** — the spec is silent, but sibling features behave a
+  certain way ("every other form shows inline validation, so this one should").
+  Name the sibling in the case's Description.
+- **Cross-product oracle** — competitors/platform conventions define the
+  expectation (OS date-picker behavior, standard HTTP semantics).
+- **Heuristic oracle** — common sense about harm ("deleting must not corrupt
+  unrelated data"). Weakest; use for guardrail cases.
+
+**The rule:** an expected result with no identifiable oracle is an
+`ASSUMPTION:` by definition — mark it as one so the Test Lead can confirm or
+escalate. "It should obviously do X" is a heuristic oracle at best; say so
+instead of laundering a guess into a spec-sounding expected result.
+
 ## Preconditions vs the first step
 
 A common point of confusion. The rule:
@@ -250,7 +270,7 @@ become permanent.
 ticket ID. This is the link back to the source of truth and to
 `/update-feature` later.
 
-**`tags`** — match the project's tag taxonomy from `learned/tags.md`. Don't
+**`tags`** — match the project's tag taxonomy from `.tms/memory/learned/tags.md`. Don't
 invent new tags without telling the Test Lead.
 
 **`priority`** — be honest. Default to `medium` if unsure; reserve

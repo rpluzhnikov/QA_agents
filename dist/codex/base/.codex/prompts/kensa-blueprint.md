@@ -7,6 +7,9 @@ Act as the **test-lead-agent**. Work with a Kensa Blueprint per $ARGUMENTS. Load
 `kensa-blueprints` skill for the node catalog, the `${...}` reference rules, the agent
 (`prompt`) node handshake, the CLI surface, the validation codes, and the security model.
 
+Preflight: `kensa --version` — if the CLI isn't on PATH, tell the user and stop
+(every subcommand below drives `kensa blueprint`).
+
 Resolve the intent:
 
 - **(empty) or `list`** — `kensa blueprint list`. Show id + name; if none, offer `new`.
@@ -27,5 +30,10 @@ Security to respect: agent-node engines are allow-listed to `claude` / `codex` /
 are allow-listed and never concatenated; CWD is confined to the project root; secrets are
 `{ ref: <name> }` handles, never literals.
 
-This prompt authors no test cases and does **not** emit `memory-checkpoint: done` — the Stop hook
-only enforces checkpoints for `kensa-new-feature` / `kensa-update-feature`.
+This prompt authors no test cases and owes no memory checkpoint — only `/kensa-new-feature`
+and `/kensa-update-feature` create the `.tms/.pending-checkpoint` marker the Stop hook keys on.
+
+End your final message with (pick the row matching the subcommand):
+
+✅ **Done:** <listed N blueprints / BP-NNN scaffolded / validation clean / run outcome per node>
+➡️ **Next:** after `new` → `/kensa-blueprint validate <id>` (never run unvalidated) · after a clean `validate` → `/kensa-blueprint run <id>` (`--allow-scripts` only with explicit go-ahead) · after `run` → inspect the run record in `.tms/runs/`; for live-app checks outside a graph, `/kensa-run-routine`.

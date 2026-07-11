@@ -71,12 +71,16 @@ commands work in the host process too. See the `kensa` and `kensa-browser` skill
 ## Commands
 
 Routed through the Test Lead. **Base commands** (always installed):
-**Authoring** (emit a memory checkpoint): `/setup` · `/new-feature <ref>` ·
+**Orientation:** `/next` — read-only situation router: inspects project state and
+recommends what to run now ("I'm back, where were we?").
+**Authoring** (owe a memory checkpoint): `/setup` · `/new-feature <ref>` ·
 `/update-feature <ref>`. **Test-base health:** `/audit [scope]`.
-**Browser QA:** `/run-routine [RT-id]` — execute a routine against the live app.
+**Browser QA:** `/run-routine [RT-id]` — execute a routine against the live app ·
+`/new-routine [name]` — author a routine via a short interview.
 **Schema & automation:** `/adapt-schema [samples]` — fit the schema to a user's export
 (spawns the schema-bootstrap-agent) · `/blueprint [list|show|new|validate|run]` —
-design/validate/run a Blueprint node-graph automation.
+design/validate/run a Blueprint node-graph automation · `/import-results <report>` —
+ingest a CI report and close the matched/orphaned traceability loop.
 **Bookkeeping:** `/save-memory` — checkpoint learnings to `.tms/memory/learned/*`.
 
 **Bundle commands** (only if the bundle is installed):
@@ -84,12 +88,16 @@ design/validate/run a Blueprint node-graph automation.
   `/risk-assess <ref>` · `/test-plan <epic>` · `/analyze-cases [scope]` ·
   `/traceability [--deep]` (read-only shift-left + test-base intelligence).
 - `strategist` bundle — `/brainstorm <topic>` (spawns 3 strategists).
-- `automation-<combo>` bundles — `/scaffold-playwright`, `/add-page-object`,
-  `/add-auth-setup`, `/add-visual-test`, `/add-a11y-test`, `/fix-flake` (write
-  `@KEN`-tagged automated tests via the automation agents).
+- `automation-<combo>` bundles — `/automate-case <KEN-id>` (the core verb: derive
+  a `@KEN`-tagged test from a manual case), `/scaffold-playwright`, `/add-page-object`,
+  `/add-auth-setup`, `/add-visual-test`, `/add-a11y-test`, `/fix-flake`.
 
 If a user asks for one of these and the command isn't present, the bundle isn't
 installed — name the bundle to add rather than improvising the capability.
+
+**Every command ends with an epilogue** — `✅ Done: …` + `➡️ Next: …` naming the
+1-3 logical follow-up commands (only ones whose bundle is installed). Keep that
+contract when acting on any command.
 
 ## Skills — load on demand, don't front-load
 
@@ -192,20 +200,18 @@ Two onboarding/automation capabilities, each with its own command and skill:
 
 ## Memory checkpoint (enforced by a Stop hook)
 
-After every `/new-feature` and `/update-feature`, before the session ends, run the
-`/save-memory` protocol and emit on its own line, verbatim:
+`/new-feature` and `/update-feature` create the marker file
+`.tms/.pending-checkpoint` once the user approves the plan. Before the session
+ends, run the `/save-memory` protocol and **delete the marker** — that closes
+the checkpoint. There is no chat sentinel.
 
-```
-memory-checkpoint: done
-```
-
-The bundled `Stop` hook (`hooks/save-memory-stop.ps1` on Windows,
-`save-memory-stop.sh` on macOS/Linux) scans the transcript and blocks the stop until
-that sentinel follows the command. Behavior is driven by `auto_save_learnings` in
-`.tms/memory/project.md`: `true` → silent saves + one-line report; `false` (default)
-→ yes/no/edit per candidate. If nothing to save, still emit the sentinel with
-`(nothing to save this round)` appended — the hook keys only on the prefix. The
-read-only analysis commands do **not** owe a checkpoint.
+The bundled `Stop` hook (`hooks/save-memory-stop.js`, cross-platform via node)
+blocks the stop only while the marker exists — it never scans the transcript,
+so merely *mentioning* a command never re-arms it. Behavior is driven by
+`auto_save_learnings` in `.tms/memory/project.md`: `true` → silent saves +
+one-line report; `false` (default) → yes/no/edit per candidate. If nothing to
+save, say so in one line and delete the marker anyway. The read-only analysis
+commands never create the marker and do **not** owe a checkpoint.
 
 ## Bundled MCP
 

@@ -62,7 +62,49 @@ A good checklist:
 
 - [ ] Audit log entry created for enable / disable
 - [ ] Email notification on enable / disable
+
+## Coverage dimensions
+
+| Dimension | Status | Where / why |
+|---|---|---|
+| Negative / validation | covered | §Validation/negative (4 items) |
+| Boundaries | covered | §TOTP code input [3-value BVA] |
+| State transitions | covered | §2FA enable flow [state transitions] |
+| Permissions / roles | out-of-scope | admin-manages-user-2FA is LIN-92 |
+| Concurrency / idempotency | covered | re-enable when enabled; TOTP reuse |
+| Interruption / recovery | covered | server down mid-setup; cancel flow |
+| i18n / locale / timezone | N/A | no user-visible text or time math in scope |
+| Data lifecycle | covered | disable removes secret; export includes flag |
+| Non-functional flags | flagged | perf of TOTP validation → note to Lead, not spec'd |
 ```
+
+## The coverage dimensions gate (mandatory)
+
+Every checklist **ends with a Coverage dimensions table** — the fixed list of
+dimensions below, each row marked one of:
+
+- **covered** — with refs to the checklist items that cover it
+- **out-of-scope** — with a one-line reason (ticket ref, "other package", …)
+- **N/A** — with why the dimension genuinely doesn't apply here
+
+The fixed dimensions:
+
+1. **Negative / validation** — invalid input, rejected actions
+2. **Boundaries** — numeric/length/date limits (BVA where a range exists)
+3. **State transitions** — flows with modes, statuses, lifecycles
+4. **Permissions / roles** — who may/may not do this (incl. IDOR-style checks)
+5. **Concurrency / idempotency** — double-submit, parallel sessions, retries
+6. **Interruption / recovery** — cancel, refresh, offline, timeout, back-button
+7. **i18n / locale / timezone** — text, formats, DST, RTL where user-facing
+8. **Data lifecycle** — create/read/update/delete/archive of the data touched
+9. **Non-functional flags** — perf / a11y / security risks worth flagging
+   (flag, don't spec — they route to their own discipline)
+
+A blank row is an invalid checklist — the Test Lead sends it back without
+reading further. "Covered" claims must point at real items. This table is what
+turns "cover as many cases as possible" from a vibe into an inspectable
+invariant: you either covered a dimension, or you said out loud that you
+didn't and why.
 
 ## Composition rules
 
@@ -71,11 +113,14 @@ A good checklist:
 - Anything explicitly in the acceptance criteria
 - Anything whose absence would block release
 - Smoke-test-level cases (happy paths for the primary flows)
+- **Validation and negative paths for the primary flows** — a negative of a
+  must-have flow inherits the flow's tier; "user can't log in with a stolen
+  code" is not less important than "user can log in"
 
 ### What goes in should-have
 
-- Validation and negative paths for the primary flows
 - Edge cases the spec doesn't mention but a reasonable PM would expect
+- Negative paths of secondary (should-have) flows
 - Cross-cutting concerns (sessions, audit, GDPR, accessibility, i18n)
   where applicable
 
@@ -89,7 +134,9 @@ A good checklist:
 
 - Implementation details ("verify the database column is named `totp_secret`")
 - Code review items ("verify the secret is encrypted at rest")
-- Performance ("response time < 200ms") — separate test discipline
+- Performance specs ("response time < 200ms") — separate test discipline; if a
+  non-functional risk is visible, put a one-line **flag** in the Coverage
+  dimensions table instead of spec'ing it
 - Things outside the QA Engineer's assigned scope
 
 ## References
@@ -116,8 +163,14 @@ checklist so the Test Lead can verify the right technique was chosen:
 - [ ] 5-digit code → rejected
 - [ ] 6-digit code (valid) → accepted
 - [ ] 7-digit code → rejected
+
+### TOTP code input field [EP — invalid classes]
 - [ ] 6-digit non-numeric → rejected
 ```
+
+(Note the split: the non-numeric input is an *equivalence class*, not a
+boundary — mixing it into the BVA group is exactly the mislabeling the Test
+Lead's rubric flags under "Technique annotation".)
 
 Or for a state machine:
 
@@ -146,12 +199,15 @@ Aim for under 30 items per QA Engineer package. If you have more, either:
 When the Test Lead reviews your checklist, expect them to look for:
 
 1. **Coverage gaps** — anything in the spec / AC not represented?
-2. **Out-of-scope items** — anything that should be in a different QA Engineer
+2. **Dimensions table** — present, every row filled, "covered" refs resolve.
+   Missing or blank-rowed table = automatic send-back.
+3. **Happy-path-only** — automatic send-back regardless of everything else.
+4. **Out-of-scope items** — anything that should be in a different QA Engineer
    package?
-3. **Missing references** — items with no source where one should exist
-4. **Wrong technique** — if you marked `[3-value BVA]` and didn't include
+5. **Missing references** — items with no source where one should exist
+6. **Wrong technique** — if you marked `[3-value BVA]` and didn't include
    both neighbors of each boundary, the Test Lead will catch that
-5. **Assumption pile-up** — too many `[ASSUMPTION]` markers signal you
+7. **Assumption pile-up** — too many `[ASSUMPTION]` markers signal you
    should have stopped and asked
 
 If the Test Lead sends back with comments, address each comment specifically.

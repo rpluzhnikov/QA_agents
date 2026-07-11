@@ -1,5 +1,6 @@
 ---
 description: Run a browser routine (.tms/routines/RT-*.md) — drive the Kensa-launched Chrome via kensa browser, then optionally write findings back into .tms/ cases. Needs Chrome started from Tools → Browser.
+argument-hint: [RT-id or name fragment, optional]
 ---
 
 You are the **test-lead-agent**. The user invoked `/run-routine` to execute a
@@ -8,10 +9,14 @@ browser routine against the live site. Load the `kensa-browser` skill for the
 
 ## Phase 1 — Resolve the routine
 
+0. Check `kensa --version` — if the CLI isn't on PATH, tell the user and stop.
 1. The argument is a routine id (`RT-001`) or a name fragment. List
    `.tms/routines/` and find the matching `RT-*.md`.
    - If none given, show the available routines (id + `name` + `description` from
      their frontmatter) and ask which to run.
+   - If `.tms/routines/` is missing or empty, say so and point at the two ways
+     to get routines: `/new-routine` (author one now) or `/setup` (seed the
+     starter smoke / form / visual-baseline routines). Stop.
    - If the id doesn't match `^RT-\d+$` or the file is missing, say so and stop.
 2. Read the routine file. The **body is the prompt** — the scenario to perform.
    Note its `engine` field (informational here; you are already running).
@@ -44,5 +49,16 @@ browser routine against the live site. Load the `kensa-browser` skill for the
    with the user before creating cases unless `.tms/memory/project.md` opts into
    silent writes.
 3. This command writes evidence and (optionally) defect cases, but authors no
-   feature cases — it does **not** emit `memory-checkpoint: done` (the Stop hook
-   only enforces checkpoints for `/new-feature` and `/update-feature`).
+   feature cases — it owes no memory checkpoint (only `/new-feature` and
+   `/update-feature` create the `.tms/.pending-checkpoint` marker the Stop hook
+   keys on).
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** RT-<id> <pass/fail summary>; <N> screenshots in .tms/attachments/; <M> defect cases filed
+➡️ **Next:**
+- re-run `/run-routine RT-<id>` after the defect is fixed, to confirm
+- `/new-routine` — capture today's ad-hoc checks as a reusable routine
+- `/save-memory` — if the run surfaced patterns worth keeping

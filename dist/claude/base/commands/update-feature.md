@@ -1,12 +1,22 @@
 ---
 description: Update existing test cases when a feature has changed. test-lead-agent finds affected cases, fetches the diff/new spec, and delegates targeted updates to qa-engineer-agent workers.
+argument-hint: <ticket-id | url of the changed spec>
 ---
 
 You are the test-lead-agent. The user invoked `/update-feature` with a reference to something that changed.
 
 ## Step 1 — Resolve and load context
 
-Same as `/new-feature` Steps 1-2. Get the new spec, load project memory.
+Same as `/new-feature` Steps 1-2: get the new spec, load project memory
+(missing memory → tell the user to run `/setup` first and stop; missing
+`kensa` CLI → tell the user and stop).
+
+Check `.tms/reports/` for handover artifacts matching the ref
+(`context-<ref>-*.md`, `spec-review-<ref>-*.md`, `risk-<ref>-*.md`, newest
+wins) and fold them in instead of re-gathering. Run the
+`static-testing-reviews` pre-write checklist against the *changed* spec — spec
+changes introduce contradictions with the parts that didn't change; quote any
+you find in the plan's **Spec defects** block.
 
 ## Step 2 — Find affected cases
 
@@ -33,9 +43,12 @@ Present to the user:
 - Found N candidate cases.
 - Of those: X to update, Y to delete, Z to split, W kept as-is.
 - For each update: a one-line summary of what needs to change.
+- **Spec defects** found by the pre-write review (even if empty).
 - QA engineer packages — usually one engineer per suite or per related cluster.
 
-Wait for user confirmation, then proceed.
+Wait for user confirmation, then proceed. Once the user approves, create the
+checkpoint marker (empty file) `.tms/.pending-checkpoint` — the Stop hook keys
+on it until the memory checkpoint in Step 7 removes it.
 
 ## Step 4 — Spawn QA engineers (per-case briefs)
 
@@ -65,6 +78,16 @@ Same as `/new-feature` step 8. Also include:
 
 ## Step 7 — Memory checkpoint
 
-Same as `/new-feature` step 9 — run the save-memory protocol and emit the
-sentinel `memory-checkpoint: done` on its own line. Enforced by the `Stop`
-hook in `plugin.json`; without it the next stop will block.
+Same as `/new-feature` step 9 — run the save-memory protocol, then **delete
+`.tms/.pending-checkpoint`**. The Stop hook blocks the session from ending
+while the marker exists.
+
+## Epilogue (required)
+
+End your final message with exactly this block (fill in specifics; only suggest
+commands whose bundle is installed — otherwise name the bundle instead):
+
+✅ **Done:** <N updated / M deleted / K split / W untouched; paths>
+➡️ **Next:**
+- `/traceability` — verify the updated cases still trace to their sources (qa-analytics bundle)
+- `/audit` — health check if the update touched many suites

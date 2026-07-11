@@ -31,5 +31,11 @@ are authoritative on the anti-flake idioms. If no spec path was given, ask for o
 **Pitfall:** retries / `poll` / `toPass` must FIX the root cause, not mask a bad locator — if a
 fix only passes because retries hide the race, the locator or wait is still wrong.
 
-This command edits spec files only — it authors no `.tms/` cases and does **not** emit
-`memory-checkpoint: done`.
+This command edits spec files only — it authors no `.tms/` cases and owes no memory
+checkpoint — only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
+
+End your final message with (only suggest what's installed — otherwise name the bundle):
+
+✅ **Done:** <spec> de-flaked — <N> findings fixed; re-run <result, e.g. 5/5 green with --repeat-each=5>
+➡️ **Next:** CI flake gating (`--fail-on-flaky-tests`, quarantine policy) → ask `@automation-devops` (automation-devops bundle) · systemic flake policy across the suite → `@codereviewer` review pass (automation-codereview bundle) · `/kensa-fix-flake <next-spec>` if the run surfaced more flaky specs.

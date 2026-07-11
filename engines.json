@@ -1,13 +1,13 @@
-{
+﻿{
   "schemaVersion": 1,
   "plugin": "kensa-qa",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Integration manifest for IDEs. Lists the installable engine builds (an always-installed base) plus an optional bundle catalog the user picks with checkboxes. The IDE copies the chosen engine's base on every install, then each selected bundle on top. Bundle membership is sourced from catalog.json; the build keeps the two consistent.",
   "engines": [
     {
       "id": "claude",
       "displayName": "Claude Code",
-      "summary": "Manual QA team for Claude Code — base: test-lead + qa-engineer + schema-bootstrap agents, 8 core commands (author/update/audit/browser/blueprint), kensa + core testing skills, Stop hook, bundled sequential-thinking MCP. Extra capabilities (analytics, platform knowledge, brainstorm, source connectors, automation) are optional bundles.",
+      "summary": "Manual QA team for Claude Code — base: test-lead + qa-engineer + schema-bootstrap agents, 11 core commands (author/update/audit/browser/routines/blueprint/results/next), kensa + core testing skills, Stop hook, bundled sequential-thinking MCP. Extra capabilities (analytics, platform knowledge, brainstorm, source connectors, automation) are optional bundles.",
       "source": "dist/claude/base",
       "target": ".claude/plugins/kensa-qa",
       "copy": "contents",
@@ -16,7 +16,7 @@
         "Run /setup to bootstrap .tms/memory/ and wire any selected source-of-truth MCP servers."
       ],
       "verify": [
-        "/help lists the base commands: setup, new-feature, update-feature, audit, run-routine, blueprint, adapt-schema, save-memory",
+        "/help lists the base commands: setup, new-feature, update-feature, audit, run-routine, new-routine, blueprint, adapt-schema, save-memory, next, import-results",
         "@ shows base agents: test-lead-agent, qa-engineer-agent, schema-bootstrap-agent",
         "/hooks shows one Stop hook (memory checkpoint)"
       ]

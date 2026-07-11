@@ -120,7 +120,7 @@ Worked example — what NOT to ask:
 >    (Covered in conventions.md — read it.)
 >
 > ❌ "Should the case use the `auth` tag?"
->    (QA Engineer decision per `learned/tags.md`.)
+>    (QA Engineer decision per `.tms/memory/learned/tags.md`.)
 >
 > ❌ "What should I assume about TOTP window?"
 >    (Industry default is ±30s; assume and surface.)

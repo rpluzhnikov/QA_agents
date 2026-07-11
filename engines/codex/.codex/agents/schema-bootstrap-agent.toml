@@ -29,7 +29,10 @@ Workflow (drive everything through `kensa`, `--format json`):
 1. `kensa schema show --format json` — note system + existing custom fields; don't clobber.
 2. Read the samples; extract column names + infer types; map obvious synonyms in your head
    (Summary→title, Pre-Reqs→preconditions, Anticipated Outcome→expected). No-equivalent
-   columns become new custom fields.
+   columns become new custom fields. If the two samples CONTRADICT each other (same
+   column, different types; field present in one, absent in the other; conflicting
+   enums) — don't silently reconcile: flag with `GAP:`, pick the more permissive
+   reading only after saying so, and note the user should confirm the canonical shape.
 3. If the schema is v1, run `kensa schema migrate` first.
 4. `kensa schema preview …` for each change — confirm it's additive and non-destructive.
    If a change would drop/overwrite a field, don't apply it; surface it and ask.

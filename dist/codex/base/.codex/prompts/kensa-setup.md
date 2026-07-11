@@ -19,10 +19,19 @@ confirms at the end.
    confirm with the user.
 5. **Glossary** — extract frequent domain terms, build `glossary.md`.
 6. **Commit** — show the tree, get confirmation, write `.tms/memory/*` from the
-   templates. For a web project, optionally seed starter browser routines from the
+   templates. Also add `.tms/.pending-checkpoint` to the project `.gitignore`
+   (create or append, never clobber) — it's the transient Stop-hook marker the
+   authoring commands create and `/kensa-save-memory` deletes; never commit it.
+   For a web project, optionally seed starter browser routines from the
    plugin `templates/routines/` into `.tms/routines/` (RT-001..003: smoke / form /
    visual baseline) — committable Markdown the user runs with `/kensa-run-routine`.
 
 Use the bundled skills `scope-analysis`, `clarification-protocol`, and the `sot-*`
 guides. Fill sensible defaults where the user has no answer, and mark them as
 defaults.
+
+End your final message with (adapt to what actually happened; only suggest commands
+whose bundle is installed — otherwise name the bundle):
+
+✅ **Done:** .tms/memory/ created (<files>), MCP config <added/skipped>, routines <seeded/skipped>
+➡️ **Next:** restart Codex if MCP servers were added to `config.toml` — they start on restart · `/kensa-new-feature <ref>` — author cases for your first feature · `/kensa-run-routine RT-001` — if routines were seeded · migrating from another TMS? `/kensa-adapt-schema <samples>` first, import via Universal format, then re-run `/kensa-setup` (update mode).

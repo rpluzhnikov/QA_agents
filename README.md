@@ -43,9 +43,9 @@ On large suites: flag stale drafts, duplicates, orphan steps, tag drift, missing
 </tr>
 </table>
 
-It writes manual test cases. It does **not** execute, automate, or replace a test runner.
+The base writes manual test cases — it does **not** replace a test runner. Optional bundles take it further across the SDLC: the `qa-analytics` bundle adds **read-only analysis commands** — pull context from your trackers, statically review a spec for defects before any code, assess product risk, draft a test plan, deep-audit the whole case base by a fan-out of reviewers, and build a requirements→cases traceability matrix — and the automation bundles derive `@KEN`-tagged **Playwright tests** from your manual cases. See [Base + bundles](#base--bundles) and [SDLC coverage](#sdlc-coverage) below.
 
-Beyond authoring, it now spans the test side of the SDLC with **read-only analysis commands** — pull context from your trackers, statically review a spec for defects before any code, assess product risk, draft a test plan, deep-audit the whole case base by a fan-out of reviewers, and build a requirements→cases traceability matrix. See [SDLC coverage](#sdlc-coverage) below.
+And you never have to guess the next step: **every command ends with a `✅ Done / ➡️ Next` epilogue** naming the logical follow-up commands. Lost mid-project? Run `/next` — a read-only situation router that inspects `.tms/` state and recommends what's worth running now.
 
 ---
 
@@ -60,30 +60,55 @@ Beyond authoring, it now spans the test side of the SDLC with **read-only analys
 3. **`qa-engineer-agent`** workers run in parallel. Each writes its slice in two stages — checklist, then cases — with the Test Lead reviewing after each stage (up to 2 revision rounds per stage).
 4. **Output**: new or updated `.md` cases, a project-memory checkpoint, and a report (files, gaps, open questions).
 
-For strategic decisions ("how do we split this feature?", "negative-first or boundary-first?"), `/brainstorm` spawns three **strategists** in parallel for a deliberation round instead of writing cases.
+Rigor is enforced, not suggested. The spec is **statically reviewed before any case is written** — every plan carries a quoted *Spec defects* block (contradictions, ambiguities, missing unhappy paths), even when empty. The review rubric treats missing negatives or edge cases as an **automatic send-back**, never "approve with notes". Every checklist must end with a **Coverage-dimensions table** — negatives, boundaries, state transitions, permissions, concurrency, interruption/recovery, i18n, data lifecycle, non-functional — each row marked covered, out-of-scope (with reason), or N/A; nothing is cut silently. The pipeline also **chains**: the analysis commands' artifacts (context dossier, spec review, risk register, brainstorm) are read automatically by `/new-feature` instead of re-gathering. And for what scripted cases can't catch, the **exploratory-testing** skill runs charter- and tour-based sessions.
+
+For strategic decisions ("how do we split this feature?", "negative-first or boundary-first?"), `/brainstorm` (the `strategist` bundle) spawns three **strategists** in parallel for a deliberation round instead of writing cases.
 
 Onboarding an export from another TMS? `/adapt-schema` reads a couple of your real case files and fits the project **schema** to them (via the `schema-bootstrap-agent`), then you import the full export through Kensa's Universal format — **data follows schema, never the reverse**. And `/blueprint` builds **node-graph automations** (`.tms/blueprints/`) with a first-class agent step that runs `claude`/`codex` inside the flow.
 
 ---
 
+## Base + bundles
+
+The plugin installs as an always-on **base** plus **12 optional bundles** you pick at install time (checkboxes in the IDE; by hand, see [INSTALL.md](INSTALL.md)) and can change later. Uncheck everything and you still get a fully working manual-QA team. [`catalog.json`](catalog.json) is the single source of truth for the split.
+
+**Base** (always installed): the 3 core agents (`test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`), **11 commands**, **26 skills** (the full ISTQB author/review loop plus the `kensa` CLI / browser / mobile / HTTP / results / Blueprints tooling), the memory-checkpoint Stop hook, and the bundled `sequential-thinking` MCP.
+
+| Bundle | What it adds |
+|---|---|
+| `qa-analytics` | 6 read-only commands — context dossiers, static spec review, risk registers, test plans, deep base audit, traceability |
+| `platform-testing` | Web / mobile / API / security testing knowledge skills (ISO 25010 non-functional checklists) |
+| `strategist` | `/brainstorm` — three strategists debate approaches in parallel, return 2–3 finalists |
+| `automation-playwright-ts` | Write `@KEN`-tagged Playwright + TypeScript tests — `automation-test-lead` + `automation-engineer` agents, 10 framework skills, `/automate-case` + scaffold/de-flake commands |
+| `automation-devops` | Wire automated tests into CI/CD — runner choice, matrix/sharding, artifacts, flake handling, merge-gating |
+| `automation-codereview` | Review automated test code for reliability, maintainability, and `@KEN-<id>` traceability |
+| `automation-git` | Commit `@KEN`-tagged tests atomically; keep `.tms/` cases ↔ tests in sync (drift detection) |
+| `sot-linear` · `sot-jira` · `sot-confluence` · `sot-notion` · `sot-figma` | Source-of-truth connectors — where specs / acceptance criteria live in each tool and how to pull them |
+
+Bundle commands and agents exist **only when their bundle is installed**. If the Test Lead suggests a step you don't have, it names the bundle to add instead of improvising the capability.
+
+---
+
 ## The skill library
 
-Every reasoning step is backed by an explicit skill — and **20 of the 33 skills cite ISTQB CTFL v4.0.1** chapters and learning objectives. The remaining 13 are plugin tooling (CLI, browser-driven QA, schema adaptation, Blueprints automation, on-disk format, SOT extractors, agent communication) that complements ISTQB without being derived from it.
+Every reasoning step is backed by an explicit skill — **54 skills** in all: 26 always-installed base skills plus 28 across the 12 optional bundles. Every **reasoning skill carries an ISTQB CTFL v4.0.1 grounding block** citing the chapter and learning objective it operationalises (21 skills, counting the `platform-testing` bundle's ISO 25010 checklists). The other 33 are **tooling skills** — the `kensa` CLI family, browser/mobile/HTTP-driven QA, schema adaptation, Blueprints, SOT extractors, agent communication, and the 17 automation-family skills — which complement ISTQB without being derived from it.
 
 <p align="center">
-  <img src="docs/images/skills-library.png" alt="Skill library: 31 skills organized into Foundation, Test Design, Test Management, Static & Lifecycle, Platform, and Tooling sectors — colour-coded by ISTQB CTFL v4.0.1 chapter" />
+  <img src="docs/images/skills-library.png" alt="Skill library: 54 skills organized into Foundation, Test Design, Test Management, Static & Lifecycle, Platform, Tooling, and Automation sectors — colour-coded by ISTQB CTFL v4.0.1 chapter" />
 </p>
 
 | Sector | Skills | ISTQB ref |
 |---|---|---|
 | 🟦 **Foundation** | `testing-fundamentals` | Ch 1 |
-| 🟦 **Test Design** | `test-design-techniques`, `white-box-techniques`, `collaboration-based-approaches`, `negative-and-edge-cases`, `test-case-writing-craft`, `checklist-design` | Ch 4 |
+| 🟦 **Test Design** | `test-design-techniques`, `white-box-techniques`, `collaboration-based-approaches`, `negative-and-edge-cases`, `exploratory-testing`, `test-case-writing-craft`, `checklist-design` | Ch 4 |
 | 🟩 **Test Management** | `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management` | Ch 5 + §3.2 |
 | 🟨 **Static & Lifecycle** | `sdlc-and-test-lifecycle`, `static-testing-reviews` | Ch 2 + 3 |
-| 🟪 **Platform** | `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview` | §2.2.2 / Ch 6 |
-| 🟥 **Tooling** | `kensa`, `kensa-test-authoring`, `kensa-browser`, `kensa-mobile`, `kensa-http`, `kensa-results`, `kensa-blueprints`, 5 × `sot-*`, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol` | non-ISTQB |
+| 🟪 **Platform** *(bundle: `platform-testing`)* | `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing` — plus base `test-tools-and-automation-overview` | §2.2.2 / Ch 6 |
+| 🟥 **Tooling** (base) | `kensa`, `kensa-test-authoring`, `kensa-browser`, `kensa-mobile`, `kensa-http`, `kensa-results`, `kensa-blueprints`, `task-assignment`, `clarification-protocol` | non-ISTQB |
+| 🟥 **Tooling** (bundles) | 5 × `sot-*` + `figma-use` (connector bundles), `sequential-thinking` (`strategist`) | non-ISTQB |
+| 🟧 **Automation** *(bundles: `automation-*`)* | the 10-skill `playwright-*` family, 3 CI/CD skills, `test-code-review-standards`, `test-flakiness-governance`, `ken-traceability`, `case-test-sync` | non-ISTQB |
 
-The Test Lead loads the management & static skills on demand. Every QA Engineer brief always loads `testing-fundamentals`, `test-design-techniques`, `negative-and-edge-cases`, `test-case-writing-craft`, and one platform skill — plus the matching SOT extractor for the ticket source.
+The Test Lead loads the management & static skills on demand. Every QA Engineer brief always loads `testing-fundamentals`, `test-design-techniques`, `negative-and-edge-cases`, `test-case-writing-craft` — plus one platform skill (with the `platform-testing` bundle) and the matching SOT extractor for the ticket source (its connector bundle).
 
 ---
 
@@ -91,8 +116,9 @@ The Test Lead loads the management & static skills on demand. Every QA Engineer 
 
 kensa-qa ships **two clean engine builds from one monorepo** — one for Claude Code,
 one for OpenAI Codex. No installer script. The built, ready-to-use folders live
-under [`dist/claude/`](dist/claude) and [`dist/codex/`](dist/codex) — each fully
-self-contained (agents, skills, hooks, manifest all inside).
+under [`dist/claude/`](dist/claude) and [`dist/codex/`](dist/codex) — each an
+always-installed **`base/`** (self-contained: agents, commands, skills, hooks,
+manifest) plus optional **`bundles/<id>/`** add-ons.
 
 | Engine | What runs the team | Installed into |
 |---|---|---|
@@ -111,15 +137,19 @@ git clone https://github.com/rpluzhnikov/QA_agents.git
 cp -R QA_agents/dist/codex/. /path/to/your-project/
 ```
 
+Both by-hand routes install the **base**. To add a bundle by hand, copy
+`dist/<engine>/bundles/<id>/` contents on top — see [INSTALL.md](INSTALL.md).
+
 **Via an IDE:** the IDE reads [`engines.json`](engines.json), offers the engine
-picker, and copies the chosen build into the project.
+picker plus the bundle checkboxes, and copies base + selected bundles into the
+project (change the selection later in Settings → Agents).
 
 After install, run `/setup` (Claude) or `/kensa-setup` (Codex) to bootstrap
 `.tms/memory/` and wire your source-of-truth MCP servers.
 
 ### Building from source
 
-Sources are split so the **33 skills have a single home** and never drift between engines:
+Sources are split so the **54 skills have a single home** and never drift between engines:
 
 ```
 shared/skills · shared/hooks · shared/templates   # one source, copied into both engines
@@ -136,15 +166,16 @@ Edit a skill once under `shared/skills/`, then rebuild both engines:
 sh scripts/build.sh     # macOS / Linux
 ```
 
-The build copies `shared/*` into each engine, generates the per-engine drop README,
-and validates that both engines carry all 33 skills and a valid manifest.
+The build reads [`catalog.json`](catalog.json) (the base/bundle membership), assembles
+`dist/<engine>/base/` + `dist/<engine>/bundles/<id>/`, generates the per-engine drop
+README, and validates that all 54 skills are mapped exactly once and each manifest is valid.
 
 <details>
 <summary><b>Prerequisites</b></summary>
 
 - [Claude Code](https://docs.claude.com/claude-code/install) and/or the [OpenAI Codex CLI](https://developers.openai.com/codex), installed and signed in.
-- Node.js with `npx` on PATH (for the bundled `sequential-thinking` MCP).
-- The auto-checkpoint hook runs on **both** Windows (PowerShell, `*.ps1`) and macOS/Linux (`*.sh`); on Codex one `hooks/hooks.json` dispatches the right one per OS.
+- Node.js on PATH (for the bundled `sequential-thinking` MCP via `npx`, and for the memory-checkpoint Stop hook, which Claude runs via `node`).
+- The Stop hook is cross-platform: the Claude engine runs `hooks/save-memory-stop.js` (node) on every OS; the Codex engine keeps `save-memory-stop.sh` / `.ps1`, dispatched per OS by `hooks/hooks.json`.
 - No API keys: Linear / Atlassian / Notion / Figma all use browser OAuth on first connect.
 </details>
 
@@ -156,11 +187,11 @@ After the drop, in the project:
 
 | Check | Expected |
 |---|---|
-| `/help` | `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `brainstorm`, `pull-context`, `review-spec`, `risk-assess`, `test-plan`, `analyze-cases`, `traceability`, `run-routine`, `adapt-schema`, `blueprint` |
-| Type `@` (Claude) | `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent`, `strategist` appear as agents |
-| `/hooks` | One **Stop** hook: checking memory checkpoint |
+| `/help` | The 11 **base** commands: `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `adapt-schema`, `run-routine`, `new-routine`, `blueprint`, `next`, `import-results` |
+| Type `@` (Claude) | Base agents: `test-lead-agent`, `qa-engineer-agent`, `schema-bootstrap-agent` |
+| `/hooks` | One **Stop** hook (memory checkpoint) |
 
-Anything missing → restart the host fully so it reloads the dropped files.
+Bundle commands and agents (`/brainstorm` + `strategist`, the six `qa-analytics` commands, `/automate-case` + the automation agents, …) appear **only if their bundle is installed**. Anything missing that should be there → restart the host fully so it reloads the dropped files.
 
 ---
 
@@ -180,18 +211,27 @@ Writes:
 
 ## Commands
 
+**Every command ends with a standard epilogue** — `✅ Done: …` + `➡️ Next: …` naming the 1–3 logical follow-ups (bundle-aware: it only suggests what you have installed). The plugin always tells you what to run next; if you're ever lost, run `/next`.
+
+### Base (always installed)
+
 | Command | What it does |
 |---|---|
+| `/next` | Read-only situation router — probes `.tms/` state (base size, pending checkpoint, fresh reports, stale audits) and recommends the 2–3 most useful next commands. "I'm back, where were we?" |
+| `/setup` | Bootstraps `.tms/memory/` and `.mcp.json`. Re-run to add a new SOT |
 | `/new-feature <ref>` | Pulls spec, plans, you approve, QA Engineers write cases under `.tms/suites/<suite>/` |
 | `/update-feature <ref>` | Finds cases by `source_id`, reads new spec, adds/removes/rewrites only what changed |
-| `/brainstorm <topic>` | Three strategists deliberate in parallel, output 2–3 finalists you pick from |
-| `/audit` | Schema validation, duplicates, drift, tag check on the whole `.tms/`. Read-only by default |
-| `/save-memory` | Captures session learnings to `.tms/memory/learned/`. Auto-runs after authoring on Windows |
-| `/setup` | Bootstraps `.tms/memory/` and `.mcp.json`. Re-run to add a new SOT |
+| `/audit [scope]` | Schema validation, duplicates, drift, tag check on the whole `.tms/`. Read-only by default |
+| `/run-routine [RT-id]` | Executes a saved browser routine against the live app via the Kensa-launched Chrome |
+| `/new-routine [name]` | Authors a browser routine (`.tms/routines/RT-*.md`) through a short interview — goal, target, steps, pass criteria |
+| `/adapt-schema [samples]` | Fits the project schema (additively) to an export from another TMS, via the `schema-bootstrap-agent` |
+| `/blueprint [verb]` | Designs / validates / runs a Blueprint node-graph automation (`.tms/blueprints/`) |
+| `/import-results <report>` | Ingests a CI report (JUnit / Playwright / Allure + 8 more) via `kensa results`, walks the matched/orphaned split, and closes the traceability loop |
+| `/save-memory` | Captures session learnings to `.tms/memory/learned/` and closes the memory checkpoint |
 
-### Analysis & planning (read-only)
+### Analysis & planning (read-only) — `qa-analytics` bundle
 
-These six write **no** test cases — each produces one committable markdown artifact in `.tms/reports/` and never emits the memory checkpoint.
+These six write **no** test cases — each produces one committable markdown artifact in `.tms/reports/` and never owes a memory checkpoint. Their artifacts are picked up automatically by `/new-feature` / `/update-feature`.
 
 | Command | What it does |
 |---|---|
@@ -201,6 +241,24 @@ These six write **no** test cases — each produces one committable markdown art
 | `/test-plan <epic>` | ISTQB §5.1 test plan; folds in existing risk / context / brainstorm artifacts |
 | `/analyze-cases [scope]` | Semantic deep-audit of the case base by a fan-out of 1–N reviewers — contradictions, semantic dupes, coverage gaps, convention drift. Complements the mechanical `/audit` |
 | `/traceability [--deep]` | Requirements→cases matrix from `source_id`; `--deep` maps each acceptance criterion to cases |
+
+### Strategy — `strategist` bundle
+
+| Command | What it does |
+|---|---|
+| `/brainstorm <topic>` | Three strategists deliberate in parallel, output 2–3 finalists you pick from |
+
+### Automation — `automation-playwright-ts` bundle
+
+| Command | What it does |
+|---|---|
+| `/automate-case <KEN-id>` | **The core verb**: derives a `@KEN-<id>`-tagged Playwright test from a manual case — candidacy check, negative-parity brief, run-verified spec, case tagged `automated` |
+| `/scaffold-playwright` | Scaffolds a Playwright + TypeScript E2E project from zero — config, fixtures/pages/utils/tests layout |
+| `/add-page-object <name>` | Generates a Page Object Model class and registers it as a fixture — resilient locators, no assertions in POMs |
+| `/add-auth-setup` | Log-in-once auth via `storageState` wired into `playwright.config.ts` (multi-role supported) |
+| `/add-visual-test <target>` | Stabilized visual-regression test (`toHaveScreenshot`) with masked dynamic content |
+| `/add-a11y-test <url>` | Accessibility test with `@axe-core/playwright`, scoped to WCAG A+AA |
+| `/fix-flake <spec>` | Diagnoses and de-flakes a spec — web-first assertions, resilient locators, re-run to confirm |
 
 <details>
 <summary><b>Command details and examples</b></summary>
@@ -219,7 +277,7 @@ The Test Lead pulls the spec, plans coverage, gets your sign-off, spawns QA Engi
 ```
 The Test Lead finds cases referencing the changed source (via `source_id` in frontmatter), reads the new spec, decides what to add/remove/rewrite. Same review + report flow as `/new-feature`.
 
-#### `/brainstorm <topic>`
+#### `/brainstorm <topic>` — `strategist` bundle
 ```
 /brainstorm how to split the Discount Engine for parallel QA engineers?
 /brainstorm should 2FA cases be negative-first or boundary-first?
@@ -230,23 +288,31 @@ The Test Lead picks three angles (scope, decomposition strategy, test technique)
 Walks `.tms/` via the `kensa` CLI: schema validation, duplicates, stale drafts, orphan shared-steps, tag drift, qualitative sampling. Output to terminal + `.tms/reports/audit-YYYY-MM-DD.md`. Opt-in fixes per-batch with confirmation.
 
 #### `/save-memory`
-Auto-runs after `/new-feature` and `/update-feature` (enforced by the auto-checkpoint hook on Windows). Run manually mid-session to capture a new convention before more work happens.
+`/new-feature` and `/update-feature` create a `.tms/.pending-checkpoint` marker when you approve the plan; the cross-platform Stop hook won't let the session end until the `/save-memory` protocol runs and deletes it. Run manually mid-session to capture a new convention before more work happens.
+
+#### `/next`
+```
+/next
+```
+Read-only, writes nothing, owes no checkpoint. Probes the CLI, `.tms/` presence, pending checkpoint, base size and coverage, fresh analysis/brainstorm artifacts, and audit age — then reports a short status snapshot plus the 2–3 most useful next commands with reasons (only ones whose bundle is installed).
 </details>
 
 ---
 
 ## SDLC coverage
 
-The commands map onto the QA side of the software lifecycle — shift-left first, authoring in the middle, repo intelligence across the whole base:
+The commands map onto the QA side of the software lifecycle — shift-left first, authoring in the middle, repo intelligence and automation feedback across the whole base:
 
 | SDLC stage | Command(s) | ISTQB skill surfaced |
 |---|---|---|
-| Requirements / static testing | `/pull-context`, `/review-spec` | `static-testing-reviews` (Ch 3) |
-| Risk analysis & planning | `/risk-assess`, `/test-plan`, `/brainstorm` | `risk-based-testing` (§5.2), `test-planning` (§5.1) |
-| Test design / authoring | `/new-feature`, `/update-feature` | `test-design-techniques` (Ch 4) |
-| Test-base health & coverage | `/audit`, `/analyze-cases`, `/traceability` | `review-rubrics` (§3.2) |
+| Requirements / static testing | `/pull-context`, `/review-spec` (`qa-analytics`) — and every `/new-feature` plan carries a *Spec defects* block regardless | `static-testing-reviews` (Ch 3) |
+| Risk analysis & planning | `/risk-assess`, `/test-plan` (`qa-analytics`), `/brainstorm` (`strategist`) | `risk-based-testing` (§5.2), `test-planning` (§5.1) |
+| Test design / authoring | `/new-feature`, `/update-feature` (base) | `test-design-techniques` (Ch 4) |
+| Exploratory sessions | charter + tour sessions via the `exploratory-testing` skill (base) | `exploratory-testing` (§4.4.2) |
+| Test-base health & coverage | `/audit` (base), `/analyze-cases`, `/traceability` (`qa-analytics`) | `review-rubrics` (§3.2) |
+| Automation & results feedback | `/automate-case` (`automation-playwright-ts`), `/import-results` (base) | `kensa-results`, the `playwright-*` family |
 
-Everything except authoring is read-only. The whole suite stays inside the mission — **it designs and reasons about tests, it does not execute them.**
+Analysis is read-only, authoring writes manual cases, and the automation bundles are the only place the plugin writes executable test code — always traceably tagged `@KEN-<id>` back to a case.
 
 ---
 
@@ -281,12 +347,14 @@ Everything the plugin learns lives in plain markdown / YAML. Read, edit, commit.
 │       └── tags.md
 ├── suites/                ← test cases, organized by feature
 ├── shared-steps/          ← reusable step sequences
-├── reports/               ← /audit + analysis commands output (commit)
+├── reports/               ← /audit + analysis + exploratory-session output (commit)
 ├── brainstorms/           ← /brainstorm output (commit)
-└── routines/              ← browser routines RT-*.md (commit)
+├── routines/              ← browser routines RT-*.md (commit)
+├── blueprints/            ← /blueprint node-graphs BP-*.json (commit)
+└── automation-runs/       ← normalized runs ingested by /import-results
 ```
 
-`project.md`, `conventions.md`, `glossary.md` are human-written, plugin reads only. `sot.yaml` is `/setup`-written, hand-edited later. `learned/*` is plugin-written; you review during memory checkpoint.
+`project.md`, `conventions.md`, `glossary.md` are human-written, plugin reads only. `sot.yaml` is `/setup`-written, hand-edited later. `learned/*` is plugin-written; you review during memory checkpoint. One transient file lives at the top: `.tms/.pending-checkpoint`, the memory-checkpoint marker (`/setup` adds it to `.gitignore`).
 
 Byte-exact case file format: see `skills/kensa-test-authoring/`.
 
@@ -297,11 +365,11 @@ Byte-exact case file format: see `skills/kensa-test-authoring/`.
 <details>
 <summary><b>macOS / Linux — do the hooks work?</b></summary>
 
-Yes, as of v0.8. The auto-checkpoint Stop hook ships as a POSIX
-`*.sh` alongside the Windows `*.ps1` (`hooks/save-memory-stop.sh`),
-with the identical stdin/stdout contract. On Codex, one
-`hooks/hooks.json` dispatches the `.sh` by default and the `.ps1` via
-`commandWindows`.
+Yes, everywhere. As of v0.17 the Claude engine registers a single
+cross-platform Stop hook, `hooks/save-memory-stop.js`, run via `node`
+on Windows, macOS, and Linux alike. The `.sh` / `.ps1` variants remain
+for the Codex engine, whose `hooks/hooks.json` dispatches the right
+one per OS.
 </details>
 
 <details>
@@ -339,13 +407,13 @@ Yes, that's the intended workflow. The plugin re-reads memory at session start s
 
 Every reasoning skill in the plugin cites the specific ISTQB CTFL chapter, section, and learning objective it operationalises. When the Test Lead or a QA Engineer applies a technique (boundary value analysis, decision tables, risk-based prioritization, defect reporting…), it can name the syllabus authority for that decision. This makes the reasoning auditable for teams that need to justify their QA practice to regulated stakeholders, and it lets newcomers learn ISTQB by example: every test case the plugin writes is a worked example of one or more CTFL learning objectives.
 
-The 10 non-ISTQB skills (the `kensa`, `kensa-test-authoring`, `sot-*` family, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol`) are plugin infrastructure — they don't contradict ISTQB but aren't derived from it either; they carry a "non-ISTQB tooling" disclaimer at the top of their SKILL.md.
+The claim is scoped to the reasoning skills: the base's 17 reasoning skills (plus the `platform-testing` bundle's four ISO 25010 checklists) carry ISTQB grounding blocks. The other 33 skills are tooling — the `kensa` / `kensa-test-authoring` / browser / mobile / HTTP / results / Blueprints family, the `sot-*` connectors, `figma-use`, `sequential-thinking`, `task-assignment`, `clarification-protocol`, and the 17 automation-family skills (`playwright-*`, CI/CD, test-code review, traceability). They don't contradict ISTQB but aren't derived from it either; they carry a "non-ISTQB tooling" disclaimer at the top of their SKILL.md.
 </details>
 
 <details>
 <summary><b>The session won't end — something about a memory checkpoint.</b></summary>
 
-The auto-checkpoint hook requires `/save-memory` after `/new-feature` or `/update-feature` before the session can stop. Wait for the Lead to finish, or — if it's stuck — type the sentinel line `memory-checkpoint: done` to unblock.
+`/new-feature` and `/update-feature` create a marker file `.tms/.pending-checkpoint` when you approve the plan; the save-memory protocol deletes it at the end, and the Stop hook blocks the session only while the marker exists. Wait for the Lead to finish, or — if it's stuck — delete `.tms/.pending-checkpoint` yourself to unblock (the hook fails open; nothing else keys on that file).
 </details>
 
 ---
@@ -354,35 +422,37 @@ The auto-checkpoint hook requires `/save-memory` after `/new-feature` or `/updat
 <summary><b>Under the hood</b> (for the curious / plugin developers)</summary>
 
 ### Auto memory checkpoint
-After every `/new-feature` and `/update-feature`, a `Stop` hook (`hooks/save-memory-stop.ps1` on Windows, `hooks/save-memory-stop.sh` on macOS/Linux) blocks the session from ending until the Lead emits `memory-checkpoint: done`. Behavior is controlled by `auto_save_learnings` in `.tms/memory/project.md`:
+`/new-feature` and `/update-feature` create the marker file `.tms/.pending-checkpoint` on plan approval; the save-memory protocol deletes it as its final step. A `Stop` hook (`hooks/save-memory-stop.js`, run via `node` on every platform) blocks the session from ending only while the marker exists — no transcript scanning, no chat sentinel, so merely *mentioning* a command never re-arms it. Behavior is controlled by `auto_save_learnings` in `.tms/memory/project.md`:
 - `true` — silent saves, one-line report
 - `false` (default) — yes/no/edit per candidate
 
-If nothing to save, sentinel is still emitted with `(nothing to save this round)` appended.
+If nothing to save, the Lead says so in one line and deletes the marker anyway. Save-memory also sweeps the session's `ASSUMPTION:`/`GAP:` markers into `.tms/reports/assumptions-<ref>-<date>.md` — a standing questions-to-PM ledger. (The `.sh`/`.ps1` hook scripts remain for the Codex engine's `hooks.json`.)
 
 ### Bundled MCP
 `sequential-thinking` ships with the plugin (declared in `plugin.json`, started automatically — no credentials). Powers the reasoning skill Lead and Workers use for hard scope and edge-case decisions.
 
 ### Skills
-33 skills under `skills/`, auto-loaded via the plugin manifest. See the skill library section above for the full taxonomy. Highlights:
+54 skills under `shared/skills/` — 26 in the base, 28 across the 12 optional bundles. See the skill library section above for the full taxonomy. Highlights:
 
-**ISTQB CTFL v4.0.1-grounded (20):**
+**ISTQB CTFL v4.0.1-grounded (21 — 17 base + the 4 `platform-testing` checklists):**
 - **Foundation:** `testing-fundamentals` (Ch 1)
-- **Test design (Ch 4):** `test-design-techniques`, `white-box-techniques-overview`, `collaboration-based-approaches`, `negative-and-edge-cases`, `test-case-writing-craft`, `checklist-design`
+- **Test design (Ch 4):** `test-design-techniques`, `white-box-techniques-overview`, `collaboration-based-approaches`, `negative-and-edge-cases`, `exploratory-testing`, `test-case-writing-craft`, `checklist-design`
 - **Test management (Ch 5 + §3.2):** `test-planning`, `risk-based-testing`, `scope-analysis`, `review-rubrics`, `test-monitoring-control-completion`, `defect-management`
 - **Static & lifecycle (Ch 2 + 3):** `sdlc-and-test-lifecycle`, `static-testing-reviews`
 - **Platform / non-functional (§2.2.2 + Ch 6):** `web-testing`, `mobile-testing`, `backend-api-testing`, `security-testing`, `test-tools-and-automation-overview`
 
-**Non-ISTQB tooling (13):**
+**Non-ISTQB tooling (33):**
 - `kensa-test-authoring` — byte-exact `.tms/` on-disk format
 - `kensa` — drive the `kensa` CLI (queries, bulk edits, context bundling, audit, schema adaptation)
-- `kensa-browser` — drive the Kensa-launched Chrome via `kensa browser …` for live browser QA
+- `kensa-browser` / `kensa-mobile` / `kensa-http` — live evidence (Chrome via CDP, Android/iOS devices, HTTP collections)
+- `kensa-results` — ingest CI reports (11 formats), match tests to cases
 - `kensa-blueprints` — design/validate/run node-graph automations (`kensa blueprint …`) with an agent step
 - `sequential-thinking` — structured reasoning
 - `figma-use` — programmatic Figma access for deep node inspection
 - `sot-linear` / `sot-jira` / `sot-confluence` / `sot-notion` / `sot-figma` — extraction guides per source
 - `task-assignment` — `test-lead-agent` → `qa-engineer-agent` delegation contract
 - `clarification-protocol` — Test Lead ↔ user dialogue rules
+- the 17 automation-family skills — `playwright-typescript` + 9 focused sub-skills, the `ci-*` devops trio, `test-code-review-standards`, `test-flakiness-governance`, `ken-traceability`, `case-test-sync`
 
 </details>
 
@@ -404,8 +474,11 @@ If nothing to save, sentinel is still emitted with `(nothing to save this round)
 | v0.11 | Migrated to **`kensa-cli` v0.15** commands; QA Engineers create cases with atomic `kensa-cli new` (id-range carving gone); removed the PostToolUse `kensa-sync` hook. |
 | v0.12 | **Browser QA & routines.** New `kensa-browser` skill + `/run-routine` command + starter routine templates (smoke / form / visual baseline) driving the Kensa-launched Chrome via `kensa-cli browser`. Full `kensa-cli` rename pass; removed the `debug-log` Stop hook and trimmed the memory-checkpoint message. |
 | v0.13 | **Schema adaptation & Blueprints.** New `schema-bootstrap-agent` + `/adapt-schema` fit the project schema to a user's existing TMS export (additive; data follows schema, never the reverse), handing off to Kensa's Universal-format importer. New `kensa-blueprints` skill + `/blueprint` command for node-graph automations (`.tms/blueprints/`) with a first-class agent (`prompt`) node that runs `claude`/`codex` inside the flow. |
-| **v0.14 (current)** | **CLI renamed `kensa-cli` → `kensa`.** Dropped the `-cli` suffix across every skill, command, agent, prompt, template, and doc; the `kensa-cli` skill is now the `kensa` skill. Reverts the v0.12 rename. |
-| v1.0 (planned) | Fixture registry (`.tms/fixtures/`); exploratory mode (`/explore`); defects commands (`/report-bug`, `/triage`) |
+| v0.14 | **CLI renamed `kensa-cli` → `kensa`.** Dropped the `-cli` suffix across every skill, command, agent, prompt, template, and doc; the `kensa-cli` skill is now the `kensa` skill. Reverts the v0.12 rename. |
+| v0.15 | **Base + bundles architecture.** Always-installed base + 12 optional bundles picked at install (analytics, platform knowledge, strategist, source connectors, four automation bundles with `automation-test-lead` / `automation-engineer` / `automation-devops` / `codereviewer` / `git-operator` agents and the `playwright-*` skill family). |
+| v0.16 | **Full `kensa` CLI coverage.** New `kensa-mobile` / `kensa-http` / `kensa-results` skills (device, API, automation-result ingestion), export/import documented, core-CLI accuracy fixes. |
+| **v0.17 (current)** | **Flow chaining & rigor.** Every command ends with a `✅ Done / ➡️ Next` epilogue; `/next` situation router; `/automate-case`, `/import-results`, `/new-routine`; analysis artifacts consumed automatically by `/new-feature`; Stop hook redesigned (marker file, cross-platform via node, no chat sentinel); review rubric hardened (happy-path-only = send-back, coverage-dimensions gate); unconditional spec review; `exploratory-testing` skill (covers the planned `/explore` ground via charters + tours); test oracles; assumptions ledger. |
+| v1.0 (planned) | Fixture registry (`.tms/fixtures/`); defects commands (`/report-bug`, `/triage`) |
 
 ---
 

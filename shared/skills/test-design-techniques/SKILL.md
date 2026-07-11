@@ -185,24 +185,29 @@ Per CTFL 4.0 §4.2.2: "In 3-value BVA, for each boundary value there
 are three coverage items: this boundary value and **both its
 neighbors**."
 
-If the spec gives a range 8–64, there are two boundary values (8 and
-64); 3-value BVA produces coverage items `{7, 8, 9}` for the lower
-boundary and `{63, 64, 65}` for the upper — **8 coverage items, not 6**.
+Boundary values are the edges of **every** partition, not just the valid one.
+A range 8–64 splits the domain into three partitions (<8, 8–64, >64), giving
+**four** boundary values: 7 and 8 (lower edge) plus 64 and 65 (upper edge).
+Three coverage items around each, then take the union:
 
-Many practitioners get this wrong by writing only `{7, 8, 64, 65}`,
-which is 2-value BVA mislabeled. If you mark a group `[3-value BVA]`
-in the checklist and the Test Lead counts only six items per simple range,
-the Test Lead will send it back.
+- 7 → {6, 7, 8} and 8 → {7, 8, 9} → lower edge = `{6, 7, 8, 9}`
+- 64 → {63, 64, 65} and 65 → {64, 65, 66} → upper edge = `{63, 64, 65, 66}`
+
+— **8 coverage items per simple range, not 6**.
+
+Many practitioners get this wrong by writing only `{7, 8, 9}` + `{63, 64, 65}`
+(6 items — the neighbors of the *invalid*-side boundaries 6 and 66 are missing),
+or `{7, 8, 64, 65}` (2-value BVA mislabeled). If you mark a group `[3-value BVA]`
+in the checklist and the Test Lead counts fewer than eight items per simple
+range, the Test Lead will send it back.
 
 ### Worked example — discount eligibility (order total $50–$500)
 
-Two boundaries: $50 and $500. 3-value coverage items:
+Four boundary values: $49/$50 (lower edge) and $500/$501 (upper edge).
+3-value coverage items (union per edge):
 
-- Lower boundary: `$49`, `$50`, `$51` → eligibility flips correctly
-- Upper boundary: `$499`, `$500`, `$501` → eligibility flips correctly
-
-(Plus typically a "just outside the just-outside" probe — but the
-literal CTFL 4.0 rule is the boundary plus both neighbours.)
+- Lower edge: `$48`, `$49`, `$50`, `$51` → eligibility flips correctly
+- Upper edge: `$499`, `$500`, `$501`, `$502` → eligibility flips correctly
 
 ### When to use
 
@@ -227,12 +232,14 @@ boundary:
 
 ```markdown
 ### Discount eligibility [3-value BVA]
+- [ ] Order $48 → no discount
 - [ ] Order $49 → no discount
 - [ ] Order $50 → discount applies
 - [ ] Order $51 → discount applies
 - [ ] Order $499 → discount applies
 - [ ] Order $500 → discount applies
 - [ ] Order $501 → no discount
+- [ ] Order $502 → no discount
 ```
 
 ### Source
@@ -637,6 +644,80 @@ to Break Software* (2003).
 
 ---
 
+## Pairwise (combinatorial) Testing
+
+### Mechanics
+
+When N independent parameters each have several values, full combination
+explodes (`3 × 3 × 2 × 2 = 36`), but most defects involve the interaction of
+**at most two** parameters. Pairwise picks a minimal set of rows such that
+**every pair of values across every two parameters appears in at least one
+row** — typically collapsing dozens of combinations into 9-12 tests.
+
+### Worked example — export feature
+
+Parameters: format `{csv, json, xlsx}` × scope `{page, filtered, all}` ×
+locale `{en, de}` × role `{admin, member}`. Full grid = 36. A pairwise set of
+**9 rows** covers all 66 value pairs:
+
+```markdown
+### Export matrix [pairwise — 9 of 36]
+- [ ] csv  · page     · en · admin
+- [ ] csv  · filtered · de · member
+- [ ] csv  · all      · de · admin
+- [ ] json · page     · de · member
+- [ ] json · filtered · en · admin
+- [ ] json · all      · en · member
+- [ ] xlsx · page     · de · admin
+- [ ] xlsx · filtered · en · member
+- [ ] xlsx · all      · en · admin
+```
+
+Don't derive rows by hand for >3 parameters — generate with a tool (PICT:
+`pict model.txt`) and paste the table in. Annotate `[pairwise — N of M]` so the
+reviewer sees both the discount and the base. **Force known-risky pairs in**
+(e.g. `xlsx · all` on huge data) even if the generator didn't pick them —
+pairwise is a floor, not a ceiling.
+
+### When to use / when not
+
+Configuration-style features (formats × scopes × locales × roles). NOT for
+sequence-dependent behavior (state transitions) or when one parameter's value
+changes the meaning of another (decision table instead).
+
+---
+
+## The permissions grid — CRUD × roles × states
+
+Not a syllabus technique — the standard working weapon for permission defects
+(the IDOR/escalation class that `negative-and-edge-cases` gestures at). Build
+the matrix whenever a feature has roles and a resource:
+
+```markdown
+### Document permissions [CRUD × roles × states]
+| Op ↓ / Role → | owner | member | guest | anonymous |
+|---|---|---|---|---|
+| Create | ✓ | ✓ | ✗ expect 403 | ✗ expect login |
+| Read (draft) | ✓ | ✗ 403 | ✗ 403 | ✗ |
+| Read (published) | ✓ | ✓ | ✓ | ✓ |
+| Update | ✓ | ✗ 403 | ✗ | ✗ |
+| Delete (draft) | ✓ | ✗ | ✗ | ✗ |
+| Delete (published) | ✗ needs archive first | ✗ | ✗ | ✗ |
+```
+
+Rules:
+
+- Every cell is a test condition — the ✗ cells ARE the security coverage;
+  a checklist that only tests the ✓ diagonal is happy-path-only.
+- Add a **state** dimension (draft/published/archived) when the resource has a
+  lifecycle — permissions that flip per state are where defects cluster.
+- Always include the **direct-object probe** per ✗ cell: not just "button is
+  hidden" but "the API call with someone else's id returns 403" (IDOR).
+- Feed the row/column count into the dimensions table's *Permissions / roles*
+  row as the "covered" evidence.
+
+---
+
 ## Classification Tree — deprecated
 
 CTAL-TA v4.0 removed the standalone Classification Tree section that
@@ -645,9 +726,9 @@ visualisation aid for combinatorial / pairwise test design. If your
 feature is genuinely a configuration matrix (browser × locale ×
 payment method × user role), draw a tree on paper or in Miro to see
 the combinations, then pick **pairwise** coverage with a tool (PICT,
-PairwiseTester) — that's the modern guidance. Don't cite
-"classification tree coverage" in a checklist; cite "pairwise" or
-"each-choice" instead.
+PairwiseTester) — that's the modern guidance (see the Pairwise section
+above for mechanics). Don't cite "classification tree coverage" in a
+checklist; cite "pairwise" or "each-choice" instead.
 
 ---
 
@@ -659,7 +740,7 @@ All percentages are `items_exercised ÷ items_identified × 100 %`.
 |---|---|---|---|
 | Equivalence partitioning | Each partition (valid + invalid) | Every partition exercised ≥ 1 time | CTFL 4.0 §4.2.1 |
 | 2-value BVA | Boundary value + closest neighbour in adjacent partition | Every boundary value tested with its single closest off-partition neighbour | CTFL 4.0 §4.2.2 |
-| 3-value BVA | Boundary value + both neighbours | Every boundary tested with both its neighbours (4 values per simple range) | CTFL 4.0 §4.2.2 |
+| 3-value BVA | Boundary value + both neighbours | Every boundary value (all 4 per simple range) tested with both its neighbours — 8 distinct items per simple range | CTFL 4.0 §4.2.2 |
 | Decision table | Each feasible rule (column) | Every feasible rule covered by ≥ 1 test case | CTFL 4.0 §4.2.3 |
 | State transition — all states | Each state | Every state visited | CTFL 4.0 §4.2.4 |
 | State transition — valid transitions (0-switch) | Each valid transition | Every valid transition traversed | CTFL 4.0 §4.2.4 |

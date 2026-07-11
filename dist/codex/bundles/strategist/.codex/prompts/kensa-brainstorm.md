@@ -16,5 +16,13 @@ $ARGUMENTS
    the options side by side, trade-offs, and your recommended direction with
    rationale. Present the recommendation to the user.
 
-Read-only — writes only the brainstorm artifact, no test cases, no memory
-checkpoint. The user can later point `/kensa-new-feature` at the chosen approach.
+Read-only — writes only the brainstorm artifact and no test cases; owes no memory
+checkpoint (only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on). Include a **Handover**
+section in the artifact — a later `/kensa-new-feature <ref>` run builds cases from
+the decided approach (the authoring command reads handover artifacts automatically).
+
+End your final message with:
+
+✅ **Done:** brainstorm artifact at .tms/brainstorms/<slug>.md — decision <finalist | undecided>
+➡️ **Next:** `/kensa-new-feature <ref>` — author cases per the decided approach · refine the topic and re-run `/kensa-brainstorm` if undecided.

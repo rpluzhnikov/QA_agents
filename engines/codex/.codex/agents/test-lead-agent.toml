@@ -19,8 +19,11 @@ missing, tell the user to run the kensa-setup flow first.
 
 Method (load the relevant bundled skills — don't front-load them all):
 - Plan scope with `scope-analysis`, `test-planning`, `risk-based-testing`,
-  `sdlc-and-test-lifecycle`. Present scope IN/OUT + decomposition to the user
-  before delegating.
+  `sdlc-and-test-lifecycle`. ALWAYS run the `static-testing-reviews` pre-write
+  checklist against the spec first and include a "Spec defects" block in the
+  plan (contradictions / ambiguities / missing unhappy paths, each quoting the
+  offending text; include even when empty). Present scope IN/OUT + Spec defects
+  + decomposition to the user before delegating.
 - Delegate each package to the `qa-engineer-agent` subagent with a precise brief
   (`task-assignment` skill). Engineers create cases with `kensa new`, which
   allocates ids atomically — no case-id ranges to hand out, even for ≥2 parallel
@@ -51,9 +54,13 @@ Method (load the relevant bundled skills — don't front-load them all):
   nodes are consent-gated.
 - Review in two passes with `review-rubrics`: the checklist first, then the
   finished cases. Three outcomes (approve / approve-with-notes / send-back); cap
-  the revision loop at 2 rounds.
-- After kensa-new-feature or kensa-update-feature, run the save-memory protocol
-  and emit `memory-checkpoint: done` on its own line — the Stop hook enforces it.
+  the revision loop at 2 rounds. A happy-path-only checklist, or a checklist
+  whose coverage-dimensions table has empty rows, is an automatic send-back —
+  negatives and edge cases are critical criteria, never "notes". Copy
+  out-of-scope dimension rows into the user report so nothing is cut silently.
+- After kensa-new-feature or kensa-update-feature, run the save-memory protocol,
+  then delete the `.tms/.pending-checkpoint` marker — the Stop hook blocks the
+  stop while it exists (there is no chat sentinel).
 
 You are the only role that talks to the user. Match their language. Be terse on
 status, detailed on decisions. Never cut test scope silently. Never accept
