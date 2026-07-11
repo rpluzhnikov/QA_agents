@@ -14,6 +14,7 @@
       "sdlc-and-test-lifecycle",
       "test-design-techniques",
       "negative-and-edge-cases",
+      "exploratory-testing",
       "checklist-design",
       "collaboration-based-approaches",
       "white-box-techniques-overview",
@@ -30,7 +31,7 @@
       "clarification-protocol"
     ],
     "agents": ["test-lead-agent", "qa-engineer-agent", "schema-bootstrap-agent"],
-    "commands": ["setup", "new-feature", "update-feature", "save-memory", "audit", "adapt-schema", "run-routine", "blueprint"]
+    "commands": ["setup", "new-feature", "update-feature", "save-memory", "audit", "adapt-schema", "run-routine", "new-routine", "blueprint", "next", "import-results"]
   },
   "bundles": [
     {
@@ -78,7 +79,7 @@
         "playwright-visual-and-a11y"
       ],
       "agents": ["automation-test-lead", "automation-engineer"],
-      "commands": ["scaffold-playwright", "add-page-object", "add-auth-setup", "add-visual-test", "add-a11y-test", "fix-flake"]
+      "commands": ["scaffold-playwright", "add-page-object", "add-auth-setup", "add-visual-test", "add-a11y-test", "fix-flake", "automate-case"]
     },
     {
       "id": "automation-devops",

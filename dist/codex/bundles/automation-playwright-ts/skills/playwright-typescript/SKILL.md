@@ -11,7 +11,7 @@ The 2025–2026 Playwright/TS consensus is: **role-based locators + web-first au
 
 ## Version pins
 
-- Current as of **June 2026**. Pin to Playwright **1.61.0** (released June 15, 2026), which bundles Chromium 149.0.7827.55, Firefox 151.0, and WebKit 26.5.
+- Pin to Playwright **1.61.0** (bundles Chromium 149.0.7827.55, Firefox 151.0, WebKit 26.5) — or the latest stable at scaffold time; whichever you pick, pin it exactly and keep the Docker image tag in sync (see `playwright-ci-docker`).
 - 1.61.0 adds the WebAuthn virtual authenticator (`browserContext.credentials`), the WebStorage API (`page.localStorage` / `page.sessionStorage`), and Ubuntu 26.04 support.
 - Node.js **22.x, 24.x, or 26.x** (Node 18 was deprecated in 1.54).
 - Canonical package is **`@playwright/test`** (the Test runner), **not** `playwright` (the Library). Import automation APIs (`chromium`, etc.) directly from `@playwright/test` if needed.

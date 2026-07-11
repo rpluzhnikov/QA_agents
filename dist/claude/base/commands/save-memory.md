@@ -4,6 +4,9 @@ description: Manually commit session learnings to project memory. The test-lead-
 
 You are the test-lead-agent. The user wants to commit session learnings to `.tms/memory/`.
 
+If `.tms/memory/` does not exist, tell the user to run `/setup` first, delete
+`.tms/.pending-checkpoint` if present, and stop.
+
 ## Step 1 — Identify learnings
 
 Review the session. Surface candidates for memory:
@@ -13,6 +16,11 @@ Review the session. Surface candidates for memory:
 - **Recurring test patterns** (e.g. "we always check rate-limiting for X type of endpoint") → `learned/patterns.md`
 - **New shared steps the user accepted** → `learned/shared-steps.md`
 - **Tag usage decisions** → `learned/tags.md`
+
+Also sweep the session for `ASSUMPTION:` and `GAP:` markers (from engineer
+briefs, plans, and spec-defect blocks). If any exist, append them to
+`.tms/reports/assumptions-<ref>-<date>.md` — a standing questions-to-PM ledger —
+without asking per item (it's a report, not memory). Mention the file in Step 4.
 
 ## Step 2 — Propose
 
@@ -37,23 +45,16 @@ This makes it easy to audit later what was learned when.
 ## Step 4 — Report
 
 "Saved 3 items. Memory updated. To review, edit `.tms/memory/conventions.md` and friends directly."
+If nothing was worth saving, say so in one line. If assumptions were swept,
+name the ledger file.
 
-## Step 5 — Emit the checkpoint sentinel
+## Step 5 — Release the checkpoint
 
-Output on its own line, exactly:
+Delete `.tms/.pending-checkpoint` if it exists. The `Stop` hook blocks the
+session from ending while that marker file is present — deleting it is what
+closes the checkpoint (there is no chat sentinel).
 
-```
-memory-checkpoint: done
-```
+## Epilogue (required)
 
-This sentinel is what the `Stop` hook in `plugin.json` keys on. Without it, the
-hook will block the next stop and force this protocol to run again. If you
-decided there was nothing worth saving, still emit the sentinel with a short
-note appended:
-
-```
-memory-checkpoint: done (nothing to save this round)
-```
-
-The hook only matches the `memory-checkpoint: done` prefix — anything after it
-is for the user's benefit.
+✅ **Done:** <N items saved to memory; assumptions ledger updated or "nothing to save">
+➡️ **Next:** `/next` — see where the project stands and what's worth doing now

@@ -1,6 +1,6 @@
 ---
 name: kensa
-description: Drive the kensa command-line tool to query, edit, and maintain QA test cases in a .tms/ project from the terminal.
+description: Drive the kensa command-line tool to query, edit, and maintain QA test cases in a .tms/ project from the terminal. Load whenever a task needs CLI access to the test base — orienting in an unfamiliar project (list/stats/find), creating or bulk-editing cases (new/update/bulk), health checks (validate/lint/duplicates/coverage/gaps/doctor), schema adaptation (schema show/preview/apply/migrate), or token-budgeted reading of related cases (context bundle). The backbone of /audit, /analyze-cases, and /traceability.
 ---
 
 > **Non-ISTQB tooling skill**
@@ -365,7 +365,7 @@ kensa sync --quiet          # suppress progress on stderr
 > *structure* (the schema) once, then **hands off** — the user imports their real
 > export through the deterministic **Universal format** importer in the Kensa GUI.
 > The two concerns are orthogonal: the agent never imports cases, and the import
-> never mutates the schema. See `commands/adapt-schema.md` and the
+> never mutates the schema. See the `/adapt-schema` command and the
 > `schema-bootstrap-agent` for the full flow.
 
 > **The schema interface is proposal-based.** You do not pass `--add-field` flags.
@@ -679,7 +679,7 @@ kensa gaps --against shared-steps --format json
 kensa coverage --by-source --format json
 kensa coverage --by-tag --format json
 
-# 3. Cross-reference (combine with .tms/memory/sot.yaml and learned/tags.md)
+# 3. Cross-reference (combine with .tms/memory/sot.yaml and .tms/memory/learned/tags.md)
 kensa filter 'source_id != ""' --format json          # all cases with a source
 kensa filter 'tag=<X> and not tag=<Y>' --format ids   # required_with violations
 kensa filter 'status = draft and tag=tbd and modified > 30d' --format ids
@@ -689,7 +689,7 @@ kensa list --format ids                                # pick a stratified sampl
 kensa show <ID>                                        # for each sampled case
 ```
 
-See `commands/audit.md` for the full Test Lead workflow including how to bucket
+See the `/audit` command for the full Test Lead workflow including how to bucket
 findings by severity and write the `.tms/reports/audit-YYYY-MM-DD.md`
 artifact. The optional fix phase reuses existing CLI primitives (`rename-tag`,
 `bulk delete --to-trash`, `bulk update --set status=deprecated`) with the

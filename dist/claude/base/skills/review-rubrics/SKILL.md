@@ -38,6 +38,10 @@ For each criterion, mark ✅ / ⚠️ / ❌.
 - ⚠️ Some negatives present, common ones missing
 - ❌ Only happy paths
 
+> ❌ here is **never approvable** — a checklist with only happy paths is sent
+> back regardless of every other criterion. This is the single most common
+> lazy-pass failure mode; treat it as the reject it is.
+
 **4. Edge cases**
 - ✅ Boundary values, error paths, race conditions called out where relevant
 - ⚠️ Some edge cases, more should be there
@@ -60,14 +64,23 @@ For each criterion, mark ✅ / ⚠️ / ❌.
   but only 2 values shown)
 - ❌ No techniques annotated where they should be
 
+**8. Coverage dimensions table**
+- ✅ The checklist ends with the dimensions table (see `checklist-design`):
+  every dimension row filled as covered (item refs) / out-of-scope (one-line
+  reason) / N/A (why)
+- ⚠️ Table present but a reason is hand-wavy ("not needed") or refs don't resolve
+- ❌ Table missing, or any row left blank
+
 ### Outcome decision
 
 - **All ✅ or up to two ⚠️ on minor criteria** → **Approve.** QA Engineer
   proceeds to Stage 2.
-- **Up to 3 ⚠️ or one ❌ on a non-critical criterion** → **Approve with
+- **Up to 3 ⚠️ or one ❌ on a non-critical criterion (6, 7)** → **Approve with
   notes.** QA Engineer proceeds with the notes in mind.
-- **More than 3 ⚠️ OR any ❌ on a critical criterion (1, 2, 5)** →
-  **Send back** with specific feedback.
+- **More than 3 ⚠️ OR any ❌ on a critical criterion (1, 2, 3, 4, 5, 8)** →
+  **Send back** with specific feedback. Negative scenarios (3), edge cases (4),
+  and the dimensions table (8) are critical on purpose: they are exactly what a
+  rushed pass drops first, and they are the reason this team exists.
 
 ### How to write feedback
 
@@ -154,8 +167,10 @@ Same three-tier:
 - **Several ⚠️ or one ❌ on style/anatomy** → **Approve with notes.** Have
   the QA Engineer fix in-place; don't gate the user report on this if the
   cases are functionally correct.
-- **❌ on coverage (1) or recurring quality issues (3, 6, 7)** →
-  **Send back.** Don't ship cases the user will look at and immediately
+- **❌ on coverage (1), recurring quality issues (3, 6, 7), or negative/edge
+  items from the approved checklist not implemented** → **Send back.** A case
+  set that silently dropped the checklist's negatives is a coverage failure,
+  not a style note. Don't ship cases the user will look at and immediately
   spot quality problems.
 
 ### How to write feedback
@@ -181,8 +196,10 @@ Make it actionable. Show the desired form.
 
 ### When the work is genuinely good
 
-Approve quickly. Don't invent issues to look thorough. Two minor
-suggestions in the approval message is fine; ten is overkill.
+Approve quickly. Don't invent *stylistic* issues to look thorough — two minor
+suggestions in the approval message is fine; ten is overkill. But absence of
+negative, boundary, or state coverage is never a stylistic issue: check the
+dimensions table before concluding the work is good.
 
 ### When the QA Engineer is recurring-wrong on something
 

@@ -3,7 +3,7 @@ name: ci-artifacts-and-reporting
 description: JUnit XML + traces/videos/screenshots artifacts and report tooling (native runner widgets, then Allure/ReportPortal/Currents). Load when the automation-devops agent configures CI test reporting and artifacts.
 ---
 
-Framework-agnostic CI reporting: emit machine-readable results every runner can ingest, persist the artifacts that make a red build debuggable, and layer a history/analytics platform only once cross-run trends become the bottleneck. For the Playwright-specific blob/merge flow, cross-link **playwright-reporting-and-traces**.
+Framework-agnostic CI reporting: emit machine-readable results every runner can ingest, persist the artifacts that make a red build debuggable, and layer a history/analytics platform only once cross-run trends become the bottleneck. For the Playwright-specific blob/merge flow, cross-link **playwright-reporting-and-traces** — the two coexist, not compete: JUnit XML per shard is the floor the runner's PR widget reads, while blob→merge produces the single human HTML report; a sharded Playwright suite typically emits both (`--reporter=junit,blob`).
 
 ## Concept
 

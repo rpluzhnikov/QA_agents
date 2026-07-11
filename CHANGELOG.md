@@ -3,6 +3,127 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.17.0 -- 2026-07-11
+
+UX-flow and rigor release: every command now chains into the next one, the Stop
+hook stopped spamming, the review rubric grew teeth, and agents got a seasoned
+tester's reflexes. Driven by a four-way review (command UX / hook / skills /
+agent rigor); the full plan lives in `research/REWORK-PLAN.md`.
+
+### Changed — Stop hook redesigned (no more chat spam)
+
+- **Marker-file protocol replaces transcript scanning.** `/new-feature` and
+  `/update-feature` create `.tms/.pending-checkpoint` on plan approval; the
+  save-memory protocol deletes it; the hook blocks the stop only while the
+  marker exists. Merely *mentioning* a command can no longer re-arm the hook,
+  and the `memory-checkpoint: done` chat sentinel is gone entirely.
+- **Cross-platform registration.** The Claude engine now runs
+  `hooks/save-memory-stop.js` via `node` (exec form) — the previous
+  `powershell`-only registration failed on every Stop on macOS/Linux. The
+  `.sh`/`.ps1` scripts remain for the Codex engine's `hooks.json` and were
+  rewritten to the same marker logic.
+- `/setup` adds the marker to `.gitignore`; build scripts validate the new
+  `.js` hook ships in both engines.
+
+### Added — flow chaining & new commands
+
+- **Standard epilogue in every command** (both engines): `✅ Done / ➡️ Next`
+  with the 1-3 logical follow-up commands (bundle-aware — names the bundle
+  when a suggested command isn't installed).
+- **`/next`** (base) — read-only situation router: probes `.tms/` state
+  (memory, base size, pending checkpoint, fresh reports, stale audits) and
+  recommends what to run now.
+- **`/import-results <report>`** (base) — entry point for the `kensa-results`
+  skill: ingest a CI report, walk the matched/orphaned split, close the
+  `@KEN-<id>` loop.
+- **`/new-routine`** (base) — author a browser routine via a short interview.
+- **`/automate-case <KEN-id>`** (automation-playwright-ts) — the bundle's
+  missing core verb: derive a `@KEN`-tagged Playwright test from a manual case
+  (candidacy check → negative-parity brief → run-verified spec → case tagged
+  `automated`).
+- **Handover artifacts are now consumed.** `/new-feature` / `/update-feature`
+  read `.tms/reports/context-*/spec-review-*/risk-*` and `.tms/brainstorms/*`
+  for their ref instead of re-gathering — the qa-analytics pipeline actually
+  chains. `/audit` now points at `/analyze-cases`/`/traceability`;
+  `/pull-context` routes the "spec supersedes existing cases" situation to
+  `/update-feature`; `/adapt-schema` documents the post-import journey
+  (Universal import → `/setup` update mode → `/audit`).
+- **Preflight unification**: memory + `kensa --version` checks in every command
+  that needs them; automation commands consistently stop with "run
+  `/scaffold-playwright` first"; `argument-hint` frontmatter everywhere.
+- **Doors for agent-only bundles**: `automation-test-lead` routes to
+  `codereviewer` / `git-operator` / `automation-devops` when their bundles are
+  installed; `/scaffold-playwright` and `/fix-flake` epilogues name them.
+
+### Changed — reviewer teeth & seasoned-tester rigor
+
+- **`review-rubrics`**: negative scenarios, edge cases, and the new
+  coverage-dimensions criterion are now **critical** — a happy-path-only
+  checklist is an automatic send-back, never "approve with notes". Case rubric
+  sends back when the approved checklist's negatives weren't implemented.
+- **Coverage Dimensions Gate** (`checklist-design`): every checklist ends with
+  a mandatory table — negative/validation · boundaries · state transitions ·
+  permissions/roles · concurrency · interruption/recovery · i18n/timezone ·
+  data lifecycle · non-functional flags — each row covered / out-of-scope
+  (reason) / N/A (why). Blank row = invalid checklist. Out-of-scope rows are
+  copied into the user report so nothing is cut silently.
+- **Unconditional spec attack**: both the Test Lead and the QA engineer run the
+  `static-testing-reviews` pre-write checklist on every spec; plans carry a
+  quoted **Spec defects** block (even when empty).
+- **Adversarial mandate** (`qa-engineer-agent`): ≥1-2 negatives per positive
+  flow (AC → 1 positive + 1-2 negatives), >70% happy-path requires written
+  justification, error-guessing taxonomy re-run as a Stage-2 sweep.
+- Negatives of a must-have flow now inherit the flow's priority (was: silently
+  demoted to medium via the should-have tier — `checklist-design` /
+  `task-assignment` contradiction resolved).
+- **`exploratory-testing` skill** (new, base) — CTFL §4.4.2 charters, tour
+  catalog, session notes in `.tms/reports/session-*.md`, defect filing loop.
+- **Test oracles** (`test-case-writing-craft`): spec / consistency /
+  cross-product / heuristic; an expected result with no identifiable oracle is
+  an `ASSUMPTION:` by definition.
+- **Assumptions ledger**: save-memory sweeps all `ASSUMPTION:`/`GAP:` markers
+  into `.tms/reports/assumptions-<ref>-<date>.md` (standing questions-to-PM).
+- **Pairwise mechanics + CRUD×roles×states permissions grid** added to
+  `test-design-techniques`; **3-value BVA arithmetic fixed** (8 items per
+  simple range — {6,7,8,9}/{63,64,65,66} for 8–64 — consistently in the
+  warning, both worked examples, and the summary table).
+- `strategist` gained read-only CLI grounding (`kensa stats/coverage/list`) so
+  its numbers are real, plus an **Attack surface** axis in `/brainstorm`;
+  `schema-bootstrap-agent` now flags contradictions between sample files
+  instead of silently reconciling.
+
+### Fixed — skill accuracy
+
+- Removed a raw **NUL byte** from `security-testing` (file was detected as
+  binary; the char list now shows `\x00` as text).
+- **Invented CLI flags** corrected in `test-monitoring-control-completion` and
+  `testing-fundamentals` (`stats --by-status/--by-suite`, `coverage --by-risk`,
+  `coverage --by-source <value>` do not exist); `source_ac`/`risk_refs`
+  re-documented as `custom.*` fields / tags; invalid filter syntax in `/audit`
+  (`tag:` colon form, `mtime`) → `tag=` / `modified`.
+- `playwright-ci-docker`: phantom "kensa-qa CI/devops skill" → real skill names
+  (`ci-runners-and-parallelism`, `ci-artifacts-and-reporting`);
+  "Browserify-style sandboxing" → Chromium's sandbox; duplicated shard/merge
+  YAML replaced with a cross-link.
+- **`source_id` conflation resolved**: evidence skills (browser/mobile/http/
+  results) no longer put internal case ids into `source_id` — internal
+  cross-links use a `related-<case-id>` tag; convention documented in
+  `kensa-test-authoring`, whose directory tree was also corrected
+  (`suites/` under `.tms/`) and extended (memory/, reports/, routines/,
+  brainstorms/, blueprints/, automation-runs/, tools/http/).
+- `kensa-results`: "and 7 more" (11 formats), `@KEN-<id>` named as the
+  id-tagged match format, orphan loop now writes the tag back into the test.
+- Sweep of small fixes: `kensa-setup` phantom skill name, dead
+  `figma-generate-design` link, `generated_by` version pins → placeholder,
+  missing exit-code 1 in `kensa-mobile`, dangling "§5", `sequential-thinking`
+  frontmatter over-grants, bare `learned/` paths → `.tms/memory/learned/`,
+  `test-tools-and-automation-overview` now acknowledges the automation bundles,
+  `{ tag: '@KEN-…' }` canonical form in `test-code-review-standards`,
+  Test Lead frontmatter gained `Write, Edit`, `qa-engineer` worker naming →
+  `qa-engineer-agent`, bundle-gated skills guarded with "if installed".
+
+**Base commands 8 → 11; shared skills 53 → 54; base skills 25 → 26.**
+
 ## 0.16.0 -- 2026-07-08
 
 Full `kensa` CLI coverage: the plugin now documents every command family from the

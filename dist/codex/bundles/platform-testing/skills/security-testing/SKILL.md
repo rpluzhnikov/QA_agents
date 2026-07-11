@@ -339,7 +339,7 @@ Access Control is #1 in OWASP Top 10:2025**, on 3.73 % of tested apps.
 
 ### 4.6 [QA-DOABLE] Special characters smoke test
 
-- **Steps:** Submit `'`, `"`, `\`, `<`, `>`, `&`, `%00`, ` `,
+- **Steps:** Submit `'`, `"`, `\`, `<`, `>`, `&`, `%00`, `\x00`,
   emojis, RTL marks, zero-width joiners. Observe stack traces,
   broken rendering, or 500 errors (any of which is a finding).
 

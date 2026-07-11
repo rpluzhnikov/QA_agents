@@ -69,6 +69,9 @@ and is overwritten on each `ui` — it is **machine-scoped, not in the project**
 ## Exit codes & the JSON error envelope — branch on them
 
 - **`0`** — success (including an empty `devices` list when `adb` is present).
+- **`1`** — runtime failure: the device/adb call itself failed (device dropped
+  off, `adb` error mid-command, delegate crash). ⇒ **retry once or report the
+  device state** — the invocation shape was fine.
 - **`2`** — usage/config error: bad `--device` charset, no/many devices without
   `--device`, an unknown selector, missing `screenshot --out`, an iOS verb off macOS,
   a non-ASCII `type` on Android. ⇒ **fix the invocation** (or attach a device / pass
@@ -125,8 +128,12 @@ with `kensa` writes (see the `kensa` skill for the full verb set):
      the evidence path and the SOT ref:
      ```sh
      kensa new --suite bugs/auth --title "Login: keyboard covers Submit on small screens" \
-       --priority high --tag mobile --tag regression --source-id AUTH-014 --format json
+       --priority high --tag mobile --tag regression --tag related-AUTH-014 \
+       --source-id LIN-89 --format json
      ```
+     `--source-id` = external tracker ref only — never an internal case id; the
+     case under test is linked via the `related-<case-id>` tag
+     (convention in `kensa-test-authoring`).
      Then `Edit` the returned file to add `## Steps` (the exact `kensa mobile`
      commands that reproduce it — including the `ui` snapshots), the observed vs.
      expected result, and a `## Notes` line pointing at the screenshot. Follow

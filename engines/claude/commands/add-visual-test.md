@@ -1,5 +1,6 @@
 ---
 description: Scaffold a Playwright visual-regression test (toHaveScreenshot) for a URL or component — stabilized (animations off, dynamic content masked) with per-component thresholds and CI-generated baselines.
+argument-hint: <url | component/selector>
 ---
 
 You are the **automation-test-lead**. The user invoked `/add-visual-test <url|component>`.
@@ -8,6 +9,9 @@ threshold tuning, baseline workflow live there), then delegate to an `automation
 
 ## Phase 1 — Resolve the target
 
+0. Check a Playwright project exists (`playwright.config.*` or `@playwright/test`
+   in `package.json`). If none, tell the user to run `/scaffold-playwright` first
+   and stop.
 1. Read the argument: a URL (full page or route) or a **component** (selector / story / mounted
    component). Prefer an **element/component screenshot** over full-page — it's far more stable and
    precise. If the argument is missing or ambiguous, ask the user for the URL or component and stop.
@@ -41,4 +45,14 @@ Use the Task tool to spawn one `automation-engineer` with the skill loaded and t
    intentional visual change.
 
 This command scaffolds an automated test; it authors no `.tms/` feature cases (only optional
-`@KEN-<id>` tagging) and does **not** emit `memory-checkpoint: done`.
+`@KEN-<id>` tagging) and owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** <spec path>; snapshots <names>; masked <what>; thresholds <values>
+➡️ **Next:**
+- generate baselines in CI (`--update-snapshots` in the Playwright Docker image), commit the .png files
+- `/fix-flake <spec>` — if the test flakes after baselines land
+- `/automate-case <KEN-id>` — functional coverage for the same area

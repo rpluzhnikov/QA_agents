@@ -29,9 +29,14 @@ layout, and follow it exactly — **do not invent config**. Copy the canonical
    `playwright/.auth/user.json`, matched by the `setup` project), and `tests/`/`pages/`/
    `utils/` dirs with one example spec importing `test` from `fixtures/base.ts` and using
    a role-based locator + web-first assertion.
-5. **Report** — list the files/dirs created and the install commands run; point the user
-   at `/add-page-object` and `/add-auth-setup` for next steps.
+5. **Report** — list the files/dirs created and the install commands run.
 
-This command scaffolds project files only — it authors **no** `.tms/` cases and does
-**not** emit `memory-checkpoint: done` (the Stop hook only enforces checkpoints for
-`kensa-new-feature` / `kensa-update-feature`).
+This command scaffolds project files only — it authors **no** `.tms/` cases and owes no
+memory checkpoint (only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+End your final message with (only suggest commands whose bundle is installed —
+otherwise name the bundle):
+
+✅ **Done:** Playwright + TS scaffolded — <files/dirs created>, browsers installed
+➡️ **Next:** `/kensa-add-auth-setup` — wire real authentication (setup project + storageState) · `/kensa-add-page-object <Name>` — first POM for your main page · then `/kensa-automate-case <KEN-id>` — first @KEN-tagged test from a manual case · CI wiring (runners, sharding, artifacts) → ask `@automation-devops` (automation-devops bundle).

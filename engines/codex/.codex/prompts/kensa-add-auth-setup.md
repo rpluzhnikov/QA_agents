@@ -34,6 +34,11 @@ adapting only the login steps and storage paths to the project.
    **gitignore note**. Restate the pitfalls: **never commit `.auth` JSON**; prefer API login;
    confirm the app's auth storage (cookie vs IndexedDB) so the saved state is complete.
 
-This command writes project files only — it authors **no** `.tms/` cases and does **not**
-emit `memory-checkpoint: done` (the Stop hook only enforces checkpoints for
-`kensa-new-feature` / `kensa-update-feature`).
+This command writes project files only — it authors **no** `.tms/` cases and owes no
+memory checkpoint (only `/kensa-new-feature` and `/kensa-update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+End your final message with:
+
+✅ **Done:** auth.setup.ts + config wiring (<roles>); playwright/.auth/ gitignored <already/added>
+➡️ **Next:** `/kensa-add-page-object <Name>` — POM for the first authenticated page · `/kensa-automate-case <KEN-id>` — first authenticated @KEN-tagged test.

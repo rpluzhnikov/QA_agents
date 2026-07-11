@@ -119,7 +119,7 @@ for engine in $ENGINES; do
         echo "  - dist/$engine/base: plugin.json has no version" >&2; errors=$((errors+1))
     fi
 
-    for script in save-memory-stop.sh save-memory-stop.ps1; do
+    for script in save-memory-stop.js save-memory-stop.sh save-memory-stop.ps1; do
         [ ! -f "$base/hooks/$script" ] && { echo "  - dist/$engine/base: missing hooks/$script" >&2; errors=$((errors+1)); }
     done
     if [ "$engine" = codex ]; then

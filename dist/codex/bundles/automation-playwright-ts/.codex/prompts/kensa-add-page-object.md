@@ -8,7 +8,9 @@ Act as the **automation-test-lead**. Create a page object for: $ARGUMENTS. Load 
 delegate to an `automation-engineer` (or do it directly if trivial).
 
 1. **Resolve the name** from the argument (e.g. `Checkout`). If none was given, ask the user
-   and stop until they answer.
+   and stop until they answer. Check a Playwright project exists (`playwright.config.*` or
+   `@playwright/test` in `package.json`); if none, tell the user to run
+   `/kensa-scaffold-playwright` first and stop.
 2. **Locate the layout** — find the existing `pages/` directory and `fixtures/base.ts`.
    Respect the project's actual structure; if either is missing, follow the
    `playwright-fixtures-and-pom` skill's layout and note it.
@@ -23,4 +25,11 @@ delegate to an `automation-engineer` (or do it directly if trivial).
 5. **Report** the files touched (created + edited, with paths) and the fixture name tests
    now receive.
 
-This command authors no `.tms/` cases and does **not** emit `memory-checkpoint: done`.
+This command authors no `.tms/` cases and owes no memory checkpoint — only
+`/kensa-new-feature` and `/kensa-update-feature` create the `.tms/.pending-checkpoint`
+marker the Stop hook keys on.
+
+End your final message with:
+
+✅ **Done:** pages/<name>-page.ts created; fixture `<name>Page` registered in fixtures/base.ts
+➡️ **Next:** `/kensa-automate-case <KEN-id>` — first spec using the new fixture · `/kensa-add-visual-test <component>` — if this page needs a visual baseline · `/kensa-add-page-object <NextName>` — next page in the flow.

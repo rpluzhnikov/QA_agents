@@ -1,5 +1,6 @@
 ---
 description: Pull maximum context about a task or bug from all available sources of truth into one dossier. Read-only — gathers SOT content + related existing cases, surfaces gaps, writes a context dossier to .tms/reports/. A building block you run before /new-feature, /review-spec, or /risk-assess.
+argument-hint: <ticket-id | url | free text>
 ---
 
 You are the test-lead-agent. The user invoked `/pull-context` with a reference
@@ -9,8 +10,8 @@ a single dossier — so the next step (planning, review, risk, or case-writing)
 starts from full context instead of a cold ticket.
 
 This command is **read-only**. It writes NO test cases, modifies NO cases, and
-does NOT emit `memory-checkpoint: done` — the Stop hook only enforces
-checkpoints for `/new-feature` and `/update-feature`.
+owes NO memory checkpoint — only `/new-feature` and `/update-feature` create
+the `.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 ## Step 1 — Resolve the reference
 
@@ -95,7 +96,8 @@ Structure, in order:
 <bullets from Step 5 — what the source doesn't say>
 
 ## Handover
-- For test cases → run `/new-feature <ref>` (point it at this dossier).
+- For test cases → run `/new-feature <ref>` (it reads this dossier automatically).
+- If related cases show *supersedes / overlaps* → run `/update-feature <ref>` instead.
 - If the spec looks shaky → run `/review-spec <ref>` first.
 - For coverage-depth decisions → run `/risk-assess <ref>`.
 ```
@@ -110,5 +112,17 @@ point at the file.
 
 - **Don't write or modify test cases.** This is gather-only; case-writing is `/new-feature`.
 - **Don't do a full spec review.** Light gap-flagging only; grading is `/review-spec`.
-- **Don't emit `memory-checkpoint: done`.** The Stop hook doesn't require it here.
+- **Don't create the checkpoint marker.** This command owes no memory checkpoint.
 - **Don't guess past missing MCP.** If a source isn't connected, say so and ask for pasted content.
+
+## Epilogue (required)
+
+End your final message with exactly this block (mirror the dossier's Handover;
+only suggest commands whose bundle is installed — otherwise name the bundle):
+
+✅ **Done:** dossier at .tms/reports/context-<ref>-<date>.md — <N> AC, <M> related cases, <K> gaps
+➡️ **Next:**
+- `/review-spec <ref>` — if the gaps look serious, grade the spec first
+- `/risk-assess <ref>` — decide coverage depth for risky areas
+- `/new-feature <ref>` — write the cases (reads this dossier automatically)
+- `/update-feature <ref>` — if this work supersedes existing cases

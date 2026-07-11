@@ -36,21 +36,25 @@ Apply these as concrete checks against the test diff:
 ## Code
 
 ```ts
-// ❌ Over-DRY: intent hidden behind a helper; assertion checks implementation detail
+// ❌ Over-DRY: intent hidden behind a helper; assertion checks implementation detail;
+//    KEN id embedded in the title string (dis-preferred — see ken-traceability)
 test('checkout @KEN-412', async ({ page }) => {
   await runScenario(page, 'happy-path');               // what does this set up?
   expect(store.getState().cart.__internalFlag).toBe(1); // asserts internal wiring
 });
 
-// ✅ DAMP: arrange/act/assert visible; asserts user-observable behavior
-test('completes checkout and shows order confirmation @KEN-412', async ({ page }) => {
-  const user = await createUser({ cart: [aBook({ price: 10 })] }); // DRY mechanics, named
-  await checkoutPage.goto(user);
-  await checkoutPage.payWith(aValidCard());                        // act
+// ✅ DAMP: arrange/act/assert visible; asserts user-observable behavior;
+//    KEN id as a structured tag (the canonical form per ken-traceability)
+test('completes checkout and shows order confirmation',
+  { tag: '@KEN-412' },
+  async ({ page }) => {
+    const user = await createUser({ cart: [aBook({ price: 10 })] }); // DRY mechanics, named
+    await checkoutPage.goto(user);
+    await checkoutPage.payWith(aValidCard());                        // act
 
-  await expect(page.getByRole('heading', { name: 'Order confirmed' })).toBeVisible();
-  await expect(page.getByTestId('order-total')).toHaveText('$10.00');
-});
+    await expect(page.getByRole('heading', { name: 'Order confirmed' })).toBeVisible();
+    await expect(page.getByTestId('order-total')).toHaveText('$10.00');
+  });
 ```
 
 The mechanics (`createUser`, `aBook`, `aValidCard`) are deduplicated and named, but the meaningful values (`price: 10`, `$10.00`) and the behavioral assertion stay inline so the test reads as documentation and survives a refactor of the store.

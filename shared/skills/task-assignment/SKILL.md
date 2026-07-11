@@ -87,6 +87,7 @@ acknowledge — informational only>
 <explicit list — Test Lead has decided which shared steps apply>
 
 ## Skills to load
+- kensa-test-authoring     (always — the byte-exact on-disk format)
 - test-case-writing-craft
 - test-design-techniques
 - negative-and-edge-cases
@@ -101,11 +102,13 @@ acknowledge — informational only>
 - Frontmatter (pass as `kensa new` flags; the engineer adds `generated_by` when editing the body):
   - `id`: <allocated by `kensa new` — do not hand-pick>
   - `priority`: <use checklist tier — must-have → high/critical;
-    should-have → medium; nice-to-have → low>  (`--priority`)
+    should-have → medium; nice-to-have → low. Negative cases inherit the tier
+    of the flow they attack: a negative for a must-have flow is high, not
+    medium — negatives are not second-class by default>  (`--priority`)
   - `status: draft` (set by `new`)
   - `tags`: <list of tags QA Engineer should apply>  (`--tag` per tag)
   - `source_id`: <SOT ref>  (`--source-id`)
-  - `generated_by: kensa-qa@0.16.0`
+  - `generated_by: kensa-qa@<plugin version>` (current version from plugin.json)
 
 ## Project conventions to enforce
 <distilled from .tms/memory/conventions.md — the 3-5 things most
@@ -244,6 +247,3 @@ output as additional context.
 Keep a copy of the brief in your context. When the QA Engineer returns, you
 need to compare what they did against what you asked for. If you don't
 remember exactly what you asked, you can't review properly.
-
-(In v0.2, the memory-keeper will optionally save briefs and outcomes to
-`.tms/memory/sessions/`. For v0.1, just remember.)

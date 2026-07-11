@@ -26,6 +26,11 @@ Load exactly the concept the task needs — one sub-skill's worth of context, no
 
 ## Step 2 — Write the test
 
+- **Derive scenarios before code.** In `downstream` mode the case's steps — including
+  its negative/edge rows the Lead listed in the brief — ARE the scenario list. In
+  `greenfield` mode, extract them from the spec yourself: the main flow plus its key
+  negatives. A greenfield spec file containing only happy-path tests must state in
+  the report *why* no negative was worth automating — silence is a send-back.
 - Follow the loaded skills' idioms **exactly** — resilient role-based locators, web-first auto-retrying assertions, page-objects-as-fixtures, `storageState` auth, API seeding over UI setup, per-worker isolation. The single biggest rule: **never** point-in-time checks (`isVisible()`, `textContent()`) or hard `waitForTimeout()`.
 - Match the existing suite's structure and style; reuse fixtures/page-objects/helpers rather than duplicating them.
 - Keep each test independent and idempotent so it survives parallel runs.

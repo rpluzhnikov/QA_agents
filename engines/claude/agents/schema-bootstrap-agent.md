@@ -45,7 +45,12 @@ Drive everything through the `kensa` skill (it ships on PATH). Use `--format jso
    each one's type (string / text / enum / number / date). Map the obvious synonyms to
    Kensa system fields in your head (`Summary → title`, `Pre-Reqs → preconditions`,
    `Anticipated Outcome → expected`). Anything with no system-field equivalent becomes a
-   **new custom field**.
+   **new custom field**. **If the two samples contradict each other** (same column,
+   different types; a field present in one and absent in the other; conflicting enum
+   values), do NOT silently reconcile — flag the conflict with `GAP:` in your report
+   and pick the more permissive interpretation only after saying so. Two inconsistent
+   samples usually mean the export mixes case kinds; the user should confirm which
+   shape is canonical.
 3. **Migrate if needed.** If `schema show` reports a **v1** schema (custom fields not
    supported), run `kensa schema migrate` first.
 4. **Preview every change.** For each field to add/rename, run

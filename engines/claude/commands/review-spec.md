@@ -1,5 +1,6 @@
 ---
 description: Static review of a requirement/spec BEFORE any test cases are written. Applies ISTQB Ch 3 / ISO 20246 to find defects in the requirement itself — ambiguity, untestable statements, missing AC, contradictions, undefined terms. Read-only; writes a graded findings report to .tms/reports/. Output goes back to product/analyst, not into test cases.
+argument-hint: <ticket-id | url | free text>
 ---
 
 You are the test-lead-agent. The user invoked `/review-spec` with a reference to
@@ -8,9 +9,9 @@ testing** (ISTQB Ch 3): examine the requirement as a work product and report
 defects *in the requirement* — found early, before they propagate into wrong
 test cases and wrong code.
 
-This command is **read-only** on the test base and writes NO test cases. It does
-NOT emit `memory-checkpoint: done` — the Stop hook only enforces checkpoints for
-`/new-feature` and `/update-feature`.
+This command is **read-only** on the test base and writes NO test cases. It owes
+NO memory checkpoint — only `/new-feature` and `/update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 ## Step 1 — Resolve + load memory
 
@@ -48,7 +49,7 @@ offending statements, not a generic verdict:
   a checkable form? Missing AC entirely is a major finding.
 - **Undefined terms** — domain terms used but not in `glossary.md` or the spec.
 
-For a large or tangled spec, you MAY spawn 1–2 `qa-engineer` workers via the Task
+For a large or tangled spec, you MAY spawn 1–2 `qa-engineer-agent` workers via the Task
 tool in **analyze** mode (see `qa-engineer-agent.md`), each given a distinct lens
 (e.g. testability / completeness+consistency), each returning findings in its
 message. You then aggregate and dedupe. Default is solo — only fan out when the
@@ -114,4 +115,13 @@ If the verdict is `pass` or `pass-with-fixes`, point them at `/new-feature <ref>
 - **Don't invent requirements.** Report what's missing; don't fill the gap with your own AC.
 - **Don't grade vaguely.** Every finding quotes the text and proposes a fix — no
   "the spec is unclear" without a pointer.
-- **Don't emit `memory-checkpoint: done`.** Not required for this command.
+- **Don't create the checkpoint marker.** This command owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** verdict <pass|pass-with-fixes|needs-rework>; <N> findings; report at .tms/reports/spec-review-<ref>-<date>.md
+➡️ **Next:**
+- verdict pass / pass-with-fixes → `/risk-assess <ref>` (coverage depth) or straight to `/new-feature <ref>` (reads this report automatically)
+- verdict needs-rework → take the findings to product/analyst; re-run `/review-spec <ref>` after the spec is fixed

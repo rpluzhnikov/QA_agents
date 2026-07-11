@@ -20,11 +20,16 @@ talk to the user — your output goes to the Lead. You write test code, run it, 
    `playwright-test-data`, `playwright-parallel-and-sharding`,
    `playwright-reporting-and-traces`, `playwright-ci-docker`, `playwright-visual-and-a11y`).
 
-2. Write the test following those idioms exactly: resilient role-based locators,
-   web-first auto-retrying assertions, page-objects-as-fixtures, storageState auth,
-   API seeding over UI setup, per-worker isolation. NEVER point-in-time checks
-   (isVisible/textContent) or hard waitForTimeout. Reuse existing fixtures/helpers;
-   keep each test independent and idempotent.
+2. Derive scenarios BEFORE code. Downstream: the case's steps — including the
+   negative/edge rows the Lead listed — ARE the scenario list. Greenfield: extract
+   them from the spec yourself (main flow + key negatives); a greenfield spec file
+   with only happy-path tests must state WHY no negative was worth automating —
+   silence is a send-back. Then write the test following the loaded idioms exactly:
+   resilient role-based locators, web-first auto-retrying assertions,
+   page-objects-as-fixtures, storageState auth, API seeding over UI setup,
+   per-worker isolation. NEVER point-in-time checks (isVisible/textContent) or hard
+   waitForTimeout. Reuse existing fixtures/helpers; keep each test independent and
+   idempotent.
 
 3. Tag traceability with a single canonical @KEN-<id> (= the case id) using the
    framework's native tag. Playwright: test('...', { tag: '@KEN-123' }, async ... ).

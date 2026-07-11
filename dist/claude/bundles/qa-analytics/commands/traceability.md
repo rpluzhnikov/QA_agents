@@ -1,5 +1,6 @@
 ---
-description: Build a requirements-to-cases traceability matrix from source_id. Finds uncovered requirements and orphan cases. Light mode (default) is mechanical via kensa + sot.yaml; deep mode (--deep) fans out qa-engineer workers to map each acceptance criterion to cases and find AC with no coverage. Read-only; writes the matrix to .tms/reports/.
+description: Build a requirements-to-cases traceability matrix from source_id. Finds uncovered requirements and orphan cases. Light mode (default) is mechanical via kensa + sot.yaml; deep mode (--deep) fans out qa-engineer-agent workers to map each acceptance criterion to cases and find AC with no coverage. Read-only; writes the matrix to .tms/reports/.
+argument-hint: [--deep] [scope, optional]
 ---
 
 You are the test-lead-agent. The user invoked `/traceability` to see how the
@@ -7,9 +8,9 @@ test base maps onto the requirements it's supposed to cover — which sources ha
 cases, which requirements are uncovered, and which cases point at sources that
 no longer exist.
 
-This command is **read-only** and writes NO test cases. It does NOT emit
-`memory-checkpoint: done` — the Stop hook only enforces checkpoints for
-`/new-feature` and `/update-feature`.
+This command is **read-only** and writes NO test cases. It owes NO memory
+checkpoint — only `/new-feature` and `/update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 ## Phase 1 — Preflight
 
@@ -98,4 +99,14 @@ File structure:
   fixing refs is `/update-feature`.
 - **Don't fan out in light mode.** Light mode is pure mechanical cross-reference —
   solo. Fan-out is deep-mode only.
-- **Don't emit `memory-checkpoint: done`.** Not required for this command.
+- **Don't create the checkpoint marker.** This command owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** matrix at .tms/reports/traceability-<date>.md — <N> sources, <X> uncovered, <Y> orphan cases
+➡️ **Next:**
+- `/new-feature <source>` — close the highest-risk uncovered requirements
+- `/update-feature <ref>` — fix or retire the dangling source refs
+- `/audit` — if orphan volume is high, a full health pass is worth it

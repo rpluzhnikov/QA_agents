@@ -1,27 +1,27 @@
-# Stop hook for kensa-qa.
-# Ensures the Lead runs the save-memory protocol after /new-feature or /update-feature
-# before the session is allowed to stop.
+# Stop hook for kensa-qa (Windows fallback; the Claude engine registers the
+# cross-platform save-memory-stop.js — this script is kept for the Codex engine,
+# whose hooks.json selects it via commandWindows).
 #
-# Input  (stdin JSON, sent by Claude Code on the Stop event):
-#   { "transcript_path": "...jsonl", "stop_hook_active": false, ... }
+# Marker-file protocol:
+#   /new-feature and /update-feature create `.tms/.pending-checkpoint` when authoring
+#   begins; the save-memory protocol deletes it as its final step. This hook blocks
+#   the stop only while the marker exists — no transcript scanning, no chat sentinel,
+#   so merely *mentioning* a command never re-arms it.
+#
+# Input  (stdin JSON, sent on the Stop event):
+#   { "cwd": "...", "stop_hook_active": false, ... }
 #
 # Output (stdout, JSON):
-#   {"decision":"block","reason":"..."}    when a memory checkpoint is owed
+#   {"decision":"block","reason":"..."}    while the marker exists
 #   (nothing)                              otherwise -- stop proceeds
-#
-# Detection:
-#   - Scan the transcript JSONL line-by-line.
-#   - Track the LAST line index that mentions /new-feature or /update-feature.
-#   - Track the LAST line index that contains the sentinel "memory-checkpoint: done".
-#   - Block iff a command line exists and no sentinel line follows it.
 #
 # Anti-loop:
 #   - When stop_hook_active is true the hook already blocked once in this stop
 #     cycle; allow the stop regardless so the user can never get wedged.
 #
 # Failure mode:
-#   - Any parse error or missing transcript exits 0 (allow stop) -- the hook never
-#     blocks a session because of its own bug.
+#   - Any parse error exits 0 (allow stop) -- the hook never blocks a session
+#     because of its own bug.
 
 $ErrorActionPreference = 'Stop'
 
@@ -37,44 +37,17 @@ try {
 # 2. Break the loop if we already blocked once in this stop cycle.
 if ($payload.stop_hook_active) { Allow-Stop }
 
-# 3. Need a transcript to inspect.
-$transcript = $payload.transcript_path
-if (-not $transcript -or -not (Test-Path -LiteralPath $transcript)) { Allow-Stop }
-
-# 4. Walk transcript, remember the last position of command and sentinel.
-$lastCmd = -1
-$lastSentinel = -1
-$idx = 0
-
-$cmdRegex = [regex]'(?i)/(new-feature|update-feature)\b'
-$sentinelRegex = [regex]'(?i)memory-checkpoint:\s*done'
+# 3. Locate the marker relative to the session cwd.
+$cwd = $payload.cwd
+if (-not $cwd) { $cwd = (Get-Location).Path }
+$marker = Join-Path $cwd '.tms\.pending-checkpoint'
 
 try {
-  foreach ($line in [System.IO.File]::ReadLines($transcript)) {
-    $idx++
-    if ([string]::IsNullOrEmpty($line)) { continue }
-
-    # Cheap substring guards before regex.
-    $maybeCmd = ($line.IndexOf('/new-feature') -ge 0) -or ($line.IndexOf('/update-feature') -ge 0)
-    $maybeSentinel = $line.IndexOf('memory-checkpoint') -ge 0
-
-    if (-not $maybeCmd -and -not $maybeSentinel) { continue }
-
-    if ($maybeCmd -and $cmdRegex.IsMatch($line)) { $lastCmd = $idx }
-    if ($maybeSentinel -and $sentinelRegex.IsMatch($line)) { $lastSentinel = $idx }
-  }
+  if (-not (Test-Path -LiteralPath $marker)) { Allow-Stop }
 } catch { Allow-Stop }
 
-# 5. Decide.
-if ($lastCmd -lt 0) { Allow-Stop }              # no qualifying command this session
-if ($lastSentinel -ge $lastCmd) { Allow-Stop }  # sentinel covers the latest command
-
-# 6. Block. The reason is fed back to Claude as a system reminder and the turn continues.
-$reason = @'
-Memory checkpoint owed: run the save-memory protocol (commands/save-memory.md) for the /new-feature or /update-feature in this session, then emit on its own line:
-    memory-checkpoint: done
-(If nothing to save, append a note, e.g. `memory-checkpoint: done (nothing to save)` -- the hook keys only on the prefix.)
-'@
+# 4. Block. The reason is fed back to the model and the turn continues.
+$reason = 'Memory checkpoint owed: an authoring command (/new-feature or /update-feature) has not been closed out. Run the save-memory protocol (commands/save-memory.md) now, then delete the marker file `.tms/.pending-checkpoint`. If there is nothing worth saving, or `.tms/memory/` does not exist, just delete the marker and finish.'
 
 $out = [pscustomobject]@{
   decision = 'block'

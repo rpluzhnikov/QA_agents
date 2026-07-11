@@ -35,27 +35,35 @@ re-save doesn't churn the file.
 ├── .tms/
 │   ├── config.yaml              # project config + ID counters
 │   ├── schema.yaml              # custom field definitions
+│   ├── suites/                  # the test cases
+│   │   ├── auth/
+│   │   │   ├── 001.md
+│   │   │   └── checkout/        # nested suite (arbitrary depth)
+│   │   │       └── 003.md
+│   │   └── reports/
+│   │       └── 004.md
 │   ├── shared-steps/<id>.md     # reusable step sequences
 │   ├── plans/<id>.json          # test plans (named case collections)
-│   ├── runs/<id>.json           # test run history + per-case results
+│   ├── runs/<id>.json           # manual/blueprint run history + per-case results
+│   ├── automation-runs/<id>.json # normalized CI runs (`kensa results ingest`)
 │   ├── attachments/<caseId>/    # per-case attachment files
+│   ├── memory/                  # project memory (project.md, conventions.md, learned/*)
+│   ├── reports/                 # /audit + analysis command artifacts
+│   ├── routines/RT-*.md         # browser routines
+│   ├── brainstorms/             # /brainstorm artifacts
+│   ├── blueprints/BP-*.json     # node-graph automations
+│   ├── tools/http/              # HTTP request collections (`kensa http`)
 │   └── trash/<id>.md            # soft-deleted cases (recoverable)
-├── suites/                      # the test cases
-│   ├── auth/
-│   │   ├── 001.md
-│   │   ├── 002.md
-│   │   └── checkout/            # nested suite (arbitrary depth)
-│   │       └── 003.md
-│   └── reports/
-│       └── 004.md
 ├── CLAUDE.md                    # instructions for AI agents (optional)
 └── README.md
 ```
 
-- **Suites are just folders** under `suites/`. Nest them to any depth. A case's
-  "suite path" is its folder path relative to `suites/` (e.g. `auth/checkout`).
-- A case lives at `suites/<suitePath>/<id>.md`. Moving a case = moving the file.
+- **Suites are just folders** under `.tms/suites/`. Nest them to any depth. A case's
+  "suite path" is its folder path relative to `.tms/suites/` (e.g. `auth/checkout`).
+- A case lives at `.tms/suites/<suitePath>/<id>.md`. Moving a case = moving the file.
 - `.tms/` holds everything that is *about* the project rather than a case body.
+  Manual/blueprint runs live in `runs/`; ingested CI runs live separately in
+  `automation-runs/` (different producers, different shapes — see `kensa-results`).
 
 ---
 
@@ -78,7 +86,7 @@ top-level keys).
 | `tags` | string[] | Block-list style (one `- tag` per line). Omit or `[]` if none. |
 | `preconditions` | string (block `\|`) | Setup state before Step 1. Multiline allowed. |
 | `custom` | map | Schema-defined custom fields (see `schema.yaml`). |
-| `source_id` | string | External tracker ref, e.g. `testrail:C12345`, `LIN-89`. |
+| `source_id` | string | External tracker ref, e.g. `testrail:C12345`, `LIN-89`. **Never an internal case id** — cross-reference another `.tms/` case with a `related-<case-id>` tag (e.g. `related-AUTH-014`) so `kensa filter "tag=related-AUTH-014"` finds the linked cases. |
 | `created_at` | string | ISO-8601, quoted: `'2026-05-10T14:30:00Z'`. |
 | `updated_at` | string | ISO-8601, quoted. |
 

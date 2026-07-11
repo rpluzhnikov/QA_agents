@@ -150,6 +150,9 @@ profile.
    ```
 2. Get explicit confirmation.
 3. Create files using the templates (see plugin `templates/` directory). The plugin's templates live alongside `commands/` and `agents/`; copy them into the user's `.tms/memory/` and fill in the placeholders from interview answers.
+   Also add `.tms/.pending-checkpoint` to the project `.gitignore` (create the
+   file or append; never clobber) — it's the transient Stop-hook marker the
+   authoring commands create and `/save-memory` deletes; it must never be committed.
 4. **Wire up MCP servers** (only for the sources the user said yes to in Phase 3):
    - Target file: `.mcp.json` at the **repo root** (NOT inside `.tms/`). This is the
      standard Claude Code project-scope location and should be committed to git.
@@ -186,6 +189,18 @@ profile.
      clobber the user's content), or skip.
    - Show the diff and confirm before writing.
 7. Tell the user how to use it: "Run `/new-feature <ref>` and I'll take it from here. Edit any file in `.tms/memory/` directly when conventions change — I re-read on every session. If I seeded routines, run `/run-routine <id>` to drive the browser."
+
+## Epilogue (required)
+
+End your final message with exactly this block (adapt to what actually happened;
+only suggest commands whose bundle is installed — otherwise name the bundle):
+
+✅ **Done:** .tms/memory/ created (<files>), .mcp.json <written/merged/skipped>, routines <seeded/skipped>
+➡️ **Next:**
+- restart Claude Code (or `/reload-plugins`) if MCP servers were written — they start on restart
+- `/new-feature <ref>` — author cases for your first feature
+- `/run-routine RT-001` — if routines were seeded, smoke-check the live app
+- migrating from another TMS? → `/adapt-schema <samples>` first, import via Universal format, then re-run `/setup` (update mode)
 
 ## Notes for the agent running this command
 

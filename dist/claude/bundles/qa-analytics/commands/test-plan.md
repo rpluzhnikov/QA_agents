@@ -1,5 +1,6 @@
 ---
 description: Produce a structured ISTQB test plan (§5.1) for an epic/release. Aggregates scope, risk, approach (levels/types/techniques), entry/exit criteria, estimation, and allocation into a committable plan document. Read-only; writes to .tms/reports/. Distinct from /brainstorm (which picks between strategies) — this documents the chosen one.
+argument-hint: <epic | release | set of tickets>
 ---
 
 You are the test-lead-agent. The user invoked `/test-plan` with a scope (epic,
@@ -7,9 +8,9 @@ release name, set of tickets, or free-text). Your job is to write an **ISTQB
 §5.1 test plan**: the document that says what will be tested, how, to what depth,
 with which entry/exit criteria, and at what estimated cost.
 
-This command is **read-only** and writes NO test cases. It does NOT emit
-`memory-checkpoint: done` — the Stop hook only enforces checkpoints for
-`/new-feature` and `/update-feature`.
+This command is **read-only** and writes NO test cases. It owes NO memory
+checkpoint — only `/new-feature` and `/update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 ## Step 1 — Resolve scope + read prior artifacts
 
@@ -41,7 +42,8 @@ Load `.tms/memory/project.md`, `conventions.md`, `sot.yaml`. No memory →
 Load `test-planning` (§5.1 — the plan ingredients) and `risk-based-testing` (to
 prioritize). If, while writing, you discover the *approach itself* is contested
 (several defensible strategies and no clear winner), stop and recommend
-`/brainstorm <topic>` — then fold its decided artifact back in. Don't silently
+`/brainstorm <topic>` (strategist bundle — name the bundle if the command isn't
+installed) — then fold its decided artifact back in. Don't silently
 guess a strategy in the plan.
 
 Cover the §5.1 ingredients:
@@ -55,7 +57,7 @@ Cover the §5.1 ingredients:
 5. **Entry / exit criteria** — what must be true to start, and the definition of done.
 6. **Estimation & schedule** — case-count ranges per area, rough effort, sequencing.
 7. **Deliverables & allocation** — which suites get written, suggested decomposition
-   into `/new-feature` runs (and whether any can be parallel `qa-engineer` packages).
+   into `/new-feature` runs (and whether any can be parallel `qa-engineer-agent` packages).
 
 ## Step 5 — Write the plan
 
@@ -78,4 +80,13 @@ Terminal: scope one-liner, total estimated case range, # of suggested
   strategists; `/test-plan` *documents* the chosen strategy. If the choice isn't
   made, send the user to `/brainstorm` first.
 - **Don't fabricate precision.** Estimates are ranges with stated assumptions.
-- **Don't emit `memory-checkpoint: done`.** Not required for this command.
+- **Don't create the checkpoint marker.** This command owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** plan at .tms/reports/test-plan-<slug>-<date>.md — <N> areas, ~<X-Y> cases, <K> suggested /new-feature runs
+➡️ **Next:**
+- `/new-feature <ref>` × K — execute the plan run by run (each reads the plan + risk register automatically)
+- `/brainstorm <topic>` — only if the approach section flagged a contested strategy (strategist bundle)

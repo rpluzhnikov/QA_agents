@@ -3,7 +3,7 @@ name: ci-flake-gating-and-hygiene
 description: CI flake handling (retry caps, quarantine lanes), merge-gating policy (smoke vs full, nightly), and hygiene (caching, secrets, cost). Load when the automation-devops agent sets CI retry/gating/cost policy.
 ---
 
-Framework-agnostic CI mechanics for keeping a test suite trustworthy, fast, and cheap. This skill is the **CI plumbing**: where retries, gates, caches, and budgets live in the pipeline. The **organizational** flake policy — quarantine SLAs, who owns which ticket, flake-budget targets and the consequences of blowing them — belongs to the **automation-test-lead**; wire up what they decide, don't set the policy here.
+Framework-agnostic CI mechanics for keeping a test suite trustworthy, fast, and cheap. This skill is the **CI plumbing**: where retries, gates, caches, and budgets live in the pipeline. The **organizational** flake policy — quarantine SLAs, who owns which ticket, flake-budget targets and the consequences of blowing them — belongs to the **automation-test-lead**, whose playbook is the `test-flakiness-governance` skill (automation-codereview bundle); wire up what they decide, don't set the policy here.
 
 ## Concept
 

@@ -1,5 +1,6 @@
 ---
 description: Product risk analysis for a feature/ticket. Applies ISTQB §5.2 to produce a risk register (likelihood × impact → level → recommended test depth) that drives how much coverage /new-feature and /test-plan should aim for. Read-only; writes the register to .tms/reports/.
+argument-hint: <ticket-id | feature name | url>
 ---
 
 You are the test-lead-agent. The user invoked `/risk-assess` with a reference
@@ -8,9 +9,9 @@ analysis** (ISTQB §5.2): identify what could go wrong with this feature in
 production, rate each risk, and translate the ratings into concrete test-depth
 recommendations the rest of the pipeline can act on.
 
-This command is **read-only** and writes NO test cases. It does NOT emit
-`memory-checkpoint: done` — the Stop hook only enforces checkpoints for
-`/new-feature` and `/update-feature`.
+This command is **read-only** and writes NO test cases. It owes NO memory
+checkpoint — only `/new-feature` and `/update-feature` create the
+`.tms/.pending-checkpoint` marker the Stop hook keys on.
 
 ## Step 1 — Resolve + load memory
 
@@ -84,4 +85,13 @@ aggregate this register).
 - **Don't fan out.** Risk analysis is a coherent whole — it fragments badly across
   parallel agents. Stay solo (same rationale as `/audit`).
 - **Don't rate without a reason.** Every High/Medium/Low has a one-line justification.
-- **Don't emit `memory-checkpoint: done`.** Not required for this command.
+- **Don't create the checkpoint marker.** This command owes no memory checkpoint.
+
+## Epilogue (required)
+
+End your final message with exactly this block:
+
+✅ **Done:** <N> risks (<H> High / <M> Medium / <L> Low); register at .tms/reports/risk-<ref>-<date>.md
+➡️ **Next:**
+- `/new-feature <ref>` — write the cases with the depth column applied (reads this register automatically)
+- `/test-plan <epic>` — if this feature is part of a bigger batch, aggregate the register into a plan

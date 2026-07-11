@@ -183,7 +183,8 @@ foreach ($engine in $engines) {
     }
 
     # hook scripts ship in base; hooks.json registration is Codex-only
-    foreach ($script in @('save-memory-stop.sh', 'save-memory-stop.ps1')) {
+    # (.js is the Claude registration; .sh/.ps1 remain for Codex hooks.json)
+    foreach ($script in @('save-memory-stop.js', 'save-memory-stop.sh', 'save-memory-stop.ps1')) {
         if (-not (Test-Path (Join-Path $base "hooks\$script"))) {
             $errors += "dist/${engine}/base: missing hooks/$script"
         }

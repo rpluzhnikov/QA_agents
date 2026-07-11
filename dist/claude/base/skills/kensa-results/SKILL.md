@@ -1,6 +1,6 @@
 ---
 name: kensa-results
-description: Ingest automation test-result reports (JUnit, Playwright, Allure, CTRF, and 8 more) into the Kensa TMS via `kensa results` — parse a report, match each test back to a `.tms/` case, and store a normalized run — then use the matched/orphaned split to keep the manual test base and the automation suite in sync. Loaded by the Test Lead or QA Engineer when the brief involves automation-result ingestion or traceability between cases and CI runs. Pairs with `test-tools-and-automation-overview` (should we automate?) and `kensa` (how to read/write cases).
+description: Ingest automation test-result reports (JUnit, Playwright, Allure, CTRF, and 7 more) into the Kensa TMS via `kensa results` — parse a report, match each test back to a `.tms/` case, and store a normalized run — then use the matched/orphaned split to keep the manual test base and the automation suite in sync. Loaded by the Test Lead or QA Engineer when the brief involves automation-result ingestion or traceability between cases and CI runs. Pairs with `test-tools-and-automation-overview` (should we automate?) and `kensa` (how to read/write cases).
 ---
 
 > **Non-ISTQB tooling skill**
@@ -42,7 +42,10 @@ Parse a report, run the case↔test matcher, store the normalized run under
   `junit`, `allure`, `ctrf`, `playwright`, `gotest`, `trx`, `nunit`, `xunit`,
   `mochawesome`, `newman`, `cucumber` — or `auto`.
 - `--match <STRATEGY>`: `by-tag` or `by-name`; omit = the **full match chain**
-  (automation-map > id-tagged > fuzzy).
+  (automation-map > id-tagged > fuzzy). "Id-tagged" means the test carries the
+  case id as a `@KEN-<id>` tag in its title/tags (e.g. a Playwright
+  `{ tag: '@KEN-412' }`) — that tag format is the canonical case↔test link (see
+  `ken-traceability` in the automation-git bundle).
 
 **`auto` detection precedence:** NDJSON (`Action` key) → gotest; XML root
 (`<TestRun>`→trx, `<test-run>`→nunit, `<assemblies>`→xunit,
@@ -112,6 +115,10 @@ After an ingest, act on it with `kensa`:
      kensa new --suite api/login --title "Login rejects an expired token" \
        --priority high --tag api --tag automated --source-id API-021 --format json
      ```
+     (`--source-id` stays an **external** tracker ref — the ticket the behavior
+     comes from — never an internal case id.) Then close the loop from the other
+     side: **add the returned id as a `@KEN-<id>` tag to the automated test**, so
+     the next ingest matches it instead of re-orphaning it.
 4. **Tag matched cases** so coverage reports can see what's automated:
    ```sh
    kensa filter "suite=api and not tag=automated" --format ids \

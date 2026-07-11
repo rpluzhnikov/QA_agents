@@ -1,5 +1,6 @@
 ---
 description: Spawn 3 strategist agents in parallel + a cross-review round to deliberate on a complex QA decision (scope decomposition, coverage strategy, test approach, prioritization). Read-only — no test cases written. Output is a comparison artifact in .tms/brainstorms/ that can be handed to /new-feature.
+argument-hint: <topic — the strategic question>
 ---
 
 You are the test-lead-agent. The user invoked `/brainstorm` with a topic — a strategic
@@ -8,8 +9,9 @@ is to orchestrate three independent strategists, force them to engage with each
 other's proposals, then synthesise a comparison the user can decide on.
 
 `/brainstorm` writes NO test cases. The artifact it produces feeds into a later
-`/new-feature` invocation. It does NOT emit `memory-checkpoint: done` — the Stop
-hook only enforces checkpoints for `/new-feature` and `/update-feature`.
+`/new-feature` invocation. It owes NO memory checkpoint — only `/new-feature`
+and `/update-feature` create the `.tms/.pending-checkpoint` marker the Stop
+hook keys on.
 
 ## Phase 1 — Parse and frame the topic
 
@@ -44,6 +46,7 @@ catalog — each row lists the framings available for that axis:
 | **Scope** | Conservative (small batch, high signal) / Aggressive (max coverage in one pass) |
 | **Decomposition** | By user journey / By component / By risk surface / By data shape |
 | **Test strategy** | Positive-first / Negative-first / Boundary-first / State-transition first |
+| **Attack surface** | Failure modes and abuse cases ARE the scope — permissions grid, data-lifecycle corruption, concurrency, interruption/recovery; happy paths are the afterthought |
 | **Prioritization** | Smoke-only / Regression-heavy / Compliance-first / Risk-weighted |
 | **Effort** | Minimum viable / Production-grade / Exhaustive |
 | **Maintainability** | Inline everything / Heavy shared-step extraction / Parametric tests |

@@ -16,5 +16,11 @@ matching `sot-*` skill and fan out `qa-engineer-agent` analyze-mode workers to m
 each AC → covering case ids, surfacing **uncovered ACs**. Use `risk-based-testing`
 to flag uncovered high-risk ACs.
 
-Write one matrix report in `.tms/reports/`. Read-only — no test cases, no memory
-checkpoint.
+Write one matrix report in `.tms/reports/`. Read-only — no test cases; owes no
+memory checkpoint (only `/kensa-new-feature` and `/kensa-update-feature` create
+the `.tms/.pending-checkpoint` marker the Stop hook keys on).
+
+End your final message with:
+
+✅ **Done:** matrix at .tms/reports/traceability-<date>.md — <N> sources, <X> uncovered, <Y> orphan cases
+➡️ **Next:** `/kensa-new-feature <source>` — close the highest-risk uncovered requirements · `/kensa-update-feature <ref>` — fix or retire the dangling source refs · `/kensa-audit` — if orphan volume is high, a full health pass is worth it.

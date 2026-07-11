@@ -18,14 +18,19 @@ to be aware of, not as a deep skill. For Kensa agents the goal is:
    adjacent tools in conversation.
 2. Answer "should we automate this?" with the standard benefits/risks
    framework, not opinion.
-3. Position Kensa correctly: a **manual test-management tool** that
-   can feed automation downstream but doesn't author automation
-   itself.
+3. Position Kensa correctly: at its core a **manual test-management
+   tool** that feeds automation downstream. Authoring automation is
+   possible, but only through the optional automation bundles.
 
-If the user asks about specific automation frameworks
-(Playwright, Cypress, Selenium, Appium, k6, JMeter), defer the
-detailed framework choice to a dev/automation engineer. This skill
-gives you the framework to discuss the question, not the answer.
+If the user asks about specific automation frameworks (Playwright,
+Cypress, Selenium, Appium, k6, JMeter): when the **automation bundles
+are installed** (`automation-playwright-ts` and friends — check for the
+`automation-test-lead` agent or `/scaffold-playwright`), route the work
+to `automation-test-lead` and the `playwright-*` skill family instead
+of deferring externally. Without those bundles, defer the detailed
+framework choice to a dev/automation engineer — or name the bundle the
+user could install. This skill gives you the framework to discuss the
+question, not the answer.
 
 ## Tool categories (§6.1)
 

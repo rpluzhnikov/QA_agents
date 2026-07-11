@@ -49,8 +49,17 @@ If `.tms/memory/` is missing, run the `kensa-setup` flow first.
    cases with `kensa new`, which allocates ids atomically — no case-id ranges to hand out,
    even for ≥2 parallel engineers.
 3. **Review in two passes** — checklist first, then cases, using `review-rubrics`.
-   Cap revisions at 2 rounds.
+   Cap revisions at 2 rounds. Happy-path-only checklists and blank
+   coverage-dimension rows are automatic send-backs.
 4. **Report** — files created, case count, assumptions, open questions.
+
+**Every prompt ends with an epilogue** — `✅ Done: …` + `➡️ Next: …` naming the
+1-3 logical follow-up prompts (only ones whose bundle is installed). Lost? Run
+`kensa-next` — the read-only situation router that inspects `.tms/` state and
+recommends what to run. Other base prompts: `kensa-new-routine` (author a
+browser routine), `kensa-import-results` (ingest a CI report and close the
+matched/orphaned loop). Automation bundles add `kensa-automate-case <id>` —
+derive a `@KEN`-tagged test from a manual case.
 
 For **browser QA** (verifying the running app, or running a routine from
 `.tms/routines/`), load the `kensa-browser` skill or run the `kensa-run-routine`
@@ -69,16 +78,15 @@ inside the flow. Always `validate` before `run`; script/agent nodes are consent-
 
 ## The memory-checkpoint rule (enforced by a Stop hook)
 
-After any `kensa-new-feature` or `kensa-update-feature`, before the session ends,
-run the save-memory protocol and emit this line verbatim on its own line:
+`kensa-new-feature` and `kensa-update-feature` create the marker file
+`.tms/.pending-checkpoint` once the user approves the plan. Before the session
+ends, run the save-memory protocol and **delete the marker** — that closes the
+checkpoint. There is no chat sentinel.
 
-```
-memory-checkpoint: done
-```
-
-The bundled Stop hook (`hooks/save-memory-stop.sh`, `.ps1` on Windows) scans the
-transcript and blocks the stop until that sentinel appears after the command. If
-nothing needed saving, still emit it with `(nothing to save this round)` appended.
+The bundled Stop hook (`hooks/save-memory-stop.sh`, `.ps1` on Windows) blocks
+the stop only while the marker exists — it never scans the transcript, so
+merely mentioning a command never re-arms it. If nothing needed saving, say so
+in one line and delete the marker anyway.
 
 ## Skills (ISTQB CTFL v4.0.1-grounded)
 

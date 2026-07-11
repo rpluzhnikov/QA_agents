@@ -14,7 +14,7 @@ Use the `use_figma` tool to execute JavaScript in Figma files via the Plugin API
 
 **Always pass `skillNames: "figma-use"` when calling `use_figma`.** This is a logging parameter used to track skill usage — it does not affect execution.
 
-**If the task involves building or updating a full page, screen, or multi-section layout in Figma from code**, also load [figma-generate-design](../figma-generate-design/SKILL.md). It provides the workflow for discovering design system components via `search_design_system`, importing them, and assembling screens incrementally. Both skills work together: this one for the API rules, that one for the screen-building workflow.
+**In kensa-qa this skill is read-mostly**: QA uses `use_figma` to inspect deep node structure, prototype flows, and annotations programmatically — building or editing designs is out of scope for a QA session. Start from the read-oriented sections of the references below.
 
 Before anything, load [plugin-api-standalone.index.md](references/plugin-api-standalone.index.md) to understand what is possible. When you are asked to write plugin API code, use this context to grep [plugin-api-standalone.d.ts](references/plugin-api-standalone.d.ts) for relevant types, methods, and properties. This is the definitive source of truth for the API surface. It is a large typings file, so do not load it all at once, grep for relevant sections as needed.
 
