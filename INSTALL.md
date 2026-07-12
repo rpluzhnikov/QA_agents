@@ -18,12 +18,12 @@ The Claude plugin bundles everything (agents, commands, skills, hooks, MCP), so 
 marketplace install is complete:
 
 ```
-/plugin marketplace add rpluzhnikov/QA_agents
-/plugin install kensa-qa@rpluzhnikov
+/plugin marketplace add kensa-ide/QA_agents
+/plugin install kensa-qa@kensa-ide
 ```
 
 **Then fully restart Claude Code** (not just a new tab). Update later with
-`/plugin marketplace update rpluzhnikov`.
+`/plugin marketplace update kensa-ide`.
 
 Verify:
 - `/help` lists the 11 **base** commands: `setup`, `new-feature`, `update-feature`, `save-memory`, `audit`, `adapt-schema`, `run-routine`, `new-routine`, `blueprint`, `next`, `import-results`
@@ -59,14 +59,14 @@ copy (the layout already mirrors where Codex looks). Clone, then copy into the
 project root:
 
 ```powershell
-git clone https://github.com/rpluzhnikov/QA_agents.git
+git clone https://github.com/kensa-ide/QA_agents.git
 Copy-Item .\QA_agents\dist\codex\base\* C:\path\to\your-project\ -Recurse -Force
 # plus any bundles, merged on top:
 Copy-Item .\QA_agents\dist\codex\bundles\qa-analytics\* C:\path\to\your-project\ -Recurse -Force
 ```
 
 ```bash
-git clone https://github.com/rpluzhnikov/QA_agents.git
+git clone https://github.com/kensa-ide/QA_agents.git
 cp -R QA_agents/dist/codex/base/. /path/to/your-project/
 # plus any bundles, merged on top:
 cp -R QA_agents/dist/codex/bundles/qa-analytics/. /path/to/your-project/

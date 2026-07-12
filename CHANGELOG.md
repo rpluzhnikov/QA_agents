@@ -3,6 +3,30 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.18.0 -- 2026-07-12
+
+Repository moved to the **`kensa-ide`** GitHub organization and rebranded off the
+personal account.
+
+### Changed — distribution & branding
+
+- **Repo relocated** to `github.com/kensa-ide/QA_agents` (was
+  `rpluzhnikov/QA_agents`). Every homepage / repository / website URL across both
+  engine manifests and the install docs (`README.md`, `INSTALL.md`,
+  `qa-agents-plugin.md`) now points at the org.
+- **Marketplace renamed** `rpluzhnikov` → **`kensa-ide`**. Install is now
+  `/plugin marketplace add kensa-ide/QA_agents` + `/plugin install kensa-qa@kensa-ide`;
+  update with `/plugin marketplace update kensa-ide`, disable with
+  `/plugin disable kensa-qa@kensa-ide`.
+- **Owner / author rebranded** to **Kensa** in the marketplace manifest and both
+  engine `plugin.json` manifests.
+
+### Bumped
+
+- Version to `0.18.0` across both engine `plugin.json` manifests, `engines.json`,
+  and the marketplace manifest (which had drifted stale at `0.16.0`); `docs/BIBLE.md`
+  "current as of" header updated and `dist/` rebuilt.
+
 ## 0.17.0 -- 2026-07-11
 
 UX-flow and rigor release: every command now chains into the next one, the Stop

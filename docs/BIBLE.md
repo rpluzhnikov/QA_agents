@@ -5,7 +5,7 @@
 > anyone extending it. User-facing quickstarts live in `README.md` /
 > `INSTALL.md`; this document is the internal source of truth.
 >
-> Current as of **0.17.0**. When behavior and this document disagree, the code
+> Current as of **0.18.0**. When behavior and this document disagree, the code
 > (commands / agents / skills / build) wins — then fix this document.
 
 ---
