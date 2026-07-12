@@ -129,11 +129,11 @@ manifest) plus optional **`bundles/<id>/`** add-ons.
 
 ```
 # Claude Code (complete, one-liner)
-/plugin marketplace add rpluzhnikov/QA_agents
-/plugin install kensa-qa@rpluzhnikov
+/plugin marketplace add kensa-ide/QA_agents
+/plugin install kensa-qa@kensa-ide
 
 # Codex (copy the build into your project root)
-git clone https://github.com/rpluzhnikov/QA_agents.git
+git clone https://github.com/kensa-ide/QA_agents.git
 cp -R QA_agents/dist/codex/. /path/to/your-project/
 ```
 
@@ -387,7 +387,7 @@ Normal on a fresh project. `/new-feature` creates suite directories on first wri
 <details>
 <summary><b>How do I disable the plugin in one project only?</b></summary>
 
-Inside that project: `/plugin disable kensa-qa@rpluzhnikov`. Stays installed globally; just doesn't load there.
+Inside that project: `/plugin disable kensa-qa@kensa-ide`. Stays installed globally; just doesn't load there.
 </details>
 
 <details>

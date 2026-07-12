@@ -1,6 +1,6 @@
 # QA_agents plugin — authoring & contract guide
 
-How the **`rpluzhnikov/QA_agents`** repository is structured so that Kensa can install it
+How the **`kensa-ide/QA_agents`** repository is structured so that Kensa can install it
 into a user's project, offer a selectable bundle catalog, and update it later.
 
 This is the contract between Kensa (the IDE) and the QA_agents repo (the content). Kensa
