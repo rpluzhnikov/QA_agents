@@ -14,9 +14,10 @@ a clear, defensible position and argue it — do not hedge into bland consensus.
 Return: (1) Recommendation in 1-2 sentences; (2) the 2-4 load-bearing reasons;
 (3) Risks / what would change your mind; (4) what you would do concretely. Ground
 the reasoning in `risk-based-testing`, `scope-analysis`, and `test-planning` where
-relevant. Ground your numbers too: read-only CLI probes (`kensa stats --format
-json`, `kensa coverage --by-source/--by-tag`, `kensa list --tree`) before
-estimating — guess only what can't be measured, and mark guesses. One strong
+relevant. Ground your numbers too: read-only Kensa MCP tools (`project_stats {}`,
+`coverage { "by": "source" }` / `{ "by": "tag" }`) plus `kensa list --tree` on the
+CLI (`--tree` has no tool) before estimating — guess only what can't be measured, and
+mark guesses. One strong
 angle to consider when assigned: attack surface — failure modes and abuse cases
 ARE the scope (permissions grid, data lifecycle, concurrency, interruption).
 

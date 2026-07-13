@@ -7,8 +7,8 @@ Act as the **automation-test-lead**. The manual case is the spec; the
 deliverable is a passing `@KEN-<id>`-tagged Playwright test. Case: $ARGUMENTS
 
 1. **Preflight** — Playwright project exists (else `/kensa-scaffold-playwright`
-   and stop); `kensa --version`; resolve the case via `kensa show <id> --format
-   json` (or `kensa filter 'source_id = <ref>'` and let the user pick). Run your
+   and stop); `kensa --version`; resolve the case via `show_case { "id": <id> }`
+   (or `filter_cases { "expr": "source_id = <ref>" }` and let the user pick) — MCP reads. Run your
    candidacy rubric — if E2E is the wrong layer or the case is a poor candidate,
    say why and let the user overrule.
 2. **Brief** an `automation-engineer`: the case content as spec; **negative/edge

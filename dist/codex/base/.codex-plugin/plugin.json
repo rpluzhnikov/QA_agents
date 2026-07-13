@@ -1,6 +1,6 @@
 ﻿{
   "name": "kensa-qa",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "ISTQB CTFL v4.0.1-grounded manual QA team for the Kensa TMS — Codex edition. The base ships kensa + core testing skills plus browser / device / API / automation-result tooling, schema adaptation, and Blueprints automation, with a cross-platform Stop hook for auto memory checkpoints; optional bundles layer on top. Test Lead + QA Engineer + Schema-bootstrap install as project-scoped Codex subagents (.codex/agents/*.toml).",
   "author": {
     "name": "Kensa",

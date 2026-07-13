@@ -63,8 +63,8 @@ Kensa can produce:
 > # of test cases run/not run, passed/failed, execution time.
 
 Kensa can produce:
-- Number of cases authored: `kensa stats`.
-- Number of cases by status (draft / ready / deprecated): also `kensa stats` —
+- Number of cases authored: `project_stats {}`.
+- Number of cases by status (draft / ready / deprecated): also `project_stats {}` —
   its output already includes the status distribution (no grouping flags exist).
 - Pass/fail/run metrics: NOT directly — these require a test run,
   which lives downstream in `.tms/runs/` if the user is using runs.
@@ -104,7 +104,7 @@ Kensa can produce:
 > Requirements coverage, code coverage.
 
 Kensa can produce:
-- Requirements coverage: `kensa coverage --by-source` groups cases by their
+- Requirements coverage: `coverage { "by": "source" }` groups cases by their
   `source_id` — read the row for your ref (e.g. LIN-89) to see which sources
   have cases. This is the most actionable Kensa metric.
 - Code coverage: NOT producible — handed off to dev/automation tools.
@@ -118,17 +118,19 @@ Kensa CANNOT produce these directly. The lead can report effort
 
 ## Kensa metric inventory — what to include in reports
 
-When producing a completion report, include these where available:
+When producing a completion report, include these where available. Read metrics come
+from the Kensa **MCP read tools** (default read-only server) — call the tool, read the
+JSON. `duplicates` has **no tool** → keep it on the CLI.
 
-| Metric | Command/source | Always include? |
+| Metric | Tool / source | Always include? |
 |---|---|---|
-| Cases authored | `kensa stats` | Yes |
-| Cases by suite | `kensa coverage --by-suite` | If multi-suite session |
-| Cases by status | `kensa stats` (status distribution is in its output) | Yes |
-| Coverage by source | `kensa coverage --by-source` (read your ref's row) | Yes |
-| Coverage by risk | `kensa filter "tag=risk-<id>"` (risk ids live as tags) | If risk register has IDs |
-| Lint warnings | `kensa lint` | If any |
-| Duplicate cases | `kensa duplicates` | If any |
+| Cases authored | `project_stats {}` | Yes |
+| Cases by suite | `coverage { "by": "suite" }` | If multi-suite session |
+| Cases by status | `project_stats {}` (status distribution is in its output) | Yes |
+| Coverage by source | `coverage { "by": "source" }` (read your ref's row) | Yes |
+| Coverage by risk | `filter_cases { "expr": "tag=risk-<id>" }` (risk ids live as tags) | If risk register has IDs |
+| Lint warnings | `lint_cases {}` | If any |
+| Duplicate cases | `kensa duplicates` (CLI — no tool) | If any |
 | Residual risks | From scope plan vs final cases | Yes |
 | Open questions | Carried from scope plan | If any unresolved |
 
@@ -221,8 +223,8 @@ execution.
 - No new risks emerged.
 
 **Metrics**
-- 14 cases authored (`kensa stats`)
-- 6/6 AC covered (`kensa coverage --by-source`, LIN-89 row)
+- 14 cases authored (`project_stats {}`)
+- 6/6 AC covered (`coverage { "by": "source" }`, LIN-89 row)
 - 0 lint warnings
 - 0 duplicates
 
@@ -298,7 +300,7 @@ cases authored.
 
 **Summary:** 5 cases for happy + key negatives. All AC covered.
 
-**Coverage:** 3/3 AC (`kensa coverage --by-source`, LIN-42 row).
+**Coverage:** 3/3 AC (`coverage { "by": "source" }`, LIN-42 row).
 
 **Risks:** Low overall (no PII new, no auth change). 1 risk
 accepted: deep i18n testing on name field (low likelihood, low

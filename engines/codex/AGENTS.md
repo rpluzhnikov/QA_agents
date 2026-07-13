@@ -61,6 +61,27 @@ browser routine), `kensa-import-results` (ingest a CI report and close the
 matched/orphaned loop). Automation bundles add `kensa-automate-case <id>` —
 derive a `@KEN`-tagged test from a manual case.
 
+## Kensa: read via MCP tools, write via the CLI
+
+Kensa exposes two surfaces (**hybrid**), both auto-wired by the Kensa GUI (v0.55.0+;
+Codex gets a `[mcp_servers.kensa]` upsert in `~/.codex/config.toml`, plus a read-only
+`<root>/.mcp.json`):
+
+- **MCP read tools** for query / analysis / health checks — `list_cases`, `show_case`,
+  `filter_cases`, `find_cases`, `project_stats`, `validate_cases`, `lint_cases`,
+  `doctor`, `coverage`, `gaps`, `schema_show`, `list_shared_steps`. Call the tool and
+  read the JSON from the result (drop `--format json`). Visible via `tools/list` — no
+  `kensa describe` needed. Gotchas: a validate/lint/doctor with violations returns
+  `isError:false`; results can be an **empty string** on nothing-found (check before
+  parsing).
+- **The `kensa` CLI** (on PATH — `kensa --version`) for everything else: **all writes**
+  (`kensa new`, `update`, `bulk …`), plus `sync`, `duplicates`, schema
+  apply/preview/migrate, context, git-temporal, trash, export/import, and the sibling
+  tool families (`kensa browser/mobile/http/results/blueprint …`).
+
+This plugin does **not** use the MCP write tools (they need `--allow-write`) — never
+invent `create_case`/`update_case`/`bulk_update`; writes go through the CLI.
+
 For **browser QA** (verifying the running app, or running a routine from
 `.tms/routines/`), load the `kensa-browser` skill or run the `kensa-run-routine`
 prompt: it drives the Kensa-launched Chrome via `kensa browser …` and writes

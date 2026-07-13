@@ -24,7 +24,7 @@ in `.tms/automation-runs/`.
 ## Step 3 — Walk the split
 
 1. **Matched tests** — offer to tag their cases `automated` where missing:
-   `kensa filter "..." --format ids` → dry-run the bulk tag → confirm → apply.
+   `filter_cases { "expr": "..." }` (MCP) → dry-run the bulk tag (CLI write) → confirm → apply.
 2. **Orphaned tests** — for each (batch by suite/area):
    - the case exists but the test's `@KEN-<id>` tag is wrong/missing → tell the
      user which test file to fix (the fix itself lives in automation code);

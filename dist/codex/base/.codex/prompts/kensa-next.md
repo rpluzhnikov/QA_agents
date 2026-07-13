@@ -7,8 +7,8 @@ Act as the **test-lead-agent**. Read-only; write nothing; no memory checkpoint o
 
 1. **Probe** (skip gracefully past errors): `kensa --version`; `.tms/` +
    `.tms/memory/project.md` exist?; `.tms/.pending-checkpoint` present?
-   (= interrupted authoring run); `kensa stats --format json` + `kensa coverage
-   --by-source --format json`; fresh artifacts in `.tms/reports/` (`context-*`,
+   (= interrupted authoring run); `project_stats {}` + `coverage { "by": "source" }`
+   (MCP); fresh artifacts in `.tms/reports/` (`context-*`,
    `spec-review-*`, `risk-*`, `test-plan-*`, `audit-*` dates) and
    `.tms/brainstorms/*` without matching cases; `.tms/routines/` contents;
    open `.tms/reports/assumptions-*`.

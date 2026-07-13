@@ -59,14 +59,28 @@ If `.tms/memory/` is missing, run `/setup` first.
 For **browser QA** (verifying the running app, or running a routine), load the
 `kensa-browser` skill or run `/run-routine` — see below.
 
-## The CLI: `kensa`
+## Kensa: read via MCP tools, write via the CLI
 
-The agents drive the **`kensa`** command-line tool directly (it must be on the
-host PATH — `kensa --version`). Cases are created with `kensa new`; `/audit`
-and `/traceability` run `kensa sync`/`doctor`/`coverage`/`gaps`. The browser
-verbs are `kensa browser …`. Inside the Kensa app the same binary is also on the
-embedded terminal's PATH as `kensa`, but the agents always call `kensa` so
-commands work in the host process too. See the `kensa` and `kensa-browser` skills.
+Kensa exposes two surfaces and the agents use both (**hybrid**):
+
+- **MCP read tools** — auto-wired by the Kensa GUI (v0.55.0+) via a git-untracked,
+  **read-only** `<root>/.mcp.json`. Query / analysis / health checks go here:
+  `list_cases`, `show_case`, `filter_cases`, `find_cases`, `project_stats`,
+  `validate_cases`, `lint_cases`, `doctor`, `coverage`, `gaps`, `schema_show`,
+  `list_shared_steps`. Call the tool and read the JSON straight from the result
+  (drop `--format json`). When connected they're visible via `tools/list` — no
+  `kensa describe` needed to orient.
+- **The `kensa` CLI** (on the host PATH — `kensa --version`) for everything else:
+  **all writes** (`kensa new`, `update`, `bulk …`), plus `sync`, `duplicates`,
+  schema apply/preview/migrate, `context`, git-temporal, trash, export/import, and
+  the sibling tool families (`kensa browser/mobile/http/results/blueprint …`).
+
+Cases are created with `kensa new` — a CLI write; this plugin does **not** use the
+MCP write tools (they need `--allow-write`), so never invent `create_case`/
+`update_case`/`bulk_update` calls. `/audit` and `/traceability` read via the
+`validate_cases`/`doctor`/`coverage`/`gaps` tools and drop to the CLI for
+`sync`/`duplicates`. The browser verbs are `kensa browser …`. See the `kensa` and
+`kensa-browser` skills.
 
 ## Commands
 
@@ -138,7 +152,7 @@ only with their optional bundle — don't assume they're present.
 - `kensa-test-authoring` — the byte-exact `.tms/` file format (frontmatter order, steps, shared-step refs, trailing newline). The engineer writes files, so it must follow this exactly.
 
 **Tooling (CLI + browser + automation):**
-- `kensa` — query/edit/maintain cases from the terminal: `list`, `find`, `stats`, `new`, `update`, `bulk *`, `validate`, `lint`, `duplicates`, `coverage`, `gaps`, `context bundle`; plus schema adaptation (`schema show/preview/apply/migrate`, `adapt ready`).
+- `kensa` — the hybrid core-case surface: **read via MCP tools** (`list_cases`, `find_cases`, `project_stats`, `validate_cases`, `lint_cases`, `doctor`, `coverage`, `gaps`, `schema_show`, `list_shared_steps`) and **write via the CLI** (`new`, `update`, `bulk *`, `duplicates`, `context bundle`, schema `preview/apply/migrate`, `adapt ready`).
 - `kensa-browser` — drive the Kensa-launched Chrome via `kensa browser …` (CDP) for live browser QA, then write findings back into `.tms/` cases.
 - `kensa-mobile` — drive an Android device / iOS Simulator via `kensa mobile …` (observe→act: `ui` snapshot, then `tap`/`type`/`swipe`), then write findings back into `.tms/`.
 - `kensa-http` — author, edit, and run HTTP request collections via `kensa http …` (envs, `{{var}}` templating, response captures) for live API QA.

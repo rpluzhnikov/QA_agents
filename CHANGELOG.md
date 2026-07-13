@@ -3,6 +3,56 @@
 All notable changes to **kensa-qa**. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.19.0 -- 2026-07-13
+
+**Kensa MCP migration (Option A — read via MCP tools, write via the CLI).** The
+plugin now drives Kensa through the `kensa mcp` server for query / analysis / health
+checks, while every write and CLI-only op stays on the `kensa` CLI. The Kensa GUI
+auto-wires the server (v0.55.0+) via a git-untracked, **read-only** `<root>/.mcp.json`
+— the plugin registers nothing. A hybrid path (some tool calls, some CLI) is the
+intended end state. Migration reference: `MCP-MIGRATION.md`.
+
+### Added — MCP surface in the `kensa` skill
+
+- New **"MCP surface — the hybrid rule"** section in `shared/skills/kensa/SKILL.md`:
+  the Bucket-A read-tool mapping (`list_cases`, `show_case`, `filter_cases`,
+  `find_cases`, `project_stats`, `validate_cases`, `lint_cases`, `doctor`, `coverage`,
+  `gaps`, `schema_show`, `list_shared_steps`), an explicit **"what stays on the CLI"**
+  list, and the tool-result gotchas (empty-string = nothing-found → check before
+  `JSON.parse`; violations come back `isError:false`; fresh read every call;
+  argument-object mapping). The read recipes (discover / scope / validate / cleanup /
+  audit) are rewritten to the tool-call idiom, dropping `--format json`/`ids` and pipes.
+
+### Changed — read paths call MCP tools
+
+- **Read-only commands** migrated (Claude commands + Codex `kensa-*` prompts): `/audit`
+  (mechanical scan → `validate_cases`/`lint_cases`/`doctor`/`coverage`/`gaps`/
+  `list_shared_steps`; `duplicates`/`stale`/`sync` stay CLI), `/analyze-cases`,
+  `/traceability`, `/risk-assess`, `/pull-context`, `/test-plan`, `/next`,
+  `/import-results`, `/automate-case`, `/brainstorm`.
+- **Read grounding** in the `strategist` agent and the `test-monitoring-control-completion`,
+  `testing-fundamentals`, and `kensa-test-authoring` skills now uses `project_stats` /
+  `coverage` / `filter_cases` / `find_cases`; `kensa list --tree` stays CLI (`--tree`
+  has no tool).
+- **Operating manuals** (`CLAUDE.md` / `AGENTS.md`) gained a "read via MCP tools, write
+  via the CLI" section; discovery no longer needs `kensa describe` (tools are visible
+  via `tools/list`).
+
+### Unchanged (deliberately on the CLI)
+
+- **All writes** (`kensa new` / `update` / `bulk …`) — the plugin does **not** use the
+  MCP write tools (they need `--allow-write`); the default read-only server suffices.
+  Agents are told not to invent `create_case`/`update_case`/`bulk_update`.
+- **Bucket C** (`sync`, `duplicates`, schema `apply`/`preview`/`migrate`, `adapt ready`,
+  `context`, git-temporal, trash, export/import) and the **tool-family skills**
+  (`kensa-browser` / `-mobile` / `-http` / `-results` / `-blueprints`) — no MCP surface,
+  left as-is per `MCP-MIGRATION.md` §6.
+
+### Bumped
+
+- Version to `0.19.0` across both engine `plugin.json` manifests, `engines.json`, the
+  marketplace manifest, and the `docs/BIBLE.md` header; `dist/` rebuilt.
+
 ## 0.18.0 -- 2026-07-12
 
 Repository moved to the **`kensa-ide`** GitHub organization and rebranded off the

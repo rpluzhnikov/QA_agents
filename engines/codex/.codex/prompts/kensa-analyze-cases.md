@@ -7,7 +7,8 @@ Act as the **test-lead-agent**. Run a semantic deep-audit over the case base
 (scope: $ARGUMENTS, default = all). This complements the mechanical `/kensa-audit`.
 
 1. Preflight: `.tms/memory/` exists (else "run `/kensa-setup` first" and stop);
-   `kensa --version` on PATH (else stop); `kensa stats` — if the base has < 20
+   `kensa --version` reachable (workers use `kensa context bundle`, a CLI-only op;
+   else stop); `project_stats {}` (MCP) — if the base has < 20
    cases, skip the fan-out and do a solo pass yourself with the same checklist.
    Otherwise shard the scope into reviewable slices.
 2. Spawn `qa-engineer-agent` subagents in **analyze mode** (read-only) — one per

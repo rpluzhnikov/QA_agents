@@ -86,7 +86,7 @@ top-level keys).
 | `tags` | string[] | Block-list style (one `- tag` per line). Omit or `[]` if none. |
 | `preconditions` | string (block `\|`) | Setup state before Step 1. Multiline allowed. |
 | `custom` | map | Schema-defined custom fields (see `schema.yaml`). |
-| `source_id` | string | External tracker ref, e.g. `testrail:C12345`, `LIN-89`. **Never an internal case id** — cross-reference another `.tms/` case with a `related-<case-id>` tag (e.g. `related-AUTH-014`) so `kensa filter "tag=related-AUTH-014"` finds the linked cases. |
+| `source_id` | string | External tracker ref, e.g. `testrail:C12345`, `LIN-89`. **Never an internal case id** — cross-reference another `.tms/` case with a `related-<case-id>` tag (e.g. `related-AUTH-014`) so `filter_cases { "expr": "tag=related-AUTH-014" }` finds the linked cases. |
 | `created_at` | string | ISO-8601, quoted: `'2026-05-10T14:30:00Z'`. |
 | `updated_at` | string | ISO-8601, quoted. |
 
@@ -412,19 +412,21 @@ person — or an AI agent — can execute without guessing.
 ## Authoring workflow
 
 ```
-1. Orient    → kensa list --tree ; kensa stats        (what suites/cases exist)
+1. Orient    → kensa list --tree (CLI — no tool) ; project_stats {} (MCP)   (what suites/cases exist)
 2. Create    → kensa new --suite <suite> --title "<t>" [--priority …] [--tag …] [--source-id …] --format json
-               (atomic id allocation; returns {id, path} — no manual next_id handling)
+               (CLI write; atomic id allocation; returns {id, path} — no manual next_id handling)
 3. Author    → edit the returned path: add ## Steps (+ preconditions, custom, ## Notes)  (match canonical format above)
-4. Validate  → kensa validate  (schema)  ; kensa lint  (quality)  ; kensa doctor (integrity)
+4. Validate  → validate_cases {} (schema) ; lint_cases {} (quality) ; doctor {} (integrity)   — MCP read tools
 ```
 
-- **Create cases via `kensa new`** — it allocates the id and writes a valid shell; you only
-  author the body. Don't hand-pick ids or touch `next_id`.
-- **Reads & bulk edits**: use the **`kensa`** skill (`filter`, `bulk update`,
-  `context bundle`, etc.) — it's faster and safer than hand-editing many files.
+- **Create cases via `kensa new`** — a CLI write (this plugin does not use the MCP write
+  tools); it allocates the id and writes a valid shell; you only author the body. Don't
+  hand-pick ids or touch `next_id`.
+- **Reads**: use the Kensa **MCP read tools** (`filter_cases`, `find_cases`, `show_case`, …)
+  per the **`kensa`** skill — call the tool, read the JSON. **Bulk edits** (`bulk update`,
+  `context bundle`) stay on the CLI.
 - **Body authoring**: edit the case file using the formats here.
-- **After any hand-edit batch**: run `kensa validate && kensa lint && kensa doctor`
-  to catch schema violations, empty steps, and id/filename drift.
+- **After any hand-edit batch**: call `validate_cases {}`, `lint_cases {}`, `doctor {}`
+  (MCP) to catch schema violations, empty steps, and id/filename drift.
 - **Never** invent top-level frontmatter keys (use `custom:`), break the
   filename==id invariant, or hard-delete a case (move to `.tms/trash/`).
