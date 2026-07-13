@@ -22,41 +22,47 @@ create the `.tms/.pending-checkpoint` marker the Stop hook keys on.
    - `.tms/memory/sot.yaml`
    - `.tms/memory/learned/tags.md` (full — taxonomy + `required_with` rules)
 
-3. Verify `kensa` is on PATH: `kensa --version`. If not → tell the user
-   `kensa` must be installed and stop. (Without the CLI, none of the
-   mechanical checks below are possible.)
+3. Verify `kensa` is reachable: `kensa --version` (liveness for the CLI-only steps
+   below). When the Kensa MCP client is connected the read tools are already visible
+   via `tools/list` — no `kensa describe` needed. If `kensa` isn't installed → tell
+   the user and stop (the CLI-only steps below need it).
 
 3.5. `kensa sync --quiet` — periodic safety/repair: reconcile the id counters in
    `.tms/config.yaml` against what's on disk, in case the tree was hand-edited outside the CLI.
-   Idempotent and cheap; non-fatal if it errors. (Cases created with `kensa new` are already
-   in sync — this just covers externally-edited trees.)
+   CLI-only (no MCP tool). Idempotent and cheap; non-fatal if it errors. (Cases created with
+   `kensa new` are already in sync — this just covers externally-edited trees.)
 
-4. Quick scope read: `kensa stats --format json` to know the repo size. If
+4. Quick scope read: `project_stats {}` (MCP) to know the repo size. If
    total cases < 20 → tell the user "the repo is too small for a meaningful
    audit (only N cases). Come back when you have ~20+ cases — until then
-   `kensa validate` and `kensa lint` cover the basics." and stop.
+   `validate_cases` and `lint_cases` cover the basics." and stop.
    Avoids noise on freshly-set-up projects.
 
-## Phase 2 — Mechanical scan (kensa)
+## Phase 2 — Mechanical scan (MCP tools + two CLI-only checks)
 
-Run these in order and collect the JSON outputs. All `--format json` so they
-are machine-parseable. Capture stderr separately — `kensa validate` returns
-exit code `3` when violations exist; that is a signal, not an error to abort
-the audit on. Keep going through the full list.
+Every mechanical check runs on the **default read-only** Kensa MCP server. Call the
+tool and read the JSON straight from the result — drop `--format json`. Two mind-shifts:
+- **Violations are NOT an error.** `validate_cases` / `lint_cases` / `doctor` return
+  `isError:false` even when they find problems — the violations are the payload. Keep
+  going through the full list.
+- **Empty text = clean.** Any of these can return an empty/whitespace result on the
+  nothing-found path — check for empty text before you parse it as JSON.
 
-| # | Check | Command | What it surfaces |
-|---|-------|---------|------------------|
-| 1 | Schema | `kensa validate --format json` | Violations of `.tms/schema.yaml` |
-| 2 | Lint | `kensa lint --format json` | Missing title, empty steps, built-in quality rules |
-| 3 | Integrity | `kensa doctor --format json` | Duplicate ids, malformed files, strays outside suites |
-| 4 | Duplicates | `kensa duplicates --threshold 0.85 --format json` | Near-duplicate cases by Jaro-Winkler similarity |
-| 5 | Stale | `kensa stale --days 90 --format json` | Cases unmodified >90 days |
-| 6 | Orphan shared-steps | `kensa shared-step orphan --format json` | Defined but never referenced |
-| 7 | Broken shared-step refs | `kensa gaps --against shared-steps --format json` | Referenced but undefined |
-| 8 | Coverage by source | `kensa coverage --by-source --format json` | Distribution across source_id values |
-| 9 | Coverage by tag | `kensa coverage --by-tag --format json` | Tag distribution + counts |
-| 10 | Untraced cases | `kensa gaps --against source --format json` | Cases with absent/empty `source_id` (no requirement link) |
-| 11 | Empty suites | `kensa coverage --by-suite --uncovered --format json` | Suites with zero direct cases |
+`duplicates` and `stale` have **no MCP tool** — keep them on the CLI.
+
+| # | Check | Call | What it surfaces |
+|---|-------|------|------------------|
+| 1 | Schema | `validate_cases {}` | Violations of `.tms/schema.yaml` |
+| 2 | Lint | `lint_cases {}` | Missing title, empty steps, built-in quality rules |
+| 3 | Integrity | `doctor {}` | Duplicate ids, malformed files, strays outside suites |
+| 4 | Duplicates | `kensa duplicates --threshold 0.85 --format json` (CLI — no tool) | Near-duplicate cases by Jaro-Winkler similarity |
+| 5 | Stale | `kensa stale --days 90 --format json` (CLI — no tool) | Cases unmodified >90 days |
+| 6 | Orphan shared-steps | `list_shared_steps { "mode": "orphan" }` | Defined but never referenced |
+| 7 | Broken shared-step refs | `gaps { "against": "shared-steps" }` | Referenced but undefined |
+| 8 | Coverage by source | `coverage { "by": "source" }` | Distribution across source_id values |
+| 9 | Coverage by tag | `coverage { "by": "tag" }` | Tag distribution + counts |
+| 10 | Untraced cases | `gaps { "against": "source" }` | Cases with absent/empty `source_id` (no requirement link) |
+| 11 | Empty suites | `coverage { "by": "suite", "uncovered": true }` | Suites with zero direct cases |
 
 Bucket findings by severity for the report:
 - **Critical** — `validate` violations (block next `/new-feature` until fixed)
@@ -69,8 +75,8 @@ Bucket findings by severity for the report:
 The CLI does not know about project memory. You do — combine outputs.
 
 1. **Orphan `source_id` refs, both directions.**
-   - Collect unique `source_id` values from cases (parse `kensa filter
-     'source_id != ""' --format json` output, dedupe the `source_id` field).
+   - Collect unique `source_id` values from cases (call `filter_cases { "expr":
+     "source_id != \"\"" }`, dedupe the `source_id` field in the returned JSON).
    - For each value, identify its kind by prefix or shape (`confluence:NNNN`,
      `notion:<uuid>`, Linear key like `ENG-123`, Jira key like `KAN-456`).
    - **Case → source orphan**: case references a source not registered in
@@ -83,24 +89,24 @@ The CLI does not know about project memory. You do — combine outputs.
      (cleanup candidate).
 
 2. **Tag drift (taxonomy vs. usage).**
-   - Distinct tags in use come from `kensa coverage --by-tag --format json`.
+   - Distinct tags in use come from `coverage { "by": "tag" }` (reuse the Phase 2 result).
    - Compare against entries in `learned/tags.md`.
    - Report: (a) tags used by ≥1 case but not in taxonomy, (b) tags
      registered in taxonomy but used by 0 cases.
 
 3. **Tag `required_with:` violations.**
    - For each taxonomy entry with non-empty `required_with: [Y, ...]`, for
-     each Y: `kensa filter 'tag=<X> and not tag=<Y>' --format ids`. Any ids
+     each Y: `filter_cases { "expr": "tag=<X> and not tag=<Y>" }`. Any cases
      returned are violations of the rule.
    - Example: taxonomy says `2fa requires auth`. Filter
      `tag=2fa and not tag=auth` returns cases that should have `auth` too.
 
 4. **Status anomalies.**
-   - `kensa filter 'status = draft and tag=tbd and modified > 30d' --format ids`
+   - `filter_cases { "expr": "status = draft and tag=tbd and modified > 30d" }`
      — parked drafts. Surface as "spec gap candidates to triage with product".
-   - `kensa filter 'status = active' --format json`, then for each case
+   - `filter_cases { "expr": "status = active" }`, then for each case
      check `preconditions` is non-empty when the body has multiple steps
-     (you can spot-check from `kensa show` or include in qualitative phase).
+     (you can spot-check via `show_case { "id": … }` or include in the qualitative phase).
 
 ## Phase 4 — Qualitative sample
 
@@ -112,7 +118,7 @@ right". You sample cases and apply `conventions.md` as the rubric.
    - 100–500 → sample 20–30
    - >500 → sample 50 (do not exceed — context budget)
 
-2. **Distribution:** pull all ids via `kensa list --format ids`, group by
+2. **Distribution:** pull all cases via `list_cases {}`, group by
    suite, and pick proportionally — not all from one suite. Random within
    each suite group.
 
@@ -184,8 +190,8 @@ Sections (in this order):
    drift, `required_with` violations, status anomalies.
 7. **Qualitative sample** — per-category aggregate with 3–5 representative
    case ids each. Not exhaustive.
-8. **Coverage breakdown** — the JSON output from `kensa coverage --by-source`
-   and `--by-tag` rendered as markdown tables.
+8. **Coverage breakdown** — the JSON from `coverage { "by": "source" }`
+   and `coverage { "by": "tag" }` rendered as markdown tables.
 9. **Recommendations** — prioritized next actions, each naming the command
    that executes it, e.g.
    > 1. Fix the 4 schema violations (Critical, blocks next `/new-feature`) —
@@ -215,10 +221,11 @@ After presenting the report and the file path, ask the user ONCE:
 
 Workflow for each accepted option:
 
-1. Show the dry-run output of the relevant `kensa` command (no `--yes`).
+1. Show the dry-run output of the relevant `kensa` command (no `--yes`). All three
+   fixes are **writes** (`rename-tag`, `bulk delete`, `bulk update`) → CLI, not MCP.
 2. Wait for explicit user confirmation per batch.
 3. Re-run the same command with `--yes`.
-4. Run `kensa validate` after each apply to confirm no new violations.
+4. Call `validate_cases {}` (MCP) after each apply to confirm no new violations.
 
 If the user picks (4) or does not respond — stop. Do not loop, do not nudge.
 

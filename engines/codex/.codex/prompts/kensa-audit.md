@@ -8,18 +8,21 @@ Act as the **test-lead-agent**. Run a mechanical audit over the `.tms/` reposito
 semantic `/kensa-analyze-cases`.
 
 Preflight: `.tms/memory/` exists (else "run `/kensa-setup` first" and stop);
-`kensa --version` on PATH (else stop — every check below needs the CLI);
-`kensa stats` — if the repo has < 20 cases, tell the user it's too small for a
-meaningful audit ("come back at ~20+ cases; until then `kensa validate` and
-`kensa lint` cover the basics") and stop.
+`kensa --version` reachable (CLI liveness; when the Kensa MCP client is connected the
+read tools show up via `tools/list` — no `kensa describe` needed); `project_stats {}` —
+if the repo has < 20 cases, tell the user it's too small for a meaningful audit ("come
+back at ~20+ cases; until then `validate_cases` and `lint_cases` cover the basics") and stop.
 
-Using the `kensa` skill, check:
-- **Schema** — every case has required frontmatter (id, title, priority, status,
-  tags, source_id) and valid values; report violations.
-- **Duplicates** — `duplicates` / id collisions, filename clashes.
+Read health checks through the Kensa **MCP read tools** (default read-only server) — a
+validate/lint/doctor that finds problems returns `isError:false` (violations are the
+payload), and a result can be an empty string on nothing-found (check before parsing).
+`duplicates` has no tool → CLI. Check:
+- **Schema** — `validate_cases {}`: every case has required frontmatter (id, title,
+  priority, status, tags, source_id) and valid values; report violations.
+- **Duplicates** — `kensa duplicates` (CLI) / id collisions + filename clashes via `doctor {}`.
 - **Drift** — cases whose conventions diverge from `.tms/memory/conventions.md`.
-- **Tags** — tags not in the taxonomy (`learned/tags.md`); unused canonical tags.
-- **Coverage** — `coverage --by-source` to spot sources with no cases.
+- **Tags** — tags not in the taxonomy (`learned/tags.md`) via `coverage { "by": "tag" }`; unused canonical tags.
+- **Coverage** — `coverage { "by": "source" }` to spot sources with no cases.
 
 Produce one markdown report in `.tms/reports/` with findings grouped by severity
 and a concrete fix list. In the Recommendations, route content fixes via

@@ -5,7 +5,7 @@
 > anyone extending it. User-facing quickstarts live in `README.md` /
 > `INSTALL.md`; this document is the internal source of truth.
 >
-> Current as of **0.18.0**. When behavior and this document disagree, the code
+> Current as of **0.19.0**. When behavior and this document disagree, the code
 > (commands / agents / skills / build) wins — then fix this document.
 
 ---
@@ -181,7 +181,7 @@ atomic conventional commits (never push, never commit failing/unreviewed work).
 
 **`strategist`** (strategist bundle) — one of three parallel debaters in
 /brainstorm; argues ONE assigned axis hard (hedging wastes the slot), grounds
-numbers via read-only `kensa stats/coverage/list`, then a cross-review round;
+numbers via the read-only Kensa MCP tools (`project_stats`/`coverage`) + `kensa list --tree`, then a cross-review round;
 the Lead synthesizes.
 
 ## 4. Commands — the journey map

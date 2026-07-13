@@ -11,12 +11,14 @@ writes nothing, modifies nothing, and owes no memory checkpoint.
 
 Collect facts; don't report them yet. Skip gracefully past anything that errors.
 
-1. **Plugin usable?** `kensa --version`. Missing CLI is itself a finding.
+1. **Plugin usable?** `kensa --version` (CLI liveness). Missing CLI is itself a
+   finding. When the Kensa MCP client is connected the read tools show up via
+   `tools/list` — the state probes below use them.
 2. **Project exists?** `.tms/` present? `.tms/memory/project.md` present?
 3. **Pending checkpoint?** `.tms/.pending-checkpoint` exists → an authoring run
    was interrupted before its memory checkpoint.
-4. **Base size & shape:** `kensa stats --format json` (case count, status
-   distribution), `kensa coverage --by-source --format json` (sources with 0 cases).
+4. **Base size & shape:** `project_stats {}` (case count, status
+   distribution), `coverage { "by": "source" }` (sources with 0 cases) — MCP.
 5. **Fresh handover artifacts:** list `.tms/reports/` — `context-*`,
    `spec-review-*`, `risk-*`, `test-plan-*` newer than the newest cases that
    reference the same ref suggest an unfinished pipeline; note `audit-*` /

@@ -212,8 +212,8 @@ and any risk-register refs are **not** schema fields — model AC granularity as
 `custom.*` field added additively via `kensa schema apply`, and risk ids as
 tags.) This is what powers coverage queries:
 
-- `kensa coverage --by-source` — which sources have cases? (read your ref's row)
-- `kensa filter "tag=risk-2fa-bypass"` — what mitigates this risk?
+- `coverage { "by": "source" }` — which sources have cases? (read your ref's row)
+- `filter_cases { "expr": "tag=risk-2fa-bypass" }` — what mitigates this risk?
 - Reverse: when an AC changes, `grep source_ac: AC-1` finds every
   affected case (if the project added that custom field).
 

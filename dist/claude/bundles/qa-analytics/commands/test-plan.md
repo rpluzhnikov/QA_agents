@@ -33,7 +33,7 @@ Load `.tms/memory/project.md`, `conventions.md`, `sot.yaml`. No memory →
 
 ## Step 3 — Estimate
 
-- Existing coverage: `kensa coverage --by-source --format json`, `kensa stats`.
+- Existing coverage: `coverage { "by": "source" }`, `project_stats {}` (MCP).
 - Forecast new cases per area from the scope + risk depth (rough ranges, not false precision).
 - Note what's already covered vs net-new.
 

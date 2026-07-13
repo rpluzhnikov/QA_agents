@@ -22,8 +22,10 @@ is the semantic layer on top.
 1. `.tms/memory/` exists? If not → "Run `/setup` first" and stop.
 2. Read `.tms/memory/project.md`, `conventions.md` (full — the rubric), and
    `learned/tags.md` (taxonomy).
-3. `kensa --version` on PATH? If not → tell the user and stop.
-4. `kensa stats --format json` for repo size. **If < 20 cases → do a solo pass
+3. `kensa --version` reachable? (workers use `kensa context bundle`, a CLI-only op.)
+   If not → tell the user and stop. Read health checks below go through the Kensa
+   MCP tools; `context bundle` has no tool and stays on the CLI.
+4. `project_stats {}` (MCP) for repo size. **If < 20 cases → do a solo pass
    yourself** (no sharding, no workers — read them all, apply the checklist
    below) and skip to Phase 4. Fan-out only pays off at scale.
 5. Optional scope: if the user passed a scope (`/analyze-cases suites/auth`, a
@@ -116,8 +118,9 @@ the 4 coverage gaps">
 
 After presenting the report, ask ONCE whether to attempt safe fixes. Only offer
 mechanical, reversible actions via `kensa` (e.g. retag, flip stale → deprecated,
-trash a confirmed duplicate `--to-trash`). For each accepted batch: show a
-dry-run → wait for explicit confirmation → apply with `--yes` → `kensa validate`.
+trash a confirmed duplicate `--to-trash` — all writes, so CLI). For each accepted
+batch: show a dry-run → wait for explicit confirmation → apply with `--yes` →
+`validate_cases {}` (MCP).
 Anything requiring judgment (resolving a contradiction, closing a coverage gap)
 is NOT auto-fixed here — route it to `/update-feature` or `/new-feature`. If the
 user declines or doesn't respond — stop, don't nudge.

@@ -31,6 +31,82 @@ Do NOT call `kensa` to write outside the `.tms/` format, start a server, or acce
 
 ---
 
+## MCP surface — the hybrid rule (read via tools, write via CLI)
+
+Kensa also ships an **MCP server** (`kensa mcp`, stdio JSON-RPC) that the Kensa GUI
+auto-wires as of **v0.55.0**: a git-untracked `<root>/.mcp.json` registers
+`{"mcpServers":{"kensa":{"command":"kensa","args":["mcp","-C","."]}}}`, and
+`<root>/.claude/settings.local.json` pre-trusts it. **The default server is
+read-only.** When the MCP client is connected you already see the Kensa tools
+natively through `tools/list` — you do **not** need `kensa describe` to discover
+them in migrated read paths.
+
+Each tool body reuses the exact CLI `cmd::*::run` against a buffered JSON context,
+so **a tool's result text is byte-for-byte identical to `kensa <cmd> --format json`.**
+
+**This plugin's posture — read through MCP tools, write through the CLI:**
+- **Query / analysis / health checks → call the MCP tool** and read the JSON straight
+  from the tool result. In migrated paths **drop** `--format json`, `--format ids`,
+  shell pipes and `xargs` — the tool hands you structured JSON directly; you reason
+  over it and call the next tool.
+- **Every write (`new`, `update`, `bulk …`) and everything without a tool → keep the
+  `kensa <cmd>` CLI call.** The read-only default server is all the plugin needs; a
+  hybrid path (some tool calls, some CLI) is the correct end state, not a failure.
+
+### Bucket A — read tools (available on the default read-only server)
+
+| CLI command | MCP tool | Input | Notes / loss |
+|-------------|----------|-------|--------------|
+| `list [suite]` | `list_cases` | `{ suite? }` | **`--tree` not exposed** — keep `kensa list --tree` on the CLI for the hierarchy. |
+| `show <id>` | `show_case` | `{ id }` | **`--field`/`--raw` not exposed** — read the returned JSON, or stay on the CLI for a single field / raw bytes. |
+| `filter <expr>` | `filter_cases` | `{ expr }` | full Filter DSL (below). |
+| `find <query>` | `find_cases` | `{ query, limit? }` | `limit` default 20; results carry `match_field`. |
+| `stats` | `project_stats` | `{}` | |
+| `validate` | `validate_cases` | `{}` | violations are the **payload**, `isError:false`. |
+| `lint` | `lint_cases` | `{}` | same violations-are-a-result rule. |
+| `doctor` | `doctor` | `{}` | same. |
+| `coverage --by-X` | `coverage` | `{ by:"tag"\|"source"\|"suite", uncovered? }` | `uncovered:true` only valid with `by:"suite"`; with tag/source → `isError:true`. |
+| `gaps --against X` | `gaps` | `{ against?:"shared-steps"\|"source" }` | default `"shared-steps"`. |
+| `schema show` | `schema_show` | `{}` | emits the editable proposal JSON `{version, fields:[…]}`. |
+| `shared-step list/orphan/usage` | `list_shared_steps` | `{ mode?:"list"\|"orphan"\|"usage", name? }` | default `mode:"list"`; `name` required when `mode:"usage"`. |
+
+> Write tools (`create_case` / `update_case` / `bulk_update`) exist in the server but
+> require it to be started with `--allow-write`. **This plugin does not use them** — all
+> writes go through the CLI, so don't invent MCP tool calls for `new`/`update`/`bulk`.
+
+### What stays on the CLI (no MCP tool — call `kensa <cmd>`)
+
+- **All writes:** `new`, `update`, `bulk update/add-tag/remove-tag/move/delete`,
+  `rename-tag`, `bulk-apply`, `duplicates --mark`, `trash restore/purge`.
+- **List/show refinements:** `list --tree`, `show --field <name>`, `show --raw`.
+- **Discovery/index:** `describe` (use `tools/list`), `index`, `sync`.
+- **Quality:** `duplicates`.
+- **Schema & adaptation:** `schema preview`, `schema apply`, `schema migrate`, `adapt ready`.
+- **Agent context:** `context show`, `context bundle`, `explain`.
+- **Git-temporal:** `changed`, `stale`, `blame`, `log`.
+- **Trash / import-export / util:** `trash list`, `export`, `import --dry-run`, `completions`, `man`.
+- **Sibling tool families entirely:** `kensa browser/mobile/http/results/blueprint …`.
+
+### Tool-result gotchas (check every migrated read path against these)
+
+1. **Empty string = nothing found, not an error.** `doctor`, `lint_cases`,
+   `validate_cases`, `schema_show`, `find_cases`, `list_shared_steps`, `gaps` can
+   return an **empty/whitespace** text on their nothing-found path (byte-identical to
+   the CLI). **Check for empty text before you `JSON.parse`.**
+2. **`isError:false` even with violations.** `validate_cases` / `lint_cases` /
+   `doctor` fold violations into the payload (`isError:false`) — a "clean" call and a
+   "violations found" call differ only in the text. `isError:true` is reserved for bad
+   args, id-not-found, schema mismatch, unknown tool, or calling a write tool on a
+   read-only server.
+3. **Fresh read every call.** Each `tools/call` reloads the project from disk, so the
+   result always reflects edits made by the GUI, git, or another terminal — no stale
+   cache to flush.
+4. **Argument mapping (not repeated flags).** `coverage {by, uncovered?}` maps to the
+   CLI's `--by-*`; `gaps {against?}`; `list_shared_steps {mode?, name?}`. The MCP inputs
+   are objects, not flag strings.
+
+---
+
 ## Global flags
 
 These flags apply to every subcommand.
@@ -592,21 +668,25 @@ kensa man > /usr/local/share/man/man1/kensa.1
 
 ### Discover the project surface before editing
 
-```sh
-kensa describe --format json           # machine-readable CLI manifest
-kensa list --tree                      # suite hierarchy + case counts
-kensa stats --format json              # priority / status distribution
+When the MCP client is connected the tool catalog is already visible via `tools/list`
+(no `kensa describe` needed). Orient with tool calls; drop to the CLI only for `--tree`.
+
+```text
+project_stats {}                       # priority / status distribution (MCP)
+list_cases {}                          # flat case list (MCP)
+kensa list --tree                      # suite hierarchy + counts — CLI (--tree not exposed)
 ```
 
 ### Scope changes to the right cases
 
-```sh
-# Get ids matching a condition, then update them
-kensa filter "tag=auth and status=draft" --format ids \
-  | xargs -I{} kensa update {} --set status=active
+Reads go through the tool; the write stays on the CLI (this plugin does not use the
+write tools). Call `filter_cases`, reason over the returned JSON, then apply with `kensa`.
 
-# Or use bulk (single write pass — preferred for large sets):
-kensa bulk update --filter "tag=auth and status=draft" --set status=active --yes
+```text
+1. filter_cases { "expr": "tag=auth and status=draft" }   → JSON array of matching cases (MCP)
+2. apply the change on the CLI:
+   kensa bulk update --filter "tag=auth and status=draft" --set status=active --yes   # single write pass
+   # or, per id from step 1:  kensa update <id> --set status=active
 ```
 
 ### Prepare context before writing case bodies
@@ -621,18 +701,18 @@ kensa context bundle --filter "suite=auth" --format json
 
 ### Validate after bulk changes
 
-```sh
-kensa validate && echo "all good"
-kensa lint --format json | jq '.[] | select(.severity=="error")'
+```text
+1. validate_cases {}   → parse the text (mind the empty-string = clean case); isError:false even with violations (MCP)
+2. lint_cases {}       → filter records where severity=="error" in the agent, no jq (MCP)
 ```
 
 ### Find scope for cleanup
 
-```sh
-kensa duplicates --threshold 0.85 --format json
-kensa stale --days 90 --format ids
-kensa lint --format json
-kensa doctor
+```text
+lint_cases {}                                  # quality-rule violations (MCP)
+doctor {}                                       # integrity report (MCP)
+kensa duplicates --threshold 0.85 --format json # near-duplicate titles — CLI (no tool)
+kensa stale --days 90 --format ids              # git-temporal — CLI (no tool)
 ```
 
 ### Safe bulk rename workflow
@@ -660,33 +740,39 @@ kensa adapt ready                                     # 5. hand off — import i
 
 ### Audit workflow (used by `/audit`)
 
-Repository-wide health check. Read-only; combine the JSON outputs into a
-single report. Order matters — cheap checks first, sample-based checks last.
+Repository-wide health check. Read-only — every mechanical check maps to a Bucket-A
+tool and runs on the **default read-only server**. `duplicates`, `stale`, and `sync`
+have no tool → keep them on the CLI. Order matters — cheap checks first, sample last.
+Remember the gotchas: violations come back `isError:false`; guard against empty text
+before parsing.
 
-```sh
+```text
 # 1. Scope & preflight
-kensa --version
-kensa stats --format json
+kensa --version                     # CLI (no tool)
+kensa sync                          # CLI preflight — recompute id counters
+project_stats {}                    # MCP
 
-# 2. Mechanical checks — collect JSON, do not abort on exit code 3 from validate
-kensa validate --format json
-kensa lint --format json
-kensa doctor --format json
+# 2. Mechanical checks (MCP) — a validate/lint/doctor with violations is NOT an error
+validate_cases {}
+lint_cases {}
+doctor {}
+list_shared_steps { "mode": "orphan" }
+gaps { "against": "shared-steps" }
+coverage { "by": "source" }
+coverage { "by": "tag" }
+
+#    …plus the two CLI-only checks:
 kensa duplicates --threshold 0.85 --format json
 kensa stale --days 90 --format json
-kensa shared-step orphan --format json
-kensa gaps --against shared-steps --format json
-kensa coverage --by-source --format json
-kensa coverage --by-tag --format json
 
 # 3. Cross-reference (combine with .tms/memory/sot.yaml and .tms/memory/learned/tags.md)
-kensa filter 'source_id != ""' --format json          # all cases with a source
-kensa filter 'tag=<X> and not tag=<Y>' --format ids   # required_with violations
-kensa filter 'status = draft and tag=tbd and modified > 30d' --format ids
+filter_cases { "expr": "source_id != \"\"" }                        # all cases with a source
+filter_cases { "expr": "tag=<X> and not tag=<Y>" }                 # required_with violations
+filter_cases { "expr": "status = draft and tag=tbd and modified > 30d" }
 
 # 4. Qualitative sample
-kensa list --format ids                                # pick a stratified sample
-kensa show <ID>                                        # for each sampled case
+list_cases {}                       # pick a stratified sample from the returned JSON
+show_case { "id": "<ID>" }          # for each sampled case
 ```
 
 See the `/audit` command for the full Test Lead workflow including how to bucket

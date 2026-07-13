@@ -12,8 +12,8 @@ spec; the deliverable is a passing, `@KEN-<id>`-tagged Playwright test.
 1. Playwright project exists (`playwright.config.*` or `@playwright/test` in
    `package.json`)? If not → "run `/scaffold-playwright` first" and stop.
 2. `kensa --version` — missing CLI → tell the user and stop.
-3. Resolve the case: `kensa show <id> --format json` (or, for a source ref,
-   `kensa filter 'source_id = <ref>' --format json` and let the user pick).
+3. Resolve the case: `show_case { "id": <id> }` (or, for a source ref,
+   `filter_cases { "expr": "source_id = <ref>" }` and let the user pick) — MCP reads.
    Missing case → say so and stop.
 4. Candidacy check (your rubric from `automation-test-lead.md`): is this case
    worth automating at E2E level, and is E2E the right layer? If it's a poor
@@ -61,6 +61,6 @@ otherwise name the bundle):
 
 ✅ **Done:** <spec path> — @KEN-<id> test, run result <N passed>; case <id> tagged `automated`
 ➡️ **Next:**
-- `/automate-case <next-id>` — next highest-value case (`kensa filter "not tag=automated"` to pick)
+- `/automate-case <next-id>` — next highest-value case (`filter_cases { "expr": "not tag=automated" }` to pick)
 - `/add-visual-test <component>` / `/add-a11y-test <url>` — specialty layers for the same area
 - `/import-results <report>` — after CI runs, feed the results back into the case base
